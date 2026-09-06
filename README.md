@@ -44,7 +44,9 @@ CUDA 빌드 조합은 [PyTorch 공식 설치 안내](https://pytorch.org/get-sta
 
 Proxy smoke는 합성 이미지만 전송합니다. 자동 계약 테스트는 fake 모델과 실제 모델 검증을 구분합니다.
 
-`scripts/benchmark-recovery.py`는 이미 연결·전송한 실제 사진 중 과거 실패6장을 별도 저장소에서 재분석합니다. 실제 사진을 설정된 Proxy로 다시 보내므로 합성 smoke와 구분합니다. 실행 시 `PYTHONPATH`에 `.runtime/torch-cuda` 절대 경로를 넣으면 GPU 빌드를 사용합니다. `scripts/retry-failed-analysis.py`는 spec v2 서버에서 아직 분석되지 않았고 활성 작업도 없는 실패 사진만 한 차례 재시도 등록합니다.
+`scripts/benchmark-recovery.py`는 이미 연결·전송한 실제 사진 중 과거 실패6장을 별도 저장소에서 재분석합니다. `--count 3 --latest --report docs/example.json`으로 최근 실패 표본과 출력 경로를 지정할 수 있습니다. 실제 사진을 설정된 Proxy로 다시 보내므로 합성 smoke와 구분합니다. 실행 시 `PYTHONPATH`에 `.runtime/torch-cuda` 절대 경로를 넣으면 GPU 빌드를 사용합니다. `scripts/retry-failed-analysis.py`는 아직 분석되지 않았고 활성 작업도 없는 실패 사진만 **사진 버전·배포된 agent spec별 한 차례** 재시도 등록합니다.
+
+`scripts/benchmark-connect.py`는 연결된 실제 사진으로 PC API 연속3hop을 확인합니다. 이 결과는 Android 화면 조작 검증을 대체하지 않습니다.
 
 ## 구성
 

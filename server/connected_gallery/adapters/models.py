@@ -14,6 +14,10 @@ class LocalModels:
         self.root = root
         self.loaded = {}
         self.lock = threading.RLock()
+        # GPU inference remains serialized. CPU OCR/face work can proceed without
+        # blocking unrelated image/text embeddings or interactive GPU searches.
+        self.ocr_lock = threading.RLock()
+        self.face_lock = threading.RLock()
         self.pins = (
             json.loads(
                 (Path(__file__).resolve().parents[2] / "model-lock.json").read_text()
@@ -100,7 +104,7 @@ class LocalModels:
     def ocr(self, image):
         from paddleocr import PaddleOCR
 
-        with self.lock:
+        with self.ocr_lock:
             if "ocr" not in self.loaded:
                 self.loaded["ocr"] = PaddleOCR(
                     lang="korean",
@@ -134,7 +138,7 @@ class LocalModels:
     def faces(self, image):
         import cv2
 
-        with self.lock:
+        with self.face_lock:
             model_dir = self.root / "models"
             yunet = model_dir / "face_detection_yunet_2023mar.onnx"
             sface = model_dir / "face_recognition_sface_2021dec.onnx"

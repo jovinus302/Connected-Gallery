@@ -57,7 +57,7 @@ def create_app(root=None, runner_factory=None):
             "status": "ok",
             "revision": store.revision,
             "proxy_configured": bool(os.getenv("ANTHROPIC_API_KEY")),
-            "agent_spec": 2,
+            "agent_spec": 3,
         }
 
     @app.get("/manifest")
@@ -77,6 +77,9 @@ def create_app(root=None, runner_factory=None):
         for pid in req.deleted_ids:
             store.delete(pid)
         for asset in req.assets:
+            previous = store.rows("SELECT version FROM photos WHERE id=?", (asset.id,))
+            if previous and previous[0]["version"] != asset.version:
+                service.cancel_analysis_for_photo(asset.id)
             store.upsert(asset)
         return {
             "revision": store.revision,

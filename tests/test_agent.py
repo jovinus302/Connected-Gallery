@@ -133,3 +133,72 @@ def test_inference_does_not_lock_store_and_cancel_prevents_commit(store):
             submit.result(timeout=2)
     assert store.analysis("a") is None
     assert not store.rows("SELECT * FROM vectors WHERE photo_id='a'")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("repair_valid", [True, False])
+async def test_final_submission_validation_gets_exactly_one_repair(store, repair_valid):
+    import json
+
+    class InvalidSubmissionGateway:
+        def __init__(self):
+            self.n = 0
+
+        async def invoke(self, messages, schemas):
+            self.n += 1
+            if self.n <= 3:
+                name, args = "inspect_region", {"photo_id": "a"}
+            else:
+                assert {s["name"] for s in schemas} == {"submit_photo_analysis"}
+                if self.n == 5:
+                    error = json.loads(messages[-1].content)
+                    assert error["issues"][0]["path"] == ["regions", 0, "box", "width"]
+                    assert "input" not in error["issues"][0]
+                name = "submit_photo_analysis"
+                args = {"photo_id": "a", "description": "observed photo", "regions": [{
+                    "photo_id": "a", "kind": "object", "label": "대상", "evidence": "시각 관찰",
+                    "box": {"x": 0, "y": 0, "width": 0.5 if self.n == 5 and repair_valid else 2, "height": 0.5},
+                }]}
+            return AIMessage(content="", tool_calls=[{"name": name, "args": args, "id": str(self.n), "type": "tool_call"}])
+
+    gateway = InvalidSubmissionGateway()
+    runner = GraphAgentRunner(store, None, gateway)
+    request = RunRequest(role="analyst", photo_ids=["a"])
+    if repair_valid:
+        result = await runner.execute("repair", request)
+        assert result["regions"][0]["box"]["width"] == 0.5
+    else:
+        with pytest.raises(RuntimeError, match="repair exhausted"):
+            await runner.execute("repair", request)
+        assert store.analysis("a") is None
+    assert gateway.n == 5
+
+
+@pytest.mark.asyncio
+async def test_analysis_deduplicates_different_request_keys_and_recovers_once(store):
+    import asyncio
+    from connected_gallery.application.service import RunService
+
+    class WaitingRunner:
+        async def execute(self, rid, request):
+            await asyncio.Event().wait()
+
+    service = RunService(store, WaitingRunner())
+    one = RunRequest(role="analyst", photo_ids=["a"], idempotency_key="android")
+    two = RunRequest(role="analyst", photo_ids=["a"], idempotency_key="recovery")
+    first = service.start(one)
+    assert service.start(two)["id"] == first["id"]
+    assert len(service.tasks) == 1
+    service.cancel_analysis_for_photo("a")
+    assert service.get(first["id"])["status"] == "cancelled"
+    await service.stop()
+
+    for n in range(2):
+        req = RunRequest(role="analyst", photo_ids=["b"], idempotency_key=f"legacy-{n}")
+        store.write("INSERT INTO runs VALUES(?,?,?,?,?,?,?)", (
+            f"legacy-{n}", req.idempotency_key, req.model_dump_json(), "queued", None, None, n,
+        ))
+    await service.recover()
+    assert len(service.tasks) == 1
+    assert service.get("legacy-1")["status"] == "cancelled"
+    await service.stop()

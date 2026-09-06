@@ -4,6 +4,7 @@ Only aggregate timings leave work/. Images and semantic content stay local or ar
 sent to the user's configured proxy, exactly as in normal analysis.
 """
 import asyncio
+import argparse
 import hashlib
 import json
 import sqlite3
@@ -19,17 +20,23 @@ from connected_gallery.domain.models import PhotoAsset, RunRequest, new_id
 
 
 async def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--count', type=int, default=6, choices=range(1, 7))
+    parser.add_argument('--latest', action='store_true')
+    parser.add_argument('--report', default='docs/recovery-benchmark.json')
+    options = parser.parse_args()
     load_dotenv()
     source = Path('.runtime')
     db = sqlite3.connect('file:.runtime/gallery.sqlite?mode=ro', uri=True)
     ids = []
-    for (raw,) in db.execute("SELECT request FROM runs WHERE status='failed' ORDER BY started"):
+    order = 'DESC' if options.latest else 'ASC'
+    for (raw,) in db.execute("SELECT request FROM runs WHERE status='failed' ORDER BY started " + order):
         request = json.loads(raw)
         if request['role'] == 'analyst':
             pid = request['photo_ids'][0]
             if pid not in ids:
                 ids.append(pid)
-        if len(ids) == 6:
+        if len(ids) == options.count:
             break
     if not ids:
         raise RuntimeError('No previously failed photos to evaluate')
@@ -64,13 +71,13 @@ async def main():
     start = time.monotonic()
     await asyncio.gather(*(analyze(i, pid) for i, pid in enumerate(ids)))
     import torch
-    report = {'sample_selection': 'first six distinct previously failed actual photos',
+    report = {'sample_selection': f'{"latest" if options.latest else "first"} {options.count} distinct previously failed actual photos',
               'concurrency': 3, 'cold_start_included': True, 'torch': torch.__version__,
               'device': torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU',
               'wall_seconds': round(time.monotonic() - start, 2),
               'completed': sum(r['status'] == 'completed' for r in rows),
               'total': len(rows), 'samples': sorted(rows, key=lambda r: r['sample'])}
-    Path('docs/recovery-benchmark.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    Path(options.report).write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     target.close()
 
 

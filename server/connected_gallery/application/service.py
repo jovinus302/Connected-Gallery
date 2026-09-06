@@ -18,6 +18,14 @@ class RunService:
         self.exploring = 0
         self.auto_enabled = True
 
+    def schedule(self, rid, request):
+        task = asyncio.create_task(self._execute(rid, request))
+        self.tasks[rid] = task
+        def finished(completed):
+            if self.tasks.get(rid) is completed:
+                self.tasks.pop(rid, None)
+        task.add_done_callback(finished)
+
     def get(self, run_id):
         rows = self.store.rows("SELECT * FROM runs WHERE id=?", (run_id,))
         if not rows:
@@ -38,7 +46,7 @@ class RunService:
             value = {"role": request.role, "ids": request.photo_ids}
         return hashlib.sha256(
             encoded(
-                ["agent-spec-v2", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
+                ["agent-spec-v3", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
             ).encode()
         ).hexdigest()
 
@@ -57,6 +65,15 @@ class RunService:
             )
         for pid in request.photo_ids:
             self.store.photo(pid)
+        if request.role == "analyst":
+            active = self.store.rows(
+                "SELECT id FROM runs WHERE status IN ('queued','running') "
+                "AND json_extract(request,'$.role')='analyst' "
+                "AND json_extract(request,'$.photo_ids[0]')=? ORDER BY started LIMIT 1",
+                (request.photo_ids[0],),
+            )
+            if active:
+                return self.get(active[0]["id"])
         if request.explore:
             self.store.photo(request.explore.anchor.photo_id)
             if request.explore.anchor.region_id:
@@ -87,7 +104,7 @@ class RunService:
         if cached:
             self.store.event(rid, "results", cached)
         else:
-            self.tasks[rid] = asyncio.create_task(self._execute(rid, request))
+            self.schedule(rid, request)
         return self.get(rid)
 
     async def _execute(self, rid, request):
@@ -176,16 +193,34 @@ class RunService:
         run = self.get(rid)
         if run["status"] in ("queued", "running"):
             self.store.write("UPDATE runs SET status='cancelled' WHERE id=?", (rid,))
-            if rid in self.tasks:
-                self.tasks[rid].cancel()
+            task = self.tasks.get(rid)
+            if task is not None:
+                task.cancel()
         return self.get(rid)
 
     async def recover(self):
+        claimed = set()
         for row in self.store.rows(
-            "SELECT id,request FROM runs WHERE status IN ('queued','running')"
+            "SELECT id,request FROM runs WHERE status IN ('queued','running') "
+            "ORDER BY CASE status WHEN 'running' THEN 0 ELSE 1 END, started"
         ):
             req = RunRequest.model_validate_json(row["request"])
-            self.tasks[row["id"]] = asyncio.create_task(self._execute(row["id"], req))
+            if req.role == "analyst":
+                pid = req.photo_ids[0]
+                if pid in claimed:
+                    self.store.write("UPDATE runs SET status='cancelled',error=? WHERE id=?",
+                                     ("Superseded by active analysis for the same photo", row["id"]))
+                    continue
+                claimed.add(pid)
+            self.schedule(row["id"], req)
+
+    def cancel_analysis_for_photo(self, photo_id):
+        for row in self.store.rows(
+            "SELECT id FROM runs WHERE status IN ('queued','running') "
+            "AND json_extract(request,'$.role')='analyst' "
+            "AND json_extract(request,'$.photo_ids[0]')=?", (photo_id,),
+        ):
+            self.cancel(row["id"])
 
     async def stop(self):
         self.auto_enabled = False
@@ -193,4 +228,6 @@ class RunService:
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
+        # A task cancelled before its coroutine starts never enters its finally.
+        self.tasks = {rid: task for rid, task in self.tasks.items() if not task.done()}
         self.auto_enabled = True

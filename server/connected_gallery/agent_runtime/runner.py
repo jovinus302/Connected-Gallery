@@ -3,6 +3,7 @@ import asyncio
 import json
 import time
 from typing import Annotated, TypedDict
+from pydantic import ValidationError
 import aiosqlite
 from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage
 from langgraph.graph import StateGraph, START, END
@@ -18,6 +19,8 @@ class State(TypedDict):
     turns: int
     calls: int
     spec_version: int
+    repair_pending: bool
+    repair_used: bool
 
 
 class GraphAgentRunner:
@@ -39,8 +42,11 @@ class GraphAgentRunner:
         max_calls = {"analyst": 12, "explorer": 12, "organizer": 100}[request.role]
 
         async def model(state):
-            if state.get("turns", 0) >= turns:
-                raise RuntimeError("Model turn budget exceeded")
+            repairing = (state.get("turns", 0) >= turns
+                         and state.get("repair_pending", False)
+                         and not state.get("repair_used", False))
+            if state.get("turns", 0) >= turns and not repairing:
+                raise RuntimeError("Submission validation repair exhausted" if state.get("repair_used") else "Model turn budget exceeded")
             self.store.event(
                 run_id,
                 "progress",
@@ -49,12 +55,16 @@ class GraphAgentRunner:
                     "turn": state.get("turns", 0) + 1,
                 },
             )
-            remaining = turns - state.get("turns", 0)
-            finalizing = remaining == 1 or state.get("calls", 0) >= max_calls - 1
+            remaining = max(1, turns - state.get("turns", 0))
+            finalizing = repairing or remaining == 1 or state.get("calls", 0) >= max_calls - 1
             budget = SystemMessage(content=(
                 f"Execution budget: {remaining} model responses and "
                 f"{max_calls - state.get('calls', 0)} tool calls remain. "
-                + ("This is the final response: submit your evidence-grounded result now. "
+                + ("One validation-repair response is available. Correct the rejected submission "
+                   "using the validation errors and evidence already observed. Only submit is available. "
+                   "No new analysis, invented evidence, or further repair attempts are allowed."
+                   if repairing else
+                   "This is the final response: submit your evidence-grounded result now. "
                    "Record missing evidence as uncertainty; do not invent observations."
                    if finalizing else
                    "Reserve the last response for submission. Batch independent tool calls, "
@@ -71,13 +81,24 @@ class GraphAgentRunner:
                 "turn": state.get("turns", 0) + 1,
                 "seconds": round(time.monotonic() - started, 3),
                 "finalizing": finalizing,
+                "repair": repairing,
             })
-            return {"messages": [response], "turns": state.get("turns", 0) + 1}
+            return {"messages": [response], "turns": state.get("turns", 0) + 1,
+                    "repair_used": state.get("repair_used", False) or repairing,
+                    "repair_pending": False}
 
         async def tools(state):
             messages = []
             calls = state.get("calls", 0)
+            repair_pending = False
+            repairing = state.get("turns", 0) > turns
+            repair_submitted = False
             for call in state["messages"][-1].tool_calls:
+                if repairing and (repair_submitted or not call["name"].startswith("submit_")):
+                    messages.append(ToolMessage(content=encoded({"error": "Only a corrected submission is permitted."}), tool_call_id=call["id"]))
+                    continue
+                if repairing:
+                    repair_submitted = True
                 if calls >= max_calls - 1 and not call["name"].startswith("submit_"):
                     messages.append(ToolMessage(
                         content=encoded({"error": "Tool budget reserved for submission. Submit current evidence now."}),
@@ -85,7 +106,7 @@ class GraphAgentRunner:
                     ))
                     continue
                 calls += 1
-                if calls > max_calls:
+                if calls > max_calls + int(repairing):
                     raise RuntimeError("Tool budget exceeded")
                 started = time.monotonic()
                 error = None
@@ -96,21 +117,25 @@ class GraphAgentRunner:
                     content = result if isinstance(result, list) else encoded(result)
                 except Exception as e:
                     error = type(e).__name__
+                    if call["name"].startswith("submit_") and isinstance(e, ValueError):
+                        repair_pending = True
                     # Validation errors are useful to the model; infrastructure details are redacted.
-                    content = encoded(
-                        {
-                            "error": str(e)[:300]
-                            if isinstance(e, ValueError)
-                            else type(e).__name__
-                        }
-                    )
+                    if isinstance(e, ValidationError):
+                        detail = {"error": "ValidationError", "issues": [
+                            {"path": list(x["loc"]), "type": x["type"], "message": x["msg"]}
+                            for x in e.errors(include_input=False, include_context=False, include_url=False)[:12]
+                        ]}
+                    else:
+                        detail = {"error": str(e)[:300] if isinstance(e, ValueError) else error}
+                    content = encoded(detail)
+                    self.store.event(run_id, "tool_error", {"name": call["name"], **detail})
                 self.store.event(run_id, "tool_timing", {
                     "name": call["name"],
                     "seconds": round(time.monotonic() - started, 3),
                     "error": error,
                 })
                 messages.append(ToolMessage(content=content, tool_call_id=call["id"]))
-            return {"messages": messages, "calls": calls}
+            return {"messages": messages, "calls": calls, "repair_pending": repair_pending}
 
         def after_model(state):
             return "tools" if state["messages"][-1].tool_calls else END
@@ -138,7 +163,7 @@ class GraphAgentRunner:
                 "recursion_limit": 2 * turns + 5,
             }
             checkpoint = await compiled.aget_state(config)
-            if checkpoint.next and checkpoint.values.get("spec_version") != 2:
+            if checkpoint.next and checkpoint.values.get("spec_version") != 3:
                 # Old prompts/budgets must not resume halfway through the new graph.
                 # Stored model artifacts survive; only this run's conversation resets.
                 await saver.adelete_thread(run_id)
@@ -162,7 +187,9 @@ class GraphAgentRunner:
                     ],
                     "turns": 0,
                     "calls": 0,
-                    "spec_version": 2,
+                    "spec_version": 3,
+                    "repair_pending": False,
+                    "repair_used": False,
                 }
             )
             try:

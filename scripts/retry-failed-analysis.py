@@ -1,4 +1,4 @@
-"""Queue one recovery attempt per photo/version after the agent v2 repair.
+"""Queue one recovery attempt per photo/version and deployed agent revision.
 
 Reads the local journal; all mutations go through the running server API. Active
 or already analyzed photos are skipped, including jobs queued by Android.
@@ -11,8 +11,9 @@ import urllib.request
 
 def main():
     with urllib.request.urlopen('http://127.0.0.1:8765/health', timeout=10) as response:
-        if json.load(response).get('agent_spec') != 2:
-            raise RuntimeError('Start the repaired agent v2 server first')
+        spec = json.load(response).get('agent_spec', 0)
+        if spec < 2:
+            raise RuntimeError('Start the repaired server first')
     db = sqlite3.connect('file:.runtime/gallery.sqlite?mode=ro', uri=True)
     active = {pid for (raw,) in db.execute("SELECT request FROM runs WHERE status IN ('queued','running')")
               for pid in json.loads(raw).get('photo_ids', [])}
@@ -26,7 +27,7 @@ def main():
         photo = db.execute('SELECT version FROM photos WHERE id=?', (pid,)).fetchone()
         if not photo or db.execute('SELECT 1 FROM analyses WHERE photo_id=?', (pid,)).fetchone():
             continue
-        key = 'recovery-v2-' + hashlib.sha256((pid + ':' + photo[0]).encode()).hexdigest()
+        key = f'recovery-v{spec}-' + hashlib.sha256((pid + ':' + photo[0]).encode()).hexdigest()
         if db.execute('SELECT 1 FROM runs WHERE key=?', (key,)).fetchone():
             continue
         body = json.dumps({'role': 'analyst', 'photo_ids': [pid], 'idempotency_key': key}).encode()

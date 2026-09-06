@@ -1,0 +1,134 @@
+{
+  "sample_selection": "latest 3 distinct previously failed actual photos",
+  "concurrency": 3,
+  "cold_start_included": true,
+  "torch": "2.9.1+cu128",
+  "device": "NVIDIA GeForce RTX 4070 Ti",
+  "wall_seconds": 103.7,
+  "completed": 3,
+  "total": 3,
+  "samples": [
+    {
+      "sample": 1,
+      "status": "completed",
+      "regions": 6,
+      "seconds": 95.2,
+      "model_turns": 3,
+      "tool_timings": [
+        {
+          "error": null,
+          "name": "recognize_text",
+          "seconds": 33.938
+        },
+        {
+          "error": null,
+          "name": "ground_regions",
+          "seconds": 38.906
+        },
+        {
+          "error": null,
+          "name": "ensure_embeddings",
+          "seconds": 5.407
+        },
+        {
+          "error": null,
+          "name": "inspect_region",
+          "seconds": 0.016
+        },
+        {
+          "error": null,
+          "name": "inspect_region",
+          "seconds": 0.016
+        },
+        {
+          "error": null,
+          "name": "inspect_region",
+          "seconds": 0.015
+        },
+        {
+          "error": null,
+          "name": "submit_photo_analysis",
+          "seconds": 0.032
+        }
+      ]
+    },
+    {
+      "sample": 2,
+      "status": "completed",
+      "regions": 7,
+      "seconds": 103.69,
+      "model_turns": 5,
+      "tool_timings": [
+        {
+          "error": null,
+          "name": "analyze_faces",
+          "seconds": 0.578
+        },
+        {
+          "error": null,
+          "name": "recognize_text",
+          "seconds": 32.735
+        },
+        {
+          "error": null,
+          "name": "ground_regions",
+          "seconds": 38.781
+        },
+        {
+          "error": null,
+          "name": "inspect_region",
+          "seconds": 0.016
+        },
+        {
+          "error": null,
+          "name": "ensure_embeddings",
+          "seconds": 0.047
+        },
+        {
+          "error": "ValidationError",
+          "name": "submit_photo_analysis",
+          "seconds": 0.015
+        },
+        {
+          "error": null,
+          "name": "submit_photo_analysis",
+          "seconds": 0.031
+        }
+      ]
+    },
+    {
+      "sample": 3,
+      "status": "completed",
+      "regions": 6,
+      "seconds": 93.33,
+      "model_turns": 2,
+      "tool_timings": [
+        {
+          "error": null,
+          "name": "analyze_faces",
+          "seconds": 0.375
+        },
+        {
+          "error": "ImportError",
+          "name": "ground_regions",
+          "seconds": 0.703
+        },
+        {
+          "error": null,
+          "name": "recognize_text",
+          "seconds": 61.39
+        },
+        {
+          "error": null,
+          "name": "ensure_embeddings",
+          "seconds": 12.047
+        },
+        {
+          "error": null,
+          "name": "submit_photo_analysis",
+          "seconds": 1.484
+        }
+      ]
+    }
+  ]
+}

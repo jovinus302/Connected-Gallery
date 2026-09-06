@@ -1,0 +1,30 @@
+{
+  "scope": "PC API only; Android UI acceptance still required",
+  "library_analysis_in_progress": true,
+  "hops": [
+    {
+      "hop": 1,
+      "status": "completed",
+      "result_count": 3,
+      "first_result_seconds": 18.66,
+      "total_seconds": 18.66,
+      "error": null
+    },
+    {
+      "hop": 2,
+      "status": "completed",
+      "result_count": 3,
+      "first_result_seconds": 31.11,
+      "total_seconds": 31.62,
+      "error": null
+    },
+    {
+      "hop": 3,
+      "status": "completed",
+      "result_count": 5,
+      "first_result_seconds": 19.08,
+      "total_seconds": 19.59,
+      "error": null
+    }
+  ]
+}
