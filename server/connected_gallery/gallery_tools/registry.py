@@ -163,7 +163,7 @@ class GalleryTools:
         return p
 
     def image_block(self, photo_id, box=None):
-        self.authorize(photo_id)
+        asset = self.authorize(photo_id)
         image = self.store.read_image(photo_id, box)
         image.thumbnail((1536, 1536))
         out = io.BytesIO()
@@ -173,7 +173,13 @@ class GalleryTools:
             {
                 "type": "text",
                 "text": encoded(
-                    {"photo_id": photo_id, "box": box.model_dump() if box else None}
+                    {
+                        "photo_id": photo_id,
+                        "captured_at": asset.captured_at,
+                        "time_source": asset.time_source,
+                        "analysis": self.store.analysis(photo_id),
+                        "box": box.model_dump() if box else None,
+                    }
                 ),
             },
             {
@@ -237,19 +243,34 @@ class GalleryTools:
         )
         page = photos[args.offset : args.offset + args.limit]
         self.covered.update(p.id for p in page)
+        output = []
+        for p in page:
+            analysis = self.store.analysis(p.id)
+            # Bound transport context for 1,000 photos; full evidence is available via inspection.
+            summary = (
+                None
+                if analysis is None
+                else {
+                    "description_excerpt": analysis["description"][:160],
+                    "ocr_excerpt": analysis.get("ocr", "")[:64],
+                    "region_count": len(analysis.get("regions", [])),
+                    "truncated": len(analysis["description"]) > 160
+                    or len(analysis.get("ocr", "")) > 64,
+                }
+            )
+            output.append(
+                {
+                    "photo_id": p.id,
+                    "captured_at": p.captured_at,
+                    "time_source": p.time_source,
+                    "summary": summary,
+                    "image_ready": self.store.image_path(p.id).exists(),
+                }
+            )
         return {
             "total": len(photos),
             "next_offset": args.offset + len(page),
-            "photos": [
-                {
-                    "asset": p.model_dump(
-                        mode="json", exclude={"local_uri", "device_id"}
-                    ),
-                    "analysis": self.store.analysis(p.id),
-                    "image_ready": self.store.image_path(p.id).exists(),
-                }
-                for p in page
-            ],
+            "photos": output,
         }
 
     def inspect_photos(self, args):

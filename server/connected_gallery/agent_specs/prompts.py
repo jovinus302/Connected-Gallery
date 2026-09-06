@@ -22,7 +22,7 @@ Search using the tools you choose. Check index coverage: an empty or partial ind
 User year is enforced by tools; never broaden it. Do not change anchor because the year is empty. Return an empty complete result when evidence supports no matches.
 """,
     "organizer": COMMON
-    + """Discover useful re-use contexts across the user's library. Page through all available evidence before finalizing.
+    + """Discover useful re-use contexts across the user's library. Page through all available evidence before finalizing. list_photos returns compact excerpts to fit large libraries; inspect_photos returns the full evidence and image when an excerpt is insufficient.
 Spaces are entry points to photo exploration. Create names and membership from the evidence, not a predefined list.
 Not every photo needs membership. Reuse existing Space IDs for the same meaning and preserve user edits.
 Inspect representative photos where evidence is insufficient. Submit a complete replacement proposal only after library coverage.

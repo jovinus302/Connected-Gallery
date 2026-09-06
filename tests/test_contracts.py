@@ -182,3 +182,19 @@ def test_version_change_during_run_blocks_submission(store):
     store.upsert(asset().model_copy(update={"version": "new"}))
     with pytest.raises(ValueError):
         toolkit.submit_photo_analysis(PhotoAnalysis(photo_id="a", description="stale"))
+
+
+def test_catalog_is_bounded_but_inspection_keeps_evidence(store):
+    from connected_gallery.gallery_tools.registry import ListArgs, InspectArgs
+
+    store.save_analysis(
+        PhotoAnalysis(photo_id="a", description="a" * 2000, ocr="b" * 2000)
+    )
+    tools = GalleryTools(store, None, RunRequest(role="organizer"), "compact")
+    item = next(
+        x for x in tools.list_photos(ListArgs())["photos"] if x["photo_id"] == "a"
+    )
+    assert item["summary"]["truncated"] is True
+    assert len(item["summary"]["description_excerpt"]) == 160
+    inspected = tools.inspect_photos(InspectArgs(photo_ids=["a"]))
+    assert "a" * 2000 in inspected[0]["text"]

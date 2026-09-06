@@ -8,9 +8,10 @@ PC SQLite·FTS5·모델 공간별 vector retrieval, Photo Analyst/Explorer/Organ
 
 ## 자동 검증
 
-- Python 계약/실행 테스트: **12개 통과**.
+- Python 계약/실행 테스트: **13개 통과**.
 - Android domain 상태 전이·좌표 변환 단위 테스트: **4개 통과**.
 - APK assembleDebug + Android lintDebug: **통과**. 라이브러리 최신 버전 안내 등 경고는 남아 있으며 lint 오류는 없음.
+- GitHub CI: 초기 구현 커밋의 server·android 검사 모두 통과. 이후 서버 목록 context 보완은 로컬13개 테스트로 재검증.
 - 실제 Proxy 합성 이미지 이해 + tool-result 왕복: 통과.
 - 실제 Explorer, 연도2015 고정 + 대상사진 선택: 통과, **9.67초** (단일 합성 사례).
 - 실제 Photo Analyst, 합성 안내 이미지: 영역 **3개**, **79.66초**. 초기 모델 준비·CPU 추론 포함.
