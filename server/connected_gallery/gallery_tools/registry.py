@@ -4,7 +4,8 @@ import hashlib
 import io
 import json
 import time
-from pydantic import BaseModel, Field
+from datetime import datetime
+from pydantic import BaseModel, Field, model_validator
 from connected_gallery.domain.models import (
     Box,
     PhotoAnalysis,
@@ -59,6 +60,23 @@ class LocationArgs(BaseModel):
     latitude: float
     longitude: float
     radius_km: float = Field(gt=0, le=20040)
+
+
+class TimeArgs(BaseModel):
+    start: datetime
+    end: datetime
+    center: datetime | None = None
+    limit: int = Field(default=20, ge=1, le=100)
+
+    @model_validator(mode="after")
+    def window(self):
+        if any(d.tzinfo is None for d in (self.start, self.end, self.center) if d is not None):
+            raise ValueError("Use timezone-aware timestamps")
+        if self.start > self.end:
+            raise ValueError("Time window start must precede end")
+        if self.center is not None and not self.start <= self.center <= self.end:
+            raise ValueError("Center must be inside the chosen time window")
+        return self
 
 
 class GalleryTools:
@@ -121,6 +139,11 @@ class GalleryTools:
                 LocationArgs,
                 "Retrieve photos within an explicitly chosen radius.",
             ),
+            "search_time": (
+                TimeArgs,
+                "Retrieve candidates in a time window YOU choose, nearest the optional center. "
+                "User year remains enforced. Time proximity is not proof of the same event; inspect images.",
+            ),
             "read_spaces": (
                 ListArgs,
                 "Read existing Spaces and explicit user feedback.",
@@ -150,6 +173,12 @@ class GalleryTools:
     def allowed(self):
         year = self.request.explore.year if self.request.explore else None
         return {p.id for p in self.store.photos(year)}
+
+    def candidate_ids(self):
+        ids = self.allowed()
+        if self.request.explore:
+            ids.discard(self.request.explore.anchor.photo_id)
+        return ids
 
     def authorize(self, photo_id, source=True):
         if time.monotonic() > self.deadline:
@@ -343,12 +372,12 @@ class GalleryTools:
             for r in self.store.rows(
                 "SELECT DISTINCT photo_id FROM vectors WHERE space=?", (space,)
             )
-        } & self.allowed()
+        } & self.candidate_ids()
         self.searched.update(indexed)
-        missing = self.allowed() - indexed
+        missing = self.candidate_ids() - indexed
         return {
             "indexed_count": len(indexed),
-            "eligible_count": len(self.allowed()),
+            "eligible_count": len(self.candidate_ids()),
             "unindexed_ids": sorted(missing)[:20],
             "unindexed_count": len(missing),
         }
@@ -364,12 +393,12 @@ class GalleryTools:
         else:
             raise ValueError("A query or image is required")
         return {
-            "candidates": self.store.search(space, vec, self.allowed(), args.limit),
+            "candidates": self.store.search(space, vec, self.candidate_ids(), args.limit),
             "coverage": self.index_coverage(space),
         }
 
     def search_text(self, args):
-        allowed = self.allowed()
+        allowed = self.candidate_ids()
         # Literal and semantic channels are separate evidence, never fixed-score fusion.
         literal = []
         if args.query.strip():
@@ -408,7 +437,7 @@ class GalleryTools:
             "candidates": self.store.search(
                 "sface",
                 result["faces"][args.face_index]["vector"],
-                self.allowed(),
+                self.candidate_ids(),
                 args.limit,
             )
         }
@@ -417,10 +446,11 @@ class GalleryTools:
         import math
 
         hits = []
+        eligible = self.candidate_ids()
         for p in self.store.photos(
             self.request.explore.year if self.request.explore else None
         ):
-            if p.latitude is None or p.longitude is None:
+            if p.id not in eligible or p.latitude is None or p.longitude is None:
                 continue
             lat1, lat2 = map(math.radians, (args.latitude, p.latitude))
             dlat = lat2 - lat1
@@ -451,42 +481,39 @@ class GalleryTools:
             ],
         }
 
+    def search_time(self, args):
+        photos = self.store.photos(self.request.explore.year if self.request.explore else None)
+        eligible = self.candidate_ids()
+        center = args.center or args.start + (args.end - args.start) / 2
+        candidates = []
+        unknown = 0
+        for p in photos:
+            if p.id not in eligible:
+                continue
+            if p.captured_at is None or p.captured_at.tzinfo is None or p.time_source not in ("exif", "media_store"):
+                unknown += 1
+                continue
+            if args.start <= p.captured_at <= args.end:
+                candidates.append({"photo_id": p.id, "captured_at": p.captured_at,
+                                   "time_source": p.time_source,
+                                   "distance_seconds": abs((p.captured_at - center).total_seconds())})
+        candidates.sort(key=lambda p: p["distance_seconds"])
+        return {"candidates": candidates[:args.limit], "total_in_window": len(candidates),
+                "unknown_capture_time_count": unknown,
+                "constraint": "Temporal candidates only. Inspect images before declaring a shared event."}
+
     def submit_photo_analysis(self, args):
         if args.photo_id != self.request.photo_ids[0] or args.photo_id not in self.seen:
             raise ValueError("Inspect requested photo before submission")
         self.authorize(args.photo_id)
-        # Inference can wait for another GPU/CPU job. Never hold the repository lock
-        # across that wait: the API, cancellation and other runs need the database.
-        indexed = None
-        index_error = None
-        # Materialize searchable evidence when committing the agent's semantic output.
-        # This encodes the submitted text; it does not assign a category or rank results.
-        if self.models is not None:
-            try:
-                text = args.description + " " + args.ocr
-                space, vector = self.models.text(text, query=False)
-                indexed = (
-                    f"{args.photo_id}:text:"
-                    + hashlib.sha256(text.encode()).hexdigest()
-                    + ":"
-                    + space,
-                    args.photo_id,
-                    space,
-                    vector,
-                )
-            except Exception as exc:
-                index_error = type(exc).__name__
+        # Indexing encodes the photo and the agent's evidence; it makes no
+        # semantic decisions. Compute outside the repository lock, then commit both.
+        from connected_gallery.application.indexing import AnalysisIndexing
+        version = self.versions[args.photo_id]
+        vectors = AnalysisIndexing(self.store, self.models).prepare(args, version) if self.models is not None else []
         with self.store.lock:
             self.authorize(args.photo_id)
-            self.store.save_analysis(args)
-            if indexed is not None:
-                self.store.vector(*indexed)
-            if index_error:
-                self.store.event(
-                    self.run_id,
-                    "index_error",
-                    {"photo_id": args.photo_id, "error": index_error},
-                )
+            self.store.save_analysis(args, vectors=vectors, expected_version=version)
             self.result = args.model_dump(mode="json")
         return {"saved": True}
 
@@ -503,6 +530,8 @@ class GalleryTools:
                 "Unsearched photos remain. An empty index is not evidence of no matches. Inspect unindexed photos or submit incomplete."
             )
         anchor = self.request.explore.anchor.photo_id
+        if anchor in ids:
+            raise ValueError("The anchor photo is already being viewed; return other verified photos")
         if anchor not in self.seen:
             raise ValueError("Inspect anchor first")
         for pid in ids:

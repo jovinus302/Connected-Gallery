@@ -1,0 +1,14 @@
+{
+  "initial_missing_index_photos": 21,
+  "indexes_added": 20,
+  "failures": [
+    {
+      "item": 1,
+      "error": "HTTPError"
+    }
+  ],
+  "remaining_missing_index_photos": 1,
+  "photo_count": 1000,
+  "analyzed_count": 178,
+  "ready_count": 177
+}

@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "concurrent_cold_calls": 4,
+  "results": [
+    {
+      "name": "image",
+      "status": "ok",
+      "seconds": 20.22
+    },
+    {
+      "name": "text",
+      "status": "ok",
+      "seconds": 21.7
+    },
+    {
+      "name": "ocr",
+      "status": "ok",
+      "seconds": 14.11
+    },
+    {
+      "name": "ground",
+      "status": "ok",
+      "seconds": 23.91
+    }
+  ]
+}

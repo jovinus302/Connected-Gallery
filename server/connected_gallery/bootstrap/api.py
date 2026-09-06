@@ -20,6 +20,7 @@ from connected_gallery.adapters.models import LocalModels
 from connected_gallery.adapters.proxy import ProxyGateway
 from connected_gallery.agent_runtime.runner import GraphAgentRunner
 from connected_gallery.application.service import RunService
+from connected_gallery.application.indexing import AnalysisIndexing
 
 
 def create_app(root=None, runner_factory=None):
@@ -35,6 +36,7 @@ def create_app(root=None, runner_factory=None):
         else GraphAgentRunner(store, models, ProxyGateway())
     )
     service = RunService(store, runner)
+    indexing = AnalysisIndexing(store, models)
 
     @asynccontextmanager
     async def lifespan(app):
@@ -57,8 +59,20 @@ def create_app(root=None, runner_factory=None):
             "status": "ok",
             "revision": store.revision,
             "proxy_configured": bool(os.getenv("ANTHROPIC_API_KEY")),
-            "agent_spec": 3,
+            "agent_spec": 5,
+            "analysis_concurrency": service.analysis_concurrency,
         }
+
+    @app.get("/progress")
+    def progress():
+        report = indexing.report()
+        report["runs"] = store.rows("SELECT json_extract(request,'$.role') AS role,status,count(*) AS count FROM runs GROUP BY 1,2")
+        return report
+
+    @app.post("/assets/{pid}/reindex")
+    async def reindex(pid: str):
+        import asyncio
+        return await asyncio.to_thread(indexing.repair, pid)
 
     @app.get("/manifest")
     def manifest():

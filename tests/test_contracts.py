@@ -198,3 +198,33 @@ def test_catalog_is_bounded_but_inspection_keeps_evidence(store):
     assert len(item["summary"]["description_excerpt"]) == 160
     inspected = tools.inspect_photos(InspectArgs(photo_ids=["a"]))
     assert "a" * 2000 in inspected[0]["text"]
+
+
+def test_time_candidates_keep_user_year_and_require_visual_verification(store):
+    from connected_gallery.gallery_tools.registry import TimeArgs
+    request = RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(photo_id="a"), year=2015))
+    toolkit = GalleryTools(store, None, request, "time")
+    toolkit.seen = {"a"}
+    candidates = toolkit.search_time(TimeArgs(start="2010-01-01T00:00:00Z", end="2030-01-01T00:00:00Z"))
+    assert [x["photo_id"] for x in candidates["candidates"]] == ["b"]
+    with pytest.raises(ValueError, match="Inspect candidate"):
+        toolkit.submit_exploration_result(ExplorationResult(label="same moment", items=[ResultItem(photo_id="b", reason="time proximity")]))
+    with pytest.raises(ValidationError, match="timezone-aware"):
+        TimeArgs(start="2015-01-01T00:00:00", end="2015-01-02T00:00:00")
+
+
+def test_time_candidates_distinguish_modified_timestamp(store):
+    from connected_gallery.gallery_tools.registry import TimeArgs
+    store.upsert(asset("b", 2015, "modified").model_copy(update={"version": "2"}))
+    toolkit = GalleryTools(store, None, RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(photo_id="a"))), "time-unknown")
+    result = toolkit.search_time(TimeArgs(start="2010-01-01T00:00:00Z", end="2030-01-01T00:00:00Z"))
+    assert {x["photo_id"] for x in result["candidates"]} == {"c"}
+    assert result["unknown_capture_time_count"] == 1
+
+
+def test_explorer_cannot_follow_back_to_its_own_anchor(store):
+    toolkit = GalleryTools(store, None, RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(photo_id="a"))), "self-result")
+    toolkit.seen = {"a"}
+    assert "a" not in toolkit.candidate_ids()
+    with pytest.raises(ValueError, match="already being viewed"):
+        toolkit.submit_exploration_result(ExplorationResult(label="대상", items=[ResultItem(photo_id="a", reason="same image")]))

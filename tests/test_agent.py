@@ -108,6 +108,12 @@ def test_inference_does_not_lock_store_and_cancel_prevents_commit(store):
     entered, release = threading.Event(), threading.Event()
 
     class BlockingModels:
+        visual_space = "visual-test"
+        text_space = "test"
+
+        def image(self, image):
+            return self.visual_space, [1, 0]
+
         def text(self, *args, **kwargs):
             entered.set()
             assert release.wait(3)
@@ -193,6 +199,7 @@ async def test_analysis_deduplicates_different_request_keys_and_recovers_once(st
     assert service.get(first["id"])["status"] == "cancelled"
     await service.stop()
 
+
     for n in range(2):
         req = RunRequest(role="analyst", photo_ids=["b"], idempotency_key=f"legacy-{n}")
         store.write("INSERT INTO runs VALUES(?,?,?,?,?,?,?)", (
@@ -201,4 +208,30 @@ async def test_analysis_deduplicates_different_request_keys_and_recovers_once(st
     await service.recover()
     assert len(service.tasks) == 1
     assert service.get("legacy-1")["status"] == "cancelled"
+    await service.stop()
+
+@pytest.mark.asyncio
+async def test_configured_background_limit_bounds_running_jobs(store, monkeypatch):
+    import asyncio
+    monkeypatch.setenv("CG_ANALYSIS_CONCURRENCY", "2")
+    reached = asyncio.Event()
+    running = 0
+
+    class WaitingRunner:
+        async def execute(self, rid, request):
+            nonlocal running
+            running += 1
+            if running == 2:
+                reached.set()
+            try:
+                await asyncio.Event().wait()
+            finally:
+                running -= 1
+
+    service = RunService(store, WaitingRunner())
+    for pid in ("a", "b", "c"):
+        service.start(RunRequest(role="analyst", photo_ids=[pid]))
+    await asyncio.wait_for(reached.wait(), 1)
+    assert running == 2
+    assert len(store.rows("SELECT id FROM runs WHERE status='queued'")) == 1
     await service.stop()

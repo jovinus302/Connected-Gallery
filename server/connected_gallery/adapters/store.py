@@ -195,24 +195,42 @@ class Store:
         rows = self.rows("SELECT data FROM analyses WHERE photo_id=?", (photo_id,))
         return json.loads(rows[0]["data"]) if rows else None
 
-    def save_analysis(self, analysis: PhotoAnalysis):
+    def has_vector(self, key):
+        return bool(self.rows("SELECT key FROM vectors WHERE key=?", (key,)))
+
+    def analysis_snapshot(self):
         with self.lock:
-            self.photo(analysis.photo_id)
+            return (self.photos(), [json.loads(r["data"]) for r in self.rows("SELECT data FROM analyses")],
+                    {r["key"] for r in self.rows("SELECT key FROM vectors")})
+
+    def save_analysis(self, analysis: PhotoAnalysis, vectors=(), expected_version=None, expected_analysis=None):
+        with self.lock:
+            photo = self.photo(analysis.photo_id)
+            if expected_version is not None and photo.version != expected_version:
+                raise ValueError("Photo changed during indexing")
+            if expected_analysis is not None and self.analysis(analysis.photo_id) != expected_analysis:
+                raise ValueError("Analysis changed during indexing; retry with current evidence")
             for region in analysis.regions:
                 if region.photo_id != analysis.photo_id:
                     raise ValueError("Region belongs to another photo")
-            self.write(
-                "INSERT OR REPLACE INTO analyses VALUES(?,?)",
-                (analysis.photo_id, analysis.model_dump_json()),
-            )
-            self.write(
-                "DELETE FROM evidence_fts WHERE photo_id=?", (analysis.photo_id,)
-            )
-            self.write(
-                "INSERT INTO evidence_fts VALUES(?,?)",
-                (analysis.photo_id, analysis.description + " " + analysis.ocr),
-            )
-            self.bump()
+            encoded_vectors = []
+            for key, pid, space, vector in vectors:
+                if pid != analysis.photo_id:
+                    raise ValueError("Index belongs to another photo")
+                arr = np.asarray(vector, dtype=np.float32).reshape(-1)
+                norm = float(np.linalg.norm(arr))
+                if not arr.size or not np.isfinite(arr).all() or not np.isfinite(norm) or norm <= 1e-12:
+                    raise ValueError("Embedding must be finite and nonzero")
+                encoded_vectors.append((key, pid, space, (arr / norm).tobytes()))
+            # A single transaction publishes evidence and its mandatory indexes.
+            # No inference or nested auto-committing Store.write calls belong here.
+            with self.db:
+                self.db.execute("INSERT OR REPLACE INTO analyses VALUES(?,?)", (analysis.photo_id, analysis.model_dump_json()))
+                self.db.execute("DELETE FROM evidence_fts WHERE photo_id=?", (analysis.photo_id,))
+                self.db.execute("INSERT INTO evidence_fts VALUES(?,?)", (analysis.photo_id, analysis.description + " " + analysis.ocr))
+                self.db.executemany("INSERT OR REPLACE INTO vectors VALUES(?,?,?,?)", encoded_vectors)
+                self.db.execute("UPDATE state SET value=value+1 WHERE key='revision'")
+                self.db.execute("DELETE FROM cache")
 
     def vector(self, key, photo_id, space, vector):
         self.photo(photo_id)

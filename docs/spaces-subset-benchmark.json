@@ -1,0 +1,12 @@
+{
+  "scope": "isolated analyzed subset; not the final 1000-photo Spaces run",
+  "photos": 120,
+  "status": "completed",
+  "spaces": 7,
+  "unique_members": 50,
+  "seconds": 54.77,
+  "model_turns": 6,
+  "tool_errors": [
+    "Page through the whole library before finalizing Spaces"
+  ]
+}

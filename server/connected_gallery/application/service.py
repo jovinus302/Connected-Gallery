@@ -13,7 +13,11 @@ class RunService:
         self.store = store
         self.runner = runner
         self.tasks = {}
-        self.background = asyncio.Semaphore(3)
+        concurrency = int(os.getenv("CG_ANALYSIS_CONCURRENCY", "3"))
+        if not 1 <= concurrency <= 8:
+            raise ValueError("CG_ANALYSIS_CONCURRENCY must be between 1 and 8")
+        self.analysis_concurrency = concurrency
+        self.background = asyncio.Semaphore(concurrency)
         self.interactive = asyncio.Semaphore(1)
         self.exploring = 0
         self.auto_enabled = True
@@ -46,7 +50,7 @@ class RunService:
             value = {"role": request.role, "ids": request.photo_ids}
         return hashlib.sha256(
             encoded(
-                ["agent-spec-v3", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
+                ["agent-spec-v5", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
             ).encode()
         ).hexdigest()
 

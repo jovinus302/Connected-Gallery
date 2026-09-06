@@ -18,6 +18,7 @@ class LocalModels:
         # blocking unrelated image/text embeddings or interactive GPU searches.
         self.ocr_lock = threading.RLock()
         self.face_lock = threading.RLock()
+        self.import_lock = threading.RLock()
         self.pins = (
             json.loads(
                 (Path(__file__).resolve().parents[2] / "model-lock.json").read_text()
@@ -39,6 +40,10 @@ class LocalModels:
         )
 
     def _transformer(self, key, cls, model_id):
+        with self.import_lock:
+            return self._load_transformer(key, cls, model_id)
+
+    def _load_transformer(self, key, cls, model_id):
         from transformers import AutoProcessor, AutoTokenizer
 
         if key not in self.loaded:
@@ -54,8 +59,9 @@ class LocalModels:
         return self.loaded[key]
 
     def image(self, image):
-        import torch
-        from transformers import AutoModel
+        with self.import_lock:
+            import torch
+            from transformers import AutoModel
 
         with self.lock, torch.inference_mode():
             p, m = self._transformer(
@@ -69,8 +75,9 @@ class LocalModels:
             return self.visual_space, v[0].cpu().numpy()
 
     def text(self, text, visual=False, query=True):
-        import torch
-        from transformers import AutoModel
+        with self.import_lock:
+            import torch
+            from transformers import AutoModel
 
         with self.lock, torch.inference_mode():
             if visual:
@@ -102,23 +109,24 @@ class LocalModels:
             return self.text_space, ((out * mask).sum(1) / mask.sum(1))[0].cpu().numpy()
 
     def ocr(self, image):
-        from paddleocr import PaddleOCR
-
         with self.ocr_lock:
-            if "ocr" not in self.loaded:
-                self.loaded["ocr"] = PaddleOCR(
-                    lang="korean",
-                    enable_mkldnn=False,
-                    use_doc_orientation_classify=False,
-                    use_doc_unwarping=False,
-                    use_textline_orientation=False,
-                )
+            with self.import_lock:
+                from paddleocr import PaddleOCR
+                if "ocr" not in self.loaded:
+                    self.loaded["ocr"] = PaddleOCR(
+                        lang="korean",
+                        enable_mkldnn=False,
+                        use_doc_orientation_classify=False,
+                        use_doc_unwarping=False,
+                        use_textline_orientation=False,
+                    )
             result = self.loaded["ocr"].predict(np.array(image))
             return {"pages": [r.json for r in result]}
 
     def ground(self, image, query):
-        import torch
-        from transformers import AutoModelForZeroShotObjectDetection
+        with self.import_lock:
+            import torch
+            from transformers import AutoModelForZeroShotObjectDetection
 
         with self.lock, torch.inference_mode():
             p, m = self._transformer(

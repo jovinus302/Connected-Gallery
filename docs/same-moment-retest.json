@@ -1,0 +1,15 @@
+{
+  "scope": "PC API; Android scrubber/back-stack still requires unlocked-device validation",
+  "results": [
+    {
+      "direction": "same_moment",
+      "year": null,
+      "status": "completed",
+      "seconds": 21.34,
+      "result_count": 3,
+      "anchor_preserved": true,
+      "year_constraint_met": true,
+      "error": null
+    }
+  ]
+}
