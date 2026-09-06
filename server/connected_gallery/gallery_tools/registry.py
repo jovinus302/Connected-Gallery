@@ -135,6 +135,11 @@ class GalleryTools:
             submit[1],
             "Validate and persist your evidence-grounded result. Use actual IDs only.",
         )
+        if request.role == "analyst":
+            observation_tools = {"inspect_photos", "inspect_region", "recognize_text",
+                                 "ground_regions", "analyze_faces", "ensure_embeddings",
+                                 "submit_photo_analysis"}
+            self.definitions = {k: v for k, v in self.definitions.items() if k in observation_tools}
 
     def schemas(self):
         return [
@@ -220,7 +225,7 @@ class GalleryTools:
         if name not in self.definitions:
             raise ValueError("Unknown tool")
         args = self.definitions[name][0].model_validate(raw)
-        if name.startswith("submit_"):
+        if name.startswith("submit_") and name != "submit_photo_analysis":
             with self.store.lock:
                 result = getattr(self, name)(args)
         else:
@@ -450,15 +455,17 @@ class GalleryTools:
         if args.photo_id != self.request.photo_ids[0] or args.photo_id not in self.seen:
             raise ValueError("Inspect requested photo before submission")
         self.authorize(args.photo_id)
-        self.store.save_analysis(args)
+        # Inference can wait for another GPU/CPU job. Never hold the repository lock
+        # across that wait: the API, cancellation and other runs need the database.
+        indexed = None
+        index_error = None
         # Materialize searchable evidence when committing the agent's semantic output.
         # This encodes the submitted text; it does not assign a category or rank results.
         if self.models is not None:
             try:
                 text = args.description + " " + args.ocr
                 space, vector = self.models.text(text, query=False)
-                self.authorize(args.photo_id)
-                self.store.vector(
+                indexed = (
                     f"{args.photo_id}:text:"
                     + hashlib.sha256(text.encode()).hexdigest()
                     + ":"
@@ -468,12 +475,19 @@ class GalleryTools:
                     vector,
                 )
             except Exception as exc:
+                index_error = type(exc).__name__
+        with self.store.lock:
+            self.authorize(args.photo_id)
+            self.store.save_analysis(args)
+            if indexed is not None:
+                self.store.vector(*indexed)
+            if index_error:
                 self.store.event(
                     self.run_id,
                     "index_error",
-                    {"photo_id": args.photo_id, "error": type(exc).__name__},
+                    {"photo_id": args.photo_id, "error": index_error},
                 )
-        self.result = args.model_dump(mode="json")
+            self.result = args.model_dump(mode="json")
         return {"saved": True}
 
     def submit_exploration_result(self, args):

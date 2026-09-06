@@ -16,6 +16,15 @@ python -m venv .venv
 .\scripts\start-server.ps1
 ```
 
+NVIDIA GPU 사용 시에는 기본 환경을 유지하면서 선택적으로 CUDA 패키지를 설치할 수 있습니다.
+시작 스크립트가 아래 경로를 자동으로 사용합니다. PaddleOCR는 CPU에서 동작합니다.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install --target .runtime\torch-cuda --no-deps torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
+```
+
+CUDA 빌드 조합은 [PyTorch 공식 설치 안내](https://pytorch.org/get-started/previous-versions/#v291)를 참고했습니다.
+
 별도 터미널에서 USB 디버깅 기기를 연결합니다.
 
 ```powershell
@@ -34,6 +43,8 @@ python -m venv .venv
 ```
 
 Proxy smoke는 합성 이미지만 전송합니다. 자동 계약 테스트는 fake 모델과 실제 모델 검증을 구분합니다.
+
+`scripts/benchmark-recovery.py`는 이미 연결·전송한 실제 사진 중 과거 실패6장을 별도 저장소에서 재분석합니다. 실제 사진을 설정된 Proxy로 다시 보내므로 합성 smoke와 구분합니다. 실행 시 `PYTHONPATH`에 `.runtime/torch-cuda` 절대 경로를 넣으면 GPU 빌드를 사용합니다. `scripts/retry-failed-analysis.py`는 spec v2 서버에서 아직 분석되지 않았고 활성 작업도 없는 실패 사진만 한 차례 재시도 등록합니다.
 
 ## 구성
 

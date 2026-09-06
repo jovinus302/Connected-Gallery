@@ -57,6 +57,7 @@ def create_app(root=None, runner_factory=None):
             "status": "ok",
             "revision": store.revision,
             "proxy_configured": bool(os.getenv("ANTHROPIC_API_KEY")),
+            "agent_spec": 2,
         }
 
     @app.get("/manifest")

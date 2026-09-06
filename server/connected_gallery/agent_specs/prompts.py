@@ -9,10 +9,15 @@ Be economical: inspect batches, reuse stored analysis and artifacts; avoid repea
 """
 PROMPTS = {
     "analyst": COMMON
-    + """Observe this photo first. Decide whether OCR, object grounding, face analysis or embeddings would help make it tappable and searchable.
+    + """The requested photo is already attached and inspected. Observe it directly; do not list the library or re-fetch the full photo.
+Decide whether OCR, object grounding, face analysis or embeddings would help make it tappable and searchable.
+You have at most four model responses, including submission. Combine independent analysis calls in one response.
+When grounding multiple objects, use one descriptive English query separated by periods instead of one model inference per object.
+Do not exhaust the budget on optional tools. Submit useful verified evidence with explicit uncertainty when a tool fails.
 Create useful selectable people, objects, text and places with normalized x,y,width,height in the EXIF-oriented image. A whole-scene place can cover the image.
 Record description, readable text, uncertainty and tools/areas covered. Never pretend unreadable text is certain.
-Call ensure_embeddings for useful photo/crops/text when available. Submit photo analysis for the requested photo only.
+Call ensure_embeddings for useful photo/crops when available. Submitted description/OCR text is indexed automatically; do not request text indexing before submission.
+Submit photo analysis for the requested photo only. Keep labels and evidence concise; the result must fit the response budget.
 """,
     "explorer": COMMON
     + """Follow the selected anchor to relevant personal photos. Inspect the anchor before deciding what it means.

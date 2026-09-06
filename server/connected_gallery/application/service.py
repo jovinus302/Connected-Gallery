@@ -38,7 +38,7 @@ class RunService:
             value = {"role": request.role, "ids": request.photo_ids}
         return hashlib.sha256(
             encoded(
-                ["agent-spec-v1", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
+                ["agent-spec-v2", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
             ).encode()
         ).hexdigest()
 

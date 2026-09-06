@@ -65,3 +65,71 @@ def test_cancelled_tool_cannot_submit(store):
     with pytest.raises(ValueError):
         tools.submit_photo_analysis(PhotoAnalysis(photo_id="a", description="late"))
     assert store.analysis("a") is None
+
+
+@pytest.mark.asyncio
+async def test_analyst_receives_image_and_reserves_final_turn(store):
+    from langchain_anthropic.chat_models import _format_messages
+
+    class BudgetGateway:
+        def __init__(self):
+            self.n = 0
+
+        async def invoke(self, messages, schemas):
+            self.n += 1
+            # Exercise the SDK formatter too: budget hints must remain consecutive
+            # with the system prompt, not break Anthropic message ordering.
+            _format_messages(messages)
+            assert any(b.get("type") == "image" for b in messages[2].content)
+            names = {s["name"] for s in schemas}
+            assert "list_photos" not in names
+            if self.n < 4:
+                name, args = "inspect_region", {"photo_id": "a"}
+            else:
+                assert names == {"submit_photo_analysis"}
+                name, args = "submit_photo_analysis", {"photo_id": "a", "description": "검증한 사진"}
+            return AIMessage(content="", tool_calls=[{
+                "name": name, "args": args, "id": str(self.n), "type": "tool_call",
+            }])
+
+    gateway = BudgetGateway()
+    result = await GraphAgentRunner(store, None, gateway).execute(
+        "budget-test", RunRequest(role="analyst", photo_ids=["a"])
+    )
+    assert gateway.n == 4
+    assert result["photo_id"] == "a"
+    assert store.analysis("a")["description"] == "검증한 사진"
+
+
+def test_inference_does_not_lock_store_and_cancel_prevents_commit(store):
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    entered, release = threading.Event(), threading.Event()
+
+    class BlockingModels:
+        def text(self, *args, **kwargs):
+            entered.set()
+            assert release.wait(3)
+            return "test", [1, 0]
+
+    request = RunRequest(role="analyst", photo_ids=["a"])
+    store.write("INSERT INTO runs VALUES(?,?,?,?,?,?,?)", (
+        "blocked", "blocked", request.model_dump_json(), "running", None, None, 0,
+    ))
+    toolkit = GalleryTools(store, BlockingModels(), request, "blocked")
+    toolkit.seen = {"a"}
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        submit = pool.submit(toolkit.invoke, "submit_photo_analysis", {
+            "photo_id": "a", "description": "must not survive cancellation",
+        })
+        try:
+            assert entered.wait(1)
+            # This operation would time out if submission still held the store lock.
+            pool.submit(store.write, "UPDATE runs SET status='cancelled' WHERE id='blocked'").result(timeout=1)
+        finally:
+            release.set()
+        with pytest.raises(ValueError, match="no longer active"):
+            submit.result(timeout=2)
+    assert store.analysis("a") is None
+    assert not store.rows("SELECT * FROM vectors WHERE photo_id='a'")

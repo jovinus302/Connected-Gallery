@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import json
+import time
 from typing import Annotated, TypedDict
 import aiosqlite
 from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage
@@ -16,6 +17,7 @@ class State(TypedDict):
     messages: Annotated[list, add_messages]
     turns: int
     calls: int
+    spec_version: int
 
 
 class GraphAgentRunner:
@@ -47,22 +49,53 @@ class GraphAgentRunner:
                     "turn": state.get("turns", 0) + 1,
                 },
             )
-            response = await self.gateway.invoke(state["messages"], toolkit.schemas())
+            remaining = turns - state.get("turns", 0)
+            finalizing = remaining == 1 or state.get("calls", 0) >= max_calls - 1
+            budget = SystemMessage(content=(
+                f"Execution budget: {remaining} model responses and "
+                f"{max_calls - state.get('calls', 0)} tool calls remain. "
+                + ("This is the final response: submit your evidence-grounded result now. "
+                   "Record missing evidence as uncertainty; do not invent observations."
+                   if finalizing else
+                   "Reserve the last response for submission. Batch independent tool calls, "
+                   "and submit as soon as enough evidence is available.")
+            ))
+            schemas = toolkit.schemas()
+            if finalizing:
+                schemas = [s for s in schemas if s["name"].startswith("submit_")]
+            started = time.monotonic()
+            response = await self.gateway.invoke(
+                [state["messages"][0], budget, *state["messages"][1:]], schemas
+            )
+            self.store.event(run_id, "model_timing", {
+                "turn": state.get("turns", 0) + 1,
+                "seconds": round(time.monotonic() - started, 3),
+                "finalizing": finalizing,
+            })
             return {"messages": [response], "turns": state.get("turns", 0) + 1}
 
         async def tools(state):
             messages = []
             calls = state.get("calls", 0)
             for call in state["messages"][-1].tool_calls:
+                if calls >= max_calls - 1 and not call["name"].startswith("submit_"):
+                    messages.append(ToolMessage(
+                        content=encoded({"error": "Tool budget reserved for submission. Submit current evidence now."}),
+                        tool_call_id=call["id"],
+                    ))
+                    continue
                 calls += 1
                 if calls > max_calls:
                     raise RuntimeError("Tool budget exceeded")
+                started = time.monotonic()
+                error = None
                 try:
                     result = await asyncio.to_thread(
                         toolkit.invoke, call["name"], call["args"]
                     )
                     content = result if isinstance(result, list) else encoded(result)
                 except Exception as e:
+                    error = type(e).__name__
                     # Validation errors are useful to the model; infrastructure details are redacted.
                     content = encoded(
                         {
@@ -71,6 +104,11 @@ class GraphAgentRunner:
                             else type(e).__name__
                         }
                     )
+                self.store.event(run_id, "tool_timing", {
+                    "name": call["name"],
+                    "seconds": round(time.monotonic() - started, 3),
+                    "error": error,
+                })
                 messages.append(ToolMessage(content=content, tool_call_id=call["id"]))
             return {"messages": messages, "calls": calls}
 
@@ -100,16 +138,31 @@ class GraphAgentRunner:
                 "recursion_limit": 2 * turns + 5,
             }
             checkpoint = await compiled.aget_state(config)
+            if checkpoint.next and checkpoint.values.get("spec_version") != 2:
+                # Old prompts/budgets must not resume halfway through the new graph.
+                # Stored model artifacts survive; only this run's conversation resets.
+                await saver.adelete_thread(run_id)
+                checkpoint = await compiled.aget_state(config)
+            initial_content = [{"type": "text", "text": encoded(request.model_dump(mode="json"))}]
+            if not checkpoint.next and request.role == "analyst":
+                # The caller already chose the asset. Sending it is transport, not a
+                # semantic tool-selection rule, and saves a model round trip.
+                initial_content += await asyncio.to_thread(toolkit.image_block, request.photo_ids[0])
+                self.store.event(run_id, "tool", {
+                    "name": "initial_photo", "seen": sorted(toolkit.seen),
+                    "covered": [], "searched": [],
+                })
             initial = (
                 None
                 if checkpoint.next
                 else {
                     "messages": [
                         SystemMessage(content=PROMPTS[request.role]),
-                        HumanMessage(content=encoded(request.model_dump(mode="json"))),
+                        HumanMessage(content=initial_content),
                     ],
                     "turns": 0,
                     "calls": 0,
+                    "spec_version": 2,
                 }
             )
             try:
