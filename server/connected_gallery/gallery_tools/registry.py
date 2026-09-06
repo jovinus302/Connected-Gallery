@@ -1,0 +1,519 @@
+from __future__ import annotations
+import base64
+import hashlib
+import io
+import json
+import time
+from pydantic import BaseModel, Field
+from connected_gallery.domain.models import (
+    Box,
+    PhotoAnalysis,
+    ExplorationResult,
+    SpaceProposal,
+)
+from connected_gallery.adapters.store import encoded
+
+
+class InspectArgs(BaseModel):
+    photo_ids: list[str] = Field(max_length=8)
+
+
+class RegionArgs(BaseModel):
+    photo_id: str
+    box: Box | None = None
+
+
+class ListArgs(BaseModel):
+    offset: int = Field(default=0, ge=0)
+    limit: int = Field(default=50, ge=1, le=100)
+
+
+class GroundArgs(RegionArgs):
+    query: str
+
+
+class EmbedArgs(BaseModel):
+    photo_ids: list[str] = Field(default_factory=list, max_length=8)
+    regions: list[RegionArgs] = Field(default_factory=list, max_length=8)
+    include_text: bool = True
+
+
+class SearchArgs(BaseModel):
+    query: str
+    limit: int = Field(default=20, ge=1, le=100)
+
+
+class VisualArgs(BaseModel):
+    query: str = ""
+    photo_id: str | None = None
+    box: Box | None = None
+    limit: int = Field(default=20, ge=1, le=100)
+
+
+class FaceArgs(RegionArgs):
+    face_index: int = Field(default=0, ge=0)
+    limit: int = Field(default=20, ge=1, le=100)
+
+
+class LocationArgs(BaseModel):
+    latitude: float
+    longitude: float
+    radius_km: float = Field(gt=0, le=20040)
+
+
+class GalleryTools:
+    def __init__(self, store, models, request, run_id):
+        self.store = store
+        self.models = models
+        self.request = request
+        self.run_id = run_id
+        self.deadline = (
+            time.monotonic()
+            + ({"explorer": 45, "analyst": 180, "organizer": 600}[request.role])
+        )
+        self.seen = set()
+        self.covered = set()
+        self.searched = set()
+        self.result = None
+        self.versions = {p.id: p.version for p in store.photos()}
+        self.definitions = {
+            "list_photos": (
+                ListArgs,
+                "Page through photo metadata and existing analysis.",
+            ),
+            "inspect_photos": (
+                InspectArgs,
+                "View up to 8 actual photo images. Required before selecting results.",
+            ),
+            "inspect_region": (
+                RegionArgs,
+                "View an actual image crop; coordinates are normalized in the oriented image.",
+            ),
+            "recognize_text": (
+                RegionArgs,
+                "Read text using Korean OCR; returns recognition evidence.",
+            ),
+            "ground_regions": (
+                GroundArgs,
+                "Find bounding boxes for a descriptive object query.",
+            ),
+            "analyze_faces": (
+                RegionArgs,
+                "Detect faces and index face embeddings; does not identify names.",
+            ),
+            "ensure_embeddings": (
+                EmbedArgs,
+                "Create/reuse image and optional existing description embeddings.",
+            ),
+            "search_visual": (
+                VisualArgs,
+                "Find visual candidates by text or photo/crop. Candidate vectors must exist.",
+            ),
+            "search_text": (
+                SearchArgs,
+                "Retrieve text evidence by semantic embedding and literal text independently.",
+            ),
+            "search_faces": (
+                FaceArgs,
+                "Search by a selected detected face index in source photo/crop.",
+            ),
+            "search_location": (
+                LocationArgs,
+                "Retrieve photos within an explicitly chosen radius.",
+            ),
+            "read_spaces": (
+                ListArgs,
+                "Read existing Spaces and explicit user feedback.",
+            ),
+        }
+        submit = {
+            "analyst": ("submit_photo_analysis", PhotoAnalysis),
+            "explorer": ("submit_exploration_result", ExplorationResult),
+            "organizer": ("submit_space_proposal", SpaceProposal),
+        }[request.role]
+        self.definitions[submit[0]] = (
+            submit[1],
+            "Validate and persist your evidence-grounded result. Use actual IDs only.",
+        )
+
+    def schemas(self):
+        return [
+            {"name": n, "description": d, "input_schema": m.model_json_schema()}
+            for n, (m, d) in self.definitions.items()
+        ]
+
+    def allowed(self):
+        year = self.request.explore.year if self.request.explore else None
+        return {p.id for p in self.store.photos(year)}
+
+    def authorize(self, photo_id, source=True):
+        if time.monotonic() > self.deadline:
+            raise ValueError("Run deadline exceeded")
+        states = self.store.rows("SELECT status FROM runs WHERE id=?", (self.run_id,))
+        if states and states[0]["status"] not in ("running", "queued"):
+            raise ValueError("Run is no longer active")
+        p = self.store.photo(photo_id)
+        if self.versions.get(photo_id) != p.version:
+            raise ValueError("Photo changed during run; start a new run")
+        seeds = set(self.request.photo_ids)
+        if self.request.explore:
+            seeds.add(self.request.explore.anchor.photo_id)
+        if photo_id not in self.allowed() and not (source and photo_id in seeds):
+            raise ValueError("Photo outside selected year")
+        return p
+
+    def image_block(self, photo_id, box=None):
+        self.authorize(photo_id)
+        image = self.store.read_image(photo_id, box)
+        image.thumbnail((1536, 1536))
+        out = io.BytesIO()
+        image.save(out, "JPEG", quality=85)
+        self.seen.add(photo_id)
+        return [
+            {
+                "type": "text",
+                "text": encoded(
+                    {"photo_id": photo_id, "box": box.model_dump() if box else None}
+                ),
+            },
+            {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/jpeg",
+                    "data": base64.b64encode(out.getvalue()).decode(),
+                },
+            },
+        ]
+
+    def artifact(self, name, args, fn):
+        p = self.authorize(args.photo_id)
+        key = hashlib.sha256(
+            encoded(
+                [
+                    name,
+                    p.id,
+                    p.version,
+                    args.model_dump(),
+                    self.models.pins if hasattr(self.models, "pins") else {},
+                ]
+            ).encode()
+        ).hexdigest()
+        rows = self.store.rows("SELECT data FROM artifacts WHERE key=?", (key,))
+        if rows:
+            return json.loads(rows[0]["data"])
+        value = fn(self.store.read_image(p.id, args.box))
+        self.authorize(p.id)
+        self.store.write(
+            "INSERT OR REPLACE INTO artifacts VALUES(?,?,?)",
+            (key, p.id, encoded(value)),
+        )
+        return value
+
+    def invoke(self, name, raw):
+        if name not in self.definitions:
+            raise ValueError("Unknown tool")
+        args = self.definitions[name][0].model_validate(raw)
+        if name.startswith("submit_"):
+            with self.store.lock:
+                result = getattr(self, name)(args)
+        else:
+            result = getattr(self, name)(args)
+        self.store.event(
+            self.run_id,
+            "tool",
+            {
+                "name": name,
+                "seen": sorted(self.seen),
+                "covered": sorted(self.covered),
+                "searched": sorted(self.searched),
+            },
+        )
+        return result
+
+    def list_photos(self, args):
+        photos = self.store.photos(
+            self.request.explore.year if self.request.explore else None
+        )
+        page = photos[args.offset : args.offset + args.limit]
+        self.covered.update(p.id for p in page)
+        return {
+            "total": len(photos),
+            "next_offset": args.offset + len(page),
+            "photos": [
+                {
+                    "asset": p.model_dump(
+                        mode="json", exclude={"local_uri", "device_id"}
+                    ),
+                    "analysis": self.store.analysis(p.id),
+                    "image_ready": self.store.image_path(p.id).exists(),
+                }
+                for p in page
+            ],
+        }
+
+    def inspect_photos(self, args):
+        content = []
+        for pid in args.photo_ids:
+            content += self.image_block(pid)
+        return content
+
+    def inspect_region(self, args):
+        return self.image_block(args.photo_id, args.box)
+
+    def recognize_text(self, args):
+        return self.artifact("ocr-v1", args, self.models.ocr)
+
+    def ground_regions(self, args):
+        return self.artifact(
+            "ground-v1", args, lambda im: self.models.ground(im, args.query)
+        )
+
+    def analyze_faces(self, args):
+        result = self.artifact("sface-v1", args, self.models.faces)
+        face_list = []
+        for i, f in enumerate(result["faces"]):
+            key = f"{args.photo_id}:face:{hashlib.sha256(encoded(args.model_dump()).encode()).hexdigest()[:12]}:{i}"
+            self.store.vector(key, args.photo_id, "sface", f["vector"])
+            face_list.append({"index": i, "box": f["box"], "artifact": key})
+        return {"faces": face_list}
+
+    def ensure_embeddings(self, args):
+        results = []
+        for pid in args.photo_ids:
+            p = self.authorize(pid)
+            key = f"{pid}:image:{p.version}:{self.models.visual_space}"
+            if not self.store.rows("SELECT key FROM vectors WHERE key=?", (key,)):
+                space, vec = self.models.image(self.store.read_image(pid))
+                self.store.vector(key, pid, space, vec)
+            a = self.store.analysis(pid)
+            if args.include_text and a:
+                text = a["description"] + " " + a.get("ocr", "")
+                tkey = f"{pid}:text:{hashlib.sha256(text.encode()).hexdigest()}:{self.models.text_space}"
+                if not self.store.rows("SELECT key FROM vectors WHERE key=?", (tkey,)):
+                    space, vec = self.models.text(text, query=False)
+                    self.store.vector(tkey, pid, space, vec)
+            results.append(pid)
+        for region in args.regions:
+            p = self.authorize(region.photo_id)
+            key = (
+                f"{p.id}:crop:"
+                + hashlib.sha256(
+                    encoded(
+                        [p.version, region.model_dump(), self.models.visual_space]
+                    ).encode()
+                ).hexdigest()
+            )
+            if not self.store.rows("SELECT key FROM vectors WHERE key=?", (key,)):
+                space, vec = self.models.image(self.store.read_image(p.id, region.box))
+                self.authorize(p.id)
+                self.store.vector(key, p.id, space, vec)
+            results.append(key)
+        return {"indexed": results}
+
+    def index_coverage(self, space):
+        indexed = {
+            r["photo_id"]
+            for r in self.store.rows(
+                "SELECT DISTINCT photo_id FROM vectors WHERE space=?", (space,)
+            )
+        } & self.allowed()
+        self.searched.update(indexed)
+        missing = self.allowed() - indexed
+        return {
+            "indexed_count": len(indexed),
+            "eligible_count": len(self.allowed()),
+            "unindexed_ids": sorted(missing)[:20],
+            "unindexed_count": len(missing),
+        }
+
+    def search_visual(self, args):
+        if args.photo_id:
+            self.authorize(args.photo_id)
+            space, vec = self.models.image(
+                self.store.read_image(args.photo_id, args.box)
+            )
+        elif args.query:
+            space, vec = self.models.text(args.query, visual=True)
+        else:
+            raise ValueError("A query or image is required")
+        return {
+            "candidates": self.store.search(space, vec, self.allowed(), args.limit),
+            "coverage": self.index_coverage(space),
+        }
+
+    def search_text(self, args):
+        allowed = self.allowed()
+        # Literal and semantic channels are separate evidence, never fixed-score fusion.
+        literal = []
+        if args.query.strip():
+            query = '"' + args.query.replace('"', '""') + '"'
+            literal = [
+                {"photo_id": r["photo_id"]}
+                for r in self.store.rows(
+                    "SELECT photo_id FROM evidence_fts WHERE evidence_fts MATCH ?",
+                    (query,),
+                )
+                if r["photo_id"] in allowed
+            ][: args.limit]
+        try:
+            space, vec = self.models.text(args.query)
+            semantic = self.store.search(space, vec, allowed, args.limit)
+            error = None
+        except Exception as e:
+            semantic = []
+            error = type(e).__name__
+        return {
+            "literal": literal,
+            "semantic": semantic,
+            "semantic_error": error,
+            "coverage": self.index_coverage(self.models.text_space),
+        }
+
+    def search_faces(self, args):
+        result = self.artifact(
+            "sface-v1",
+            RegionArgs(photo_id=args.photo_id, box=args.box),
+            self.models.faces,
+        )
+        if args.face_index >= len(result["faces"]):
+            raise ValueError("Face index not found")
+        return {
+            "candidates": self.store.search(
+                "sface",
+                result["faces"][args.face_index]["vector"],
+                self.allowed(),
+                args.limit,
+            )
+        }
+
+    def search_location(self, args):
+        import math
+
+        hits = []
+        for p in self.store.photos(
+            self.request.explore.year if self.request.explore else None
+        ):
+            if p.latitude is None or p.longitude is None:
+                continue
+            lat1, lat2 = map(math.radians, (args.latitude, p.latitude))
+            dlat = lat2 - lat1
+            dlon = math.radians(p.longitude - args.longitude)
+            distance = (
+                6371
+                * 2
+                * math.asin(
+                    min(
+                        1,
+                        math.sqrt(
+                            math.sin(dlat / 2) ** 2
+                            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+                        ),
+                    )
+                )
+            )
+            if distance <= args.radius_km:
+                hits.append({"photo_id": p.id, "distance_km": distance})
+        return {"candidates": hits}
+
+    def read_spaces(self, args):
+        return {
+            "spaces": self.store.spaces(),
+            "feedback": [
+                json.loads(r["data"])
+                for r in self.store.rows("SELECT data FROM feedback")
+            ],
+        }
+
+    def submit_photo_analysis(self, args):
+        if args.photo_id != self.request.photo_ids[0] or args.photo_id not in self.seen:
+            raise ValueError("Inspect requested photo before submission")
+        self.authorize(args.photo_id)
+        self.store.save_analysis(args)
+        # Materialize searchable evidence when committing the agent's semantic output.
+        # This encodes the submitted text; it does not assign a category or rank results.
+        if self.models is not None:
+            try:
+                text = args.description + " " + args.ocr
+                space, vector = self.models.text(text, query=False)
+                self.authorize(args.photo_id)
+                self.store.vector(
+                    f"{args.photo_id}:text:"
+                    + hashlib.sha256(text.encode()).hexdigest()
+                    + ":"
+                    + space,
+                    args.photo_id,
+                    space,
+                    vector,
+                )
+            except Exception as exc:
+                self.store.event(
+                    self.run_id,
+                    "index_error",
+                    {"photo_id": args.photo_id, "error": type(exc).__name__},
+                )
+        self.result = args.model_dump(mode="json")
+        return {"saved": True}
+
+    def submit_exploration_result(self, args):
+        ids = [x.photo_id for x in args.items]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Duplicate result IDs")
+        if (
+            not ids
+            and args.complete
+            and not self.allowed().issubset(self.seen | self.searched)
+        ):
+            raise ValueError(
+                "Unsearched photos remain. An empty index is not evidence of no matches. Inspect unindexed photos or submit incomplete."
+            )
+        anchor = self.request.explore.anchor.photo_id
+        if anchor not in self.seen:
+            raise ValueError("Inspect anchor first")
+        for pid in ids:
+            self.authorize(pid, source=False)
+            if pid not in self.seen:
+                raise ValueError("Inspect candidate images before selecting them")
+        self.result = args.model_dump(mode="json")
+        self.store.event(self.run_id, "results", self.result)
+        return {"saved": True, "complete": args.complete}
+
+    def submit_space_proposal(self, args):
+        if not self.allowed().issubset(self.covered):
+            raise ValueError("Page through the whole library before finalizing Spaces")
+        edits = [
+            json.loads(r["data"]) for r in self.store.rows("SELECT data FROM feedback")
+        ]
+        old = {s["id"]: s for s in self.store.spaces()}
+        incoming = {s.id: s.model_dump() for s in args.spaces}
+        # Preserve explicitly edited Spaces, even when the agent omits one from a new proposal.
+        for edit in edits:
+            sid = edit.get("space_id")
+            if sid in old and sid not in incoming:
+                incoming[sid] = old[sid]
+        for sid, space in incoming.items():
+            for item in space["items"]:
+                self.authorize(item["photo_id"])
+            for edit in edits:
+                if edit.get("space_id") != sid:
+                    continue
+                pid = edit.get("photo_id")
+                if edit["kind"] == "space_exclude":
+                    space["items"] = [x for x in space["items"] if x["photo_id"] != pid]
+                elif (
+                    edit["kind"] == "space_include"
+                    and pid in self.allowed()
+                    and not any(x["photo_id"] == pid for x in space["items"])
+                ):
+                    space["items"].append(
+                        {"photo_id": pid, "reason": "사용자가 포함한 사진"}
+                    )
+        with self.store.lock, self.store.db:
+            self.store.db.execute("DELETE FROM spaces")
+            for sid, space in incoming.items():
+                self.store.db.execute(
+                    "INSERT INTO spaces VALUES(?,?)", (sid, encoded(space))
+                )
+        self.store.bump()
+        self.result = {"spaces": list(incoming.values())}
+        return {"saved": True}

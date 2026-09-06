@@ -1,0 +1,14 @@
+{
+  "source": "synthetic-real-proxy",
+  "elapsed_seconds": 9.67,
+  "result": {
+    "label": "빨간 사각형과 관련된 사진",
+    "items": [
+      {
+        "photo_id": "red-2015",
+        "reason": "원본 앵커와 같은 빨간 사각형이 보이는 2015년 사진입니다."
+      }
+    ],
+    "complete": true
+  }
+}

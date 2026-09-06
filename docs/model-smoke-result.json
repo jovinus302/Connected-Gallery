@@ -1,0 +1,38 @@
+{
+  "visual_image": {
+    "ok": true,
+    "seconds": 10.78,
+    "shape": [
+      768
+    ]
+  },
+  "visual_text": {
+    "ok": true,
+    "seconds": 0.08,
+    "shape": [
+      768
+    ]
+  },
+  "korean_text": {
+    "ok": true,
+    "seconds": 1.45,
+    "shape": [
+      384
+    ]
+  },
+  "ground": {
+    "ok": true,
+    "seconds": 6.39,
+    "shape": null
+  },
+  "faces": {
+    "ok": true,
+    "seconds": 0.19,
+    "shape": null
+  },
+  "ocr": {
+    "ok": true,
+    "seconds": 5.31,
+    "shape": null
+  }
+}

@@ -1,0 +1,12 @@
+Connected Gallery — third-party notices
+
+Original application code is authored for this project. Complete gallery projects were consulted as architectural references; their source was not copied.
+
+AndroidX / Jetpack Compose / Room / WorkManager — Apache License 2.0, The Android Open Source Project. https://android.googlesource.com/platform/frameworks/support/
+Dagger / Hilt — Apache License 2.0, Google. https://github.com/google/dagger
+Kotlin / kotlinx.coroutines / kotlinx.serialization — Apache License 2.0, JetBrains. https://github.com/JetBrains/kotlin
+Coil — Apache License 2.0, Coil Contributors. https://github.com/coil-kt/coil
+Telephoto — Apache License 2.0, Saket Narayan. https://github.com/saket/telephoto
+OkHttp — Apache License 2.0, Square. https://github.com/square/okhttp
+
+The Apache License 2.0 text is supplied in Apache-2.0.txt.

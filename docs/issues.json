@@ -1,0 +1,128 @@
+[
+  {
+    "id": "CG-01",
+    "title": "모듈·데이터·API·탐색 상태 계약",
+    "depends": "없음",
+    "work": "Domain/Ports, API 스키마와 탐색 상태 분리",
+    "accept": "연도 변경은 anchor 유지, 새 탭은 전체 기간·Related로 초기화",
+    "test": "Journey 상태 전이·schema 검증",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/1"
+  },
+  {
+    "id": "CG-02",
+    "title": "실제 사진과 평가 시나리오 구성",
+    "depends": "없음",
+    "work": "50장 개발 세트와 최대 1,000장 평가 구성 안내",
+    "accept": "실제 사진과 합성 fixture를 분리하고 정답·무정답 과제 기록",
+    "test": "동일 인물/연도·한글·촬영일 누락 포함",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/2"
+  },
+  {
+    "id": "CG-03",
+    "title": "Android 갤러리·뷰어·좌표 변환",
+    "depends": "CG-01",
+    "work": "MediaStore 사진, EXIF 방향, Telephoto 뷰어",
+    "accept": "권한 범위에서 최대 1,000장 표시, 확대 후 영역 탭",
+    "test": "확대·이동·회전·권한 철회",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/3"
+  },
+  {
+    "id": "CG-04",
+    "title": "사진 동기화·근거·artifact·인덱스",
+    "depends": "CG-01",
+    "work": "PhotoAsset, 축소 이미지, SQLite/FTS5/벡터",
+    "accept": "버전 변경·삭제 시 파생 데이터 무효화",
+    "test": "중복 요청·재접속·삭제 전파",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/4"
+  },
+  {
+    "id": "CG-05",
+    "title": "VLM·OCR·영역·얼굴·임베딩 도구",
+    "depends": "CG-01",
+    "work": "Proxy 및 OSS 모델 adapters",
+    "accept": "실제 관찰 근거와 영역·모델 버전 반환, 오류 명시",
+    "test": "합성 이미지와 한국어·face/crop 모델 smoke",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/5"
+  },
+  {
+    "id": "CG-06",
+    "title": "AgentRunner·상태 저장·실행 예산",
+    "depends": "CG-01",
+    "work": "LangGraph 모델↔도구 실행, checkpoint",
+    "accept": "도구 선택은 모델 결정, 취소·예산·복구 제공",
+    "test": "tool result 왕복·프로세스 중단·budget",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/6"
+  },
+  {
+    "id": "CG-07",
+    "title": "Photo Analyst와 사전 분석",
+    "depends": "CG-04, CG-05, CG-06",
+    "work": "사진→선택 가능한 영역·근거·artifact",
+    "accept": "실제 이미지 관찰 후에만 분석 완료",
+    "test": "50장 실제 사진 영역·OCR 검토",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/7"
+  },
+  {
+    "id": "CG-08",
+    "title": "Explorer와 후보의 시각 확인",
+    "depends": "CG-07",
+    "work": "anchor/direction/year→확인된 결과",
+    "accept": "실제 ID·확인한 이미지·연도 범위만 제출",
+    "test": "허구 ID·미확인 후보·연도 밖 결과 거부",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/8"
+  },
+  {
+    "id": "CG-09",
+    "title": "사진 속 탭·결과 표시·연속 hop",
+    "depends": "CG-03, CG-08",
+    "work": "Viewer→Explore→Viewer",
+    "accept": "See→Tap→Follow 3회 이상, 대기 중 사진 유지",
+    "test": "중첩 영역·수동 영역·취소·hop",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/9"
+  },
+  {
+    "id": "CG-10",
+    "title": "Related·Same moment·Time·기록",
+    "depends": "CG-09",
+    "work": "방향·연도 modifier와 화면 기록",
+    "accept": "anchor 보존, Same moment는 사건 맥락, 뒤로 가기 복원",
+    "test": "스크럽 응답 경합·연도 빈 결과·scroll 복원",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/10"
+  },
+  {
+    "id": "CG-11",
+    "title": "Organizer·Spaces·사용자 수정",
+    "depends": "CG-07, CG-09",
+    "work": "사진 근거→재사용 맥락 Spaces",
+    "accept": "고정 taxonomy 없음, 사용자 포함·제외 유지",
+    "test": "전체 사진 coverage·사용자 수정 재생성",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/11"
+  },
+  {
+    "id": "CG-12",
+    "title": "캐시·취소·삭제·재개·오프라인",
+    "depends": "CG-04, CG-06, CG-09",
+    "work": "artifact와 확정 결과 캐시, lifecycle",
+    "accept": "오래된 응답 차단, 삭제 후 재등장 방지",
+    "test": "취소 직후 도구 완료·변경 중 탐색·재시작",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/12"
+  },
+  {
+    "id": "CG-13",
+    "title": "지표 수집과 사용자·성능 평가",
+    "depends": "CG-02, CG-10, CG-11",
+    "work": "Find/tap/hop/reuse 지표와 성능",
+    "accept": "실측·목표·미검증 구분, 실제 n과 실패 보고",
+    "test": "500~1,000장·사용자 과제·지연 분포",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/13"
+  },
+  {
+    "id": "CG-14",
+    "title": "통합 QA·APK·문서",
+    "depends": "CG-12, CG-13",
+    "work": "APK, PC 실행 스크립트, 계획·출처·평가",
+    "accept": "빌드·계약 테스트 통과, 실제 기기 검증 상태 보고",
+    "test": "Android test/lint·API tests·proxy smoke",
+    "url": "https://github.com/jovinus302/Connected-Gallery/issues/14"
+  }
+]

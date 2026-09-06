@@ -1,0 +1,75 @@
+{
+  "analyst": {
+    "seconds": 79.66,
+    "result": {
+      "photo_id": "reference-card",
+      "description": "흰 배경 위에 왼쪽에는 빨간색 직사각형 카드가 있고, 오른쪽에는 검은 글씨로 'SAVE THIS'와 'WINE 2020' 텍스트가 보인다.",
+      "ocr": "SAVE THIS\nWINE 2020",
+      "uncertainty": "텍스트는 OCR로 확인했지만, 카드의 정확한 의미나 용도는 이미지 자체만으로는 알 수 없다.",
+      "coverage": [
+        "전체 장면",
+        "왼쪽 빨간 카드",
+        "오른쪽 텍스트"
+      ],
+      "regions": [
+        {
+          "id": "ff744dec-236a-4c84-b469-44e363c29659",
+          "photo_id": "reference-card",
+          "box": {
+            "x": 0.117,
+            "y": 0.107,
+            "width": 0.232,
+            "height": 0.533
+          },
+          "kind": "object",
+          "label": "빨간 카드",
+          "evidence": "왼쪽의 큰 빨간 직사각형 영역."
+        },
+        {
+          "id": "07c80dc7-1bcd-470b-b9ca-153e8a84f2a5",
+          "photo_id": "reference-card",
+          "box": {
+            "x": 0.466,
+            "y": 0.193,
+            "width": 0.384,
+            "height": 0.222
+          },
+          "kind": "text",
+          "label": "SAVE THIS WINE 2020",
+          "evidence": "OCR에서 'SAVE THIS'와 'WINE 2020'이 읽힘."
+        },
+        {
+          "id": "b8516ffc-eef3-4231-8b0b-39998c7dc431",
+          "photo_id": "reference-card",
+          "box": {
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1.0,
+            "height": 1.0
+          },
+          "kind": "place",
+          "label": "전체 장면",
+          "evidence": "흰 배경 위에 빨간 카드와 텍스트가 함께 있는 단순한 정물 장면."
+        }
+      ]
+    }
+  },
+  "organizer": {
+    "seconds": 4.86,
+    "result": {
+      "spaces": [
+        {
+          "id": "851ce34f-270b-4a0c-9ad9-879bd4c7bbe4",
+          "name": "빨간 카드와 문구",
+          "meaning": "흰 배경 위에 빨간 카드와 'SAVE THIS / WINE 2020' 문구가 함께 보이는 사진",
+          "items": [
+            {
+              "photo_id": "reference-card",
+              "reason": "흰 배경 위 빨간 직사각형 카드와 오른쪽의 'SAVE THIS / WINE 2020' 텍스트가 함께 있는 정물 장면이다."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

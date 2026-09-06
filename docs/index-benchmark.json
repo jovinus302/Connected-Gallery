@@ -1,0 +1,15 @@
+{
+  "source": "synthetic-index-only",
+  "photos": 1000,
+  "vectors": 1000,
+  "eligible_year_photos": 100,
+  "queries": 30,
+  "p50_ms": 5.84,
+  "p95_ms": 7.62,
+  "excludes": [
+    "model inference",
+    "network",
+    "Android rendering",
+    "user evaluation"
+  ]
+}
