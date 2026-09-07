@@ -1,0 +1,69 @@
+{
+  "at": "2026-09-07T11:36:18.566979",
+  "photo_count": 1000,
+  "analyzed_count": 549,
+  "ready_count": 549,
+  "missing_index_count": 0,
+  "uncovered_photo_count": 0,
+  "original_analyses_preserved": 386,
+  "original_photo_membership_restored": true,
+  "active_duplicate_photo_count": 0,
+  "spaces": 0,
+  "runs": [
+    {
+      "role": "analyst",
+      "status": "cancelled",
+      "count": 608
+    },
+    {
+      "role": "analyst",
+      "status": "completed",
+      "count": 548
+    },
+    {
+      "role": "analyst",
+      "status": "failed",
+      "count": 23
+    },
+    {
+      "role": "analyst",
+      "status": "queued",
+      "count": 447
+    },
+    {
+      "role": "analyst",
+      "status": "running",
+      "count": 4
+    },
+    {
+      "role": "explorer",
+      "status": "cancelled",
+      "count": 1
+    },
+    {
+      "role": "explorer",
+      "status": "completed",
+      "count": 9
+    },
+    {
+      "role": "explorer",
+      "status": "failed",
+      "count": 4
+    },
+    {
+      "role": "explorer",
+      "status": "incomplete",
+      "count": 1
+    },
+    {
+      "role": "organizer",
+      "status": "cancelled",
+      "count": 1
+    },
+    {
+      "role": "organizer",
+      "status": "queued",
+      "count": 1
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "scope": "Actual Android interaction; retries included. Server journal timings are not screen-render latency. v6 Time preserved request/year but semantic relevance failed.",
+  "runs": [
+    {
+      "status": "completed",
+      "year": null,
+      "items": 3,
+      "server_seconds": 13.18,
+      "anchor_excluded": true
+    },
+    {
+      "status": "failed",
+      "year": null,
+      "items": 0,
+      "server_seconds": 72.33,
+      "anchor_excluded": true
+    },
+    {
+      "status": "completed",
+      "year": null,
+      "items": 1,
+      "server_seconds": 87.71,
+      "anchor_excluded": true
+    },
+    {
+      "status": "completed",
+      "year": null,
+      "items": 4,
+      "server_seconds": 49.03,
+      "anchor_excluded": true
+    },
+    {
+      "status": "completed",
+      "year": 2024,
+      "items": 7,
+      "server_seconds": 23.76,
+      "anchor_excluded": true
+    }
+  ],
+  "back_restored_all_year_results": true,
+  "back_restored_result_count": 4,
+  "v7_time_retest": {
+    "status": "completed",
+    "result_count": 4,
+    "server_seconds": 34.29,
+    "anchor_preserved": true,
+    "year": 2024,
+    "year_constraint_met": true,
+    "semantic_quality": "failed: unrelated subjects remain despite immutable source crop reminder",
+    "general_person_accuracy": "not measured"
+  }
+}

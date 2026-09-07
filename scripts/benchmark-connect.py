@@ -20,6 +20,7 @@ def api(path, payload=None):
 
 
 def main():
+    deadline = api('/health').get('explore_timeout_seconds', 45) + 20
     db = sqlite3.connect('file:.runtime/gallery.sqlite?mode=ro', uri=True)
     analyses = {a['photo_id']: a for (raw,) in db.execute('SELECT data FROM analyses')
                 for a in [json.loads(raw)]}
@@ -46,7 +47,7 @@ def main():
             cursor = events['cursor']
             if first_seconds is None and any(e['kind'] == 'results' for e in events['events']):
                 first_seconds = round(time.monotonic() - started, 2)
-            if time.monotonic() - started > 65:
+            if time.monotonic() - started > deadline:
                 api(f'/runs/{rid}/cancel', {})
                 run = api(f'/runs/{rid}')
                 break

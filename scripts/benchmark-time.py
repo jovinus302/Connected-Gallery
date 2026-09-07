@@ -21,6 +21,7 @@ def main():
     parser.add_argument('--direction', choices=['all', 'related', 'same_moment'], default='all')
     parser.add_argument('--report', default='docs/modifier-api-benchmark.json')
     args = parser.parse_args()
+    deadline = api('/health').get('explore_timeout_seconds', 45) + 20
     prior = json.loads(Path('work/connect-check-private.json').read_text(encoding='utf-8'))
     anchor = prior[0]['anchor']
     years = api('/manifest')['years']
@@ -35,7 +36,7 @@ def main():
               'idempotency_key': 'modifier-check-' + str(uuid4())})
         rid = run['id']
         while run['status'] in ('queued', 'running'):
-            if time.monotonic() - start > 65:
+            if time.monotonic() - start > deadline:
                 api(f'/runs/{rid}/cancel', {})
                 run = api(f'/runs/{rid}')
                 break

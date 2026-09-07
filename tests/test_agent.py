@@ -199,7 +199,6 @@ async def test_analysis_deduplicates_different_request_keys_and_recovers_once(st
     assert service.get(first["id"])["status"] == "cancelled"
     await service.stop()
 
-
     for n in range(2):
         req = RunRequest(role="analyst", photo_ids=["b"], idempotency_key=f"legacy-{n}")
         store.write("INSERT INTO runs VALUES(?,?,?,?,?,?,?)", (
@@ -209,6 +208,113 @@ async def test_analysis_deduplicates_different_request_keys_and_recovers_once(st
     assert len(service.tasks) == 1
     assert service.get("legacy-1")["status"] == "cancelled"
     await service.stop()
+
+
+@pytest.mark.asyncio
+async def test_checkpoint_cleanup_failure_preserves_committed_analysis(store, monkeypatch):
+    import asyncio
+    import sqlite3
+    from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+
+    class SubmitGateway:
+        async def invoke(self, messages, tools):
+            return AIMessage(content="", tool_calls=[{
+                "name": "submit_photo_analysis", "args": {"photo_id": "a", "description": "observed"},
+                "id": "submit", "type": "tool_call",
+            }])
+
+    async def fail_cleanup(self, thread_id):
+        raise sqlite3.OperationalError("private SQL must not enter diagnostics")
+
+    monkeypatch.setattr(AsyncSqliteSaver, "adelete_thread", fail_cleanup)
+    service = RunService(store, GraphAgentRunner(store, None, SubmitGateway()))
+    service.auto_enabled = False
+    run = service.start(RunRequest(role="analyst", photo_ids=["a"]))
+    await asyncio.wait_for(service.tasks[run["id"]], 5)
+    final = service.get(run["id"])
+    assert final["status"] == "completed"
+    assert final["result"] == store.analysis("a")
+    assert final["error"] is None
+    diagnostics = store.rows("SELECT data FROM events WHERE kind='execution_error'")
+    assert len(diagnostics) == 1
+    assert "OperationalError" in diagnostics[0]["data"]
+    assert "private SQL" not in diagnostics[0]["data"]
+
+
+def test_cancelled_run_rolls_back_evidence_indexes_and_revision(store):
+    request = RunRequest(role="analyst", photo_ids=["a"])
+    store.write("INSERT INTO runs VALUES(?,?,?,?,?,?,?)", (
+        "cancelled", "cancelled", request.model_dump_json(), "cancelled", None, None, 0,
+    ))
+    revision = store.revision
+    with pytest.raises(ValueError, match="no longer active"):
+        store.save_analysis(PhotoAnalysis(photo_id="a", description="not committed"),
+                            vectors=[("new", "a", "test", [1, 0])], run_id="cancelled")
+    assert store.analysis("a") is None
+    assert not store.has_vector("new")
+    assert store.revision == revision
+
+
+@pytest.mark.asyncio
+async def test_concurrent_graphs_share_checkpoint_db_without_serializing_models(store):
+    import asyncio
+    waiting = 0
+    all_models_entered = asyncio.Event()
+
+    class ConcurrentGateway:
+        async def invoke(self, messages, schemas):
+            nonlocal waiting
+            waiting += 1
+            if waiting == 3:
+                all_models_entered.set()
+            await asyncio.wait_for(all_models_entered.wait(), 3)
+            # Empty message ends each run without inventing an accepted result.
+            return AIMessage(content="")
+
+    runner = GraphAgentRunner(store, None, ConcurrentGateway())
+    results = await asyncio.gather(*[
+        runner.execute("parallel-" + pid, RunRequest(role="analyst", photo_ids=[pid]))
+        for pid in ("a", "b", "c")
+    ], return_exceptions=True)
+    assert waiting == 3
+    assert all(isinstance(r, RuntimeError) and "without a valid" in str(r) for r in results)
+
+
+def test_old_cache_cannot_return_anchor(store):
+    import hashlib
+    import os
+    from connected_gallery.adapters.store import encoded
+    request = RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(photo_id="a")))
+    value = request.explore.model_dump()
+    value.pop("request_revision", None)
+    old_key = hashlib.sha256(encoded(["agent-spec-v5", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]).encode()).hexdigest()
+    store.cache_put(old_key, {"items": [{"photo_id": "a", "reason": "legacy"}]})
+    service = RunService(store, None)
+    assert store.cache_get(service.cache_key(request)) is None
+
+
+@pytest.mark.asyncio
+async def test_explorer_receives_selected_crop_before_first_model_turn(store):
+    class CropGateway:
+        async def invoke(self, messages, schemas):
+            assert any(b.get("type") == "image" for b in messages[2].content)
+            # The fixture crop is 25x50 rather than the 100x100 full image.
+            import base64, io
+            from PIL import Image
+            block = next(b for b in messages[2].content if b.get("type") == "image")
+            with Image.open(io.BytesIO(base64.b64decode(block["source"]["data"]))) as im:
+                assert im.size == (25, 50)
+            return AIMessage(content="", tool_calls=[{
+                "name": "submit_exploration_result", "args": {"label": "partial", "items": [], "complete": False},
+                "id": "partial", "type": "tool_call",
+            }])
+
+    request = RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(
+        photo_id="a", box=Box(x=0, y=0, width=.25, height=.5))))
+    runner = GraphAgentRunner(store, None, CropGateway())
+    with pytest.raises(RuntimeError, match="budget exceeded"):
+        await runner.execute("initial-crop", request)
+
 
 @pytest.mark.asyncio
 async def test_configured_background_limit_bounds_running_jobs(store, monkeypatch):
@@ -235,3 +341,65 @@ async def test_configured_background_limit_bounds_running_jobs(store, monkeypatc
     assert running == 2
     assert len(store.rows("SELECT id FROM runs WHERE status='queued'")) == 1
     await service.stop()
+
+
+@pytest.mark.asyncio
+async def test_pause_and_delete_recovers_unrelated_analysis(store):
+    import asyncio
+
+    class WaitingRunner:
+        async def execute(self, rid, request):
+            await asyncio.Event().wait()
+
+    service = RunService(store, WaitingRunner())
+    runs = [service.start(RunRequest(role="analyst", photo_ids=[pid])) for pid in ("a", "b", "c")]
+    await asyncio.sleep(0)
+    await service.stop(preserve_pending=True)
+    assert all(service.get(r["id"])["status"] == "queued" for r in runs)
+    store.delete("a")
+    await service.recover()
+    assert set(service.tasks) == {r["id"] for r in runs[1:]}
+    await service.stop()
+
+
+def test_configured_deadline_is_shared_by_service_and_tools(store, monkeypatch):
+    import time
+    monkeypatch.setenv("CG_EXPLORE_TIMEOUT_SECONDS", "120")
+    service = RunService(store, None)
+    request = RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(photo_id="a")))
+    tools = GalleryTools(store, None, request, "deadline")
+    assert service.explore_timeout == 120
+    assert 119 < tools.deadline - time.monotonic() <= 120
+    # Tools remain authorized past the old, hard-coded 45-second boundary.
+    tools.deadline -= 46
+    tools.authorize("a")
+
+
+@pytest.mark.asyncio
+async def test_candidate_images_do_not_replace_latest_anchor_reference(store):
+    import json
+    from langchain_core.messages import HumanMessage
+    from langchain_anthropic.chat_models import _format_messages
+
+    class AnchorGateway:
+        original_image = None
+        n = 0
+
+        async def invoke(self, messages, schemas):
+            self.n += 1
+            _format_messages(messages)
+            if self.n == 1:
+                self.original_image = next(b for b in messages[2].content if b.get("type") == "image")
+                name, args = "inspect_photos", {"photo_ids": ["b"]}
+            else:
+                assert isinstance(messages[-1], HumanMessage)
+                reminder = json.loads(messages[-1].content[0]["text"])
+                assert reminder["immutable_selected_anchor"]["anchor"]["photo_id"] == "a"
+                assert reminder["immutable_selected_anchor"]["year"] == 2015
+                assert messages[-1].content[-1] == self.original_image
+                name, args = "submit_exploration_result", {"label": "verified", "items": [{"photo_id": "b", "reason": "observed"}]}
+            return AIMessage(content="", tool_calls=[{"name":name,"args":args,"id":str(self.n),"type":"tool_call"}])
+
+    request = RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(photo_id="a"), year=2015))
+    result = await GraphAgentRunner(store, None, AnchorGateway()).execute("anchor-reminder", request)
+    assert result["items"][0]["photo_id"] == "b"

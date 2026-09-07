@@ -187,8 +187,10 @@ class Store:
             # Historical run results may contain deleted photo metadata; purge their contents.
             self.write("UPDATE runs SET result=NULL WHERE result IS NOT NULL")
             self.write("DELETE FROM events")
-            self.write("DELETE FROM runs WHERE instr(request,?)>0", (photo_id,))
-            self.write("DELETE FROM feedback WHERE instr(data,?)>0", (photo_id,))
+            self.write("DELETE FROM runs WHERE json_extract(request,'$.explore.anchor.photo_id')=? "
+                       "OR EXISTS(SELECT 1 FROM json_each(runs.request,'$.photo_ids') WHERE value=?)",
+                       (photo_id, photo_id))
+            self.write("DELETE FROM feedback WHERE json_extract(data,'$.photo_id')=?", (photo_id,))
             self.bump()
 
     def analysis(self, photo_id):
@@ -203,7 +205,7 @@ class Store:
             return (self.photos(), [json.loads(r["data"]) for r in self.rows("SELECT data FROM analyses")],
                     {r["key"] for r in self.rows("SELECT key FROM vectors")})
 
-    def save_analysis(self, analysis: PhotoAnalysis, vectors=(), expected_version=None, expected_analysis=None):
+    def save_analysis(self, analysis: PhotoAnalysis, vectors=(), expected_version=None, expected_analysis=None, run_id=None):
         with self.lock:
             photo = self.photo(analysis.photo_id)
             if expected_version is not None and photo.version != expected_version:
@@ -231,6 +233,13 @@ class Store:
                 self.db.executemany("INSERT OR REPLACE INTO vectors VALUES(?,?,?,?)", encoded_vectors)
                 self.db.execute("UPDATE state SET value=value+1 WHERE key='revision'")
                 self.db.execute("DELETE FROM cache")
+                if run_id is not None:
+                    updated = self.db.execute(
+                        "UPDATE runs SET status='completed',result=?,error=NULL WHERE id=? AND status='running'",
+                        (analysis.model_dump_json(), run_id),
+                    )
+                    if updated.rowcount != 1:
+                        raise ValueError("Analysis run is no longer active")
 
     def vector(self, key, photo_id, space, vector):
         self.photo(photo_id)

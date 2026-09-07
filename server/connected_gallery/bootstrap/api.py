@@ -42,7 +42,7 @@ def create_app(root=None, runner_factory=None):
     async def lifespan(app):
         await service.recover()
         yield
-        await service.stop()
+        await service.stop(preserve_pending=True)
         store.close()
 
     app = FastAPI(title="Connected Gallery", version="0.1.0", lifespan=lifespan)
@@ -59,8 +59,9 @@ def create_app(root=None, runner_factory=None):
             "status": "ok",
             "revision": store.revision,
             "proxy_configured": bool(os.getenv("ANTHROPIC_API_KEY")),
-            "agent_spec": 5,
+            "agent_spec": 7,
             "analysis_concurrency": service.analysis_concurrency,
+            "explore_timeout_seconds": service.explore_timeout,
         }
 
     @app.get("/progress")
@@ -87,7 +88,7 @@ def create_app(root=None, runner_factory=None):
     @app.post("/assets/sync")
     async def sync(req: SyncRequest):
         if req.deleted_ids:
-            await service.stop()
+            await service.stop(preserve_pending=True)
         for pid in req.deleted_ids:
             store.delete(pid)
         for asset in req.assets:
@@ -95,6 +96,8 @@ def create_app(root=None, runner_factory=None):
             if previous and previous[0]["version"] != asset.version:
                 service.cancel_analysis_for_photo(asset.id)
             store.upsert(asset)
+        if req.deleted_ids:
+            await service.recover()
         return {
             "revision": store.revision,
             "need_preview": [
@@ -147,8 +150,9 @@ def create_app(root=None, runner_factory=None):
 
     @app.delete("/assets/{pid}")
     async def delete(pid: str):
-        await service.stop()
+        await service.stop(preserve_pending=True)
         store.delete(pid)
+        await service.recover()
         return {"deleted": True, "revision": store.revision}
 
     @app.post("/runs")

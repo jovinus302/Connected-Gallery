@@ -4,8 +4,10 @@ import hashlib
 import json
 import time
 import os
+import sqlite3
 from connected_gallery.domain.models import RunRequest, new_id
 from connected_gallery.adapters.store import encoded
+from connected_gallery.agent_specs.budgets import run_timeout
 
 
 class RunService:
@@ -17,6 +19,7 @@ class RunService:
         if not 1 <= concurrency <= 8:
             raise ValueError("CG_ANALYSIS_CONCURRENCY must be between 1 and 8")
         self.analysis_concurrency = concurrency
+        self.explore_timeout = run_timeout("explorer")
         self.background = asyncio.Semaphore(concurrency)
         self.interactive = asyncio.Semaphore(1)
         self.exploring = 0
@@ -50,7 +53,7 @@ class RunService:
             value = {"role": request.role, "ids": request.photo_ids}
         return hashlib.sha256(
             encoded(
-                ["agent-spec-v5", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
+                ["agent-spec-v7", "retrieval-policy-v5-anchor-reminder", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
             ).encode()
         ).hexdigest()
 
@@ -132,9 +135,9 @@ class RunService:
                     )
                     revision = self.store.revision
                     timeout = (
-                        45
+                        self.explore_timeout
                         if interactive
-                        else (600 if request.role == "organizer" else 180)
+                        else run_timeout(request.role)
                     )
                     result = await asyncio.wait_for(
                         self.runner.execute(rid, request), timeout
@@ -161,8 +164,22 @@ class RunService:
                     if interactive:
                         self.exploring -= 1
         except asyncio.CancelledError:
-            self.store.write("UPDATE runs SET status='cancelled' WHERE id=?", (rid,))
+            self.store.write("UPDATE runs SET status='cancelled' WHERE id=? AND status IN ('queued','running')", (rid,))
         except Exception as e:
+            # Never log model inputs or raw SQL. SQLite's code and source frames
+            # identify infrastructure failures without copying private evidence.
+            import traceback
+            detail = {"error": type(e).__name__,
+                      "frames": [{"file": os.path.basename(f.filename), "function": f.name, "line": f.lineno}
+                                 for f in traceback.extract_tb(e.__traceback__)[-8:]]}
+            if isinstance(e, sqlite3.Error):
+                detail.update(sqlite_errorcode=getattr(e, "sqlite_errorcode", None),
+                              sqlite_errorname=getattr(e, "sqlite_errorname", None))
+            self.store.event(rid, "execution_error", detail)
+            if self.get(rid)["status"] == "completed":
+                # Analyst evidence, indexes and result already committed together.
+                # A subsequent checkpoint failure cannot undo that valid result.
+                return
             partial = self.store.rows(
                 "SELECT data FROM events WHERE run_id=? AND kind='results' ORDER BY seq DESC LIMIT 1",
                 (rid,),
@@ -226,12 +243,15 @@ class RunService:
         ):
             self.cancel(row["id"])
 
-    async def stop(self):
+    async def stop(self, preserve_pending=False):
         self.auto_enabled = False
+        pending = self.store.rows("SELECT id FROM runs WHERE status IN ('queued','running')") if preserve_pending else []
         tasks = list(self.tasks.values())
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
         # A task cancelled before its coroutine starts never enters its finally.
         self.tasks = {rid: task for rid, task in self.tasks.items() if not task.done()}
+        for row in pending:
+            self.store.write("UPDATE runs SET status='queued' WHERE id=? AND status='cancelled'", (row["id"],))
         self.auto_enabled = True

@@ -28,6 +28,9 @@ class GraphAgentRunner:
         self.store = store
         self.models = models
         self.gateway = gateway
+        # Every saver targets the same file. Serialize its short DB operations,
+        # while keeping model calls and tool execution concurrent.
+        self.checkpoint_lock = asyncio.Lock()
 
     async def execute(self, run_id, request):
         toolkit = GalleryTools(self.store, self.models, request, run_id)
@@ -74,9 +77,15 @@ class GraphAgentRunner:
             if finalizing:
                 schemas = [s for s in schemas if s["name"].startswith("submit_")]
             started = time.monotonic()
-            response = await self.gateway.invoke(
-                [state["messages"][0], budget, *state["messages"][1:]], schemas
-            )
+            messages = [state["messages"][0], budget, *state["messages"][1:]]
+            if request.role == "explorer" and state.get("turns", 0) > 0:
+                anchor = request.explore.anchor
+                reference = await asyncio.to_thread(toolkit.image_block, anchor.photo_id, anchor.box)
+                messages.append(HumanMessage(content=[{"type": "text", "text": encoded({
+                    "immutable_selected_anchor": request.explore.model_dump(mode="json"),
+                    "instruction": "This image is the user's original selected anchor, NOT a new candidate. Compare candidate photos against this reference. Candidate images never replace the anchor. The year restricts candidates only; it cannot change the selected person/object/text/place. Do not reinterpret unrelated candidates as the source. If evidence is insufficient, report incomplete or an evidence-supported empty result.",
+                })}, *reference]))
+            response = await self.gateway.invoke(messages, schemas)
             self.store.event(run_id, "model_timing", {
                 "turn": state.get("turns", 0) + 1,
                 "seconds": round(time.monotonic() - started, 3),
@@ -157,22 +166,31 @@ class GraphAgentRunner:
             self.store.root / "checkpoints.sqlite"
         ) as connection:
             saver = AsyncSqliteSaver(connection)
+            saver.lock = self.checkpoint_lock
             compiled = graph.compile(checkpointer=saver)
             config = {
                 "configurable": {"thread_id": run_id},
                 "recursion_limit": 2 * turns + 5,
             }
             checkpoint = await compiled.aget_state(config)
-            if checkpoint.next and checkpoint.values.get("spec_version") != 5:
+            if checkpoint.next and checkpoint.values.get("spec_version") != 7:
                 # Old prompts/budgets must not resume halfway through the new graph.
                 # Stored model artifacts survive; only this run's conversation resets.
                 await saver.adelete_thread(run_id)
                 checkpoint = await compiled.aget_state(config)
             initial_content = [{"type": "text", "text": encoded(request.model_dump(mode="json"))}]
-            if not checkpoint.next and request.role == "analyst":
+            if not checkpoint.next and request.role == "explorer":
+                initial_content.append({"type": "text", "text": encoded({"library_status": {
+                    "photo_count": self.store.rows("SELECT count(*) AS n FROM photos")[0]["n"],
+                    "analyzed_count": self.store.rows("SELECT count(*) AS n FROM analyses")[0]["n"],
+                    "instruction": "Use this coverage information to choose retrieval or additional inspection; missing analysis is not evidence of no matches.",
+                }})})
+            if not checkpoint.next and request.role in ("analyst", "explorer"):
                 # The caller already chose the asset. Sending it is transport, not a
                 # semantic tool-selection rule, and saves a model round trip.
-                initial_content += await asyncio.to_thread(toolkit.image_block, request.photo_ids[0])
+                photo_id = request.photo_ids[0] if request.role == "analyst" else request.explore.anchor.photo_id
+                box = None if request.role == "analyst" else request.explore.anchor.box
+                initial_content += await asyncio.to_thread(toolkit.image_block, photo_id, box)
                 self.store.event(run_id, "tool", {
                     "name": "initial_photo", "seen": sorted(toolkit.seen),
                     "covered": [], "searched": [],
@@ -187,7 +205,7 @@ class GraphAgentRunner:
                     ],
                     "turns": 0,
                     "calls": 0,
-                    "spec_version": 5,
+                    "spec_version": 7,
                     "repair_pending": False,
                     "repair_used": False,
                 }

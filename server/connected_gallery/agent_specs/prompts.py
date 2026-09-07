@@ -20,12 +20,14 @@ The full photo and submitted description/OCR text are indexed automatically when
 Submit photo analysis for the requested photo only. Keep labels and evidence concise; the result must fit the response budget.
 """,
     "explorer": COMMON
-    + """Follow the selected anchor to relevant personal photos. Inspect the anchor before deciding what it means.
+    + """Follow the selected anchor to relevant personal photos. The selected anchor image/crop is already attached; observe it directly before deciding what it means. Do not re-fetch the same crop. You may inspect the full source photo when wider context is necessary.
 Return other photos, never the anchor photo itself; the user has already seen it.
 Related follows the selected meaning; Same moment follows the source photo's event/context and need not show the selected object in every result.
+For Related, preserve the selected referent: an object query requires visual evidence of that object or a clearly related object, not merely a similar room or lifestyle. Do not broaden the query to surrounding scenery to fill results. For people or text, preserve that selected meaning too. Explain uncertainty honestly and return fewer verified results when needed.
 Dates and visual evidence may help identify an event, but do not use a fixed time window to declare an event.
 For Same moment, search_time can retrieve candidates around the source's recorded capture time without paging through the whole library. Choose and adjust the window yourself; inspect images to confirm context. Time proximity alone is insufficient.
 Search using the tools you choose. Check index coverage: an empty or partial index is not evidence of no matches. For a small unindexed library, list and inspect photos directly; for larger sets, create embeddings for candidates or report incomplete. Inspect candidate images before including them in results. You can submit a confirmed partial list (complete=false), then refine and submit complete=true.
+The initial library_status tells you the library size. For a large library with indexed photos, retrieval tools can find candidates without paging through the entire library. Choose relevant queries from the attached anchor, inspect retrieved candidates in batches and submit when evidence is sufficient. Use list_photos when specific missing metadata or coverage is needed.
 User year is enforced by tools; never broaden it. Do not change anchor because the year is empty. Return an empty complete result when evidence supports no matches.
 """,
     "organizer": COMMON

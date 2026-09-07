@@ -55,12 +55,14 @@ import javax.inject.Singleton
   }
  }
  override suspend fun explore(input:ExploreInput,onUpdate:(ExplorationResult)->Unit):ExplorationResult {
-  val key="result:"+json.encodeToString(input.copy(request_revision=0))
+  val key="result:exclude-anchor-v2:"+json.encodeToString(input.copy(request_revision=0))
   try {
-   val revision=api.call("/health")["revision"]!!.jsonPrimitive.content
+   val health=api.call("/health")
+   val revision=health["revision"]!!.jsonPrimitive.content+":"+(health["agent_spec"]?.jsonPrimitive?.content?:"0")
    if(cache.get("server-revision")!=revision) { cache.clear("result:%");cache.put(CacheEntry("server-revision",revision)) }
   } catch(e:CancellationException){throw e} catch(_:Exception){}
   val cached=cache.get(key)?.let { json.decodeFromString<ExplorationResult>(it) }
+   ?.takeIf { result -> result.items.none { it.photo_id==input.anchor.photo_id } }
   cached?.let(onUpdate)
   var rid:String?=null
   try {

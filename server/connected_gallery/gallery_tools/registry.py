@@ -13,6 +13,7 @@ from connected_gallery.domain.models import (
     SpaceProposal,
 )
 from connected_gallery.adapters.store import encoded
+from connected_gallery.agent_specs.budgets import run_timeout
 
 
 class InspectArgs(BaseModel):
@@ -87,7 +88,7 @@ class GalleryTools:
         self.run_id = run_id
         self.deadline = (
             time.monotonic()
-            + ({"explorer": 45, "analyst": 180, "organizer": 600}[request.role])
+            + run_timeout(request.role)
         )
         self.seen = set()
         self.covered = set()
@@ -513,7 +514,9 @@ class GalleryTools:
         vectors = AnalysisIndexing(self.store, self.models).prepare(args, version) if self.models is not None else []
         with self.store.lock:
             self.authorize(args.photo_id)
-            self.store.save_analysis(args, vectors=vectors, expected_version=version)
+            persisted_run = self.store.rows("SELECT id FROM runs WHERE id=?", (self.run_id,))
+            self.store.save_analysis(args, vectors=vectors, expected_version=version,
+                                     run_id=self.run_id if persisted_run else None)
             self.result = args.model_dump(mode="json")
         return {"saved": True}
 
