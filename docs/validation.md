@@ -2,7 +2,7 @@
 
 ## 2026-09-07 재개
 
-현재 MVP는 사용자 결정에 따라 Organize + Connect이며 Time/Timeline은 후속 CG-15로 분리했다. Agent spec 9을 적용했다. 최신 집계는 [재개 진행 스냅샷](resume-progress.json), 코드 변경과 실제 기기 검증의 한계는 [재개 검증 기록](resume-2026-09-07.md), Connect 사례는 [MVP 검증](connect-mvp-validation.json)에 있다. Python 테스트 46개, Android 빌드·단위 테스트·lint와 기기 제스처 회귀 테스트 3개가 통과했다. 전체 분석, 최종 Spaces와 대상별 품질·사용자 평가는 아직 진행 중이다. 아래 이전 단계의 Time 기록은 이번 MVP 완료 조건이 아니다.
+현재 MVP는 Organize + Connect이며 Time/Timeline은 후속 CG-15다. 최종 agent spec 15에서 사진 1,000장 분석·필수 인덱스와 Spaces 6개·소속 20건이 준비됐다. 실제 Android 연속 3hop, 요청 취소·방향 전환, 뒤로 가기·스크롤, 재연결과 Spaces 사진 열기를 확인했다. 서버 테스트 63개, Android 빌드·단위·lint와 기기 제스처 회귀 3개가 통과했다. 자세한 근거와 속도·사용자 평가의 한계는 [최종 MVP 검증](final-mvp-validation.md)에 있다. 아래는 개발 중의 과거 기록이며 Time 검증은 이번 완료 조건이 아니다.
 
 ## 이전 중단 상태 — 02:55 KST
 

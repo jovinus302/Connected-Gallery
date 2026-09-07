@@ -48,6 +48,8 @@ Proxy smoke는 합성 이미지만 전송합니다. 자동 계약 테스트는 f
 
 `scripts/benchmark-connect.py`는 연결된 실제 사진으로 PC API 연속3hop을 확인합니다. 이 결과는 Android 화면 조작 검증을 대체하지 않습니다.
 
+기존 분석의 선택 영역 인덱스는 서버 실행 후 `scripts/repair-missing-indexes.py`로 채웁니다. 원본·분석을 다시 만들지 않고 빠진 전체 이미지, 설명/OCR 텍스트, 에이전트가 선택한 영역의 벡터만 추가합니다. 중단 후 같은 명령으로 재개할 수 있습니다. 인덱스 준비 완료는 이 세 종류가 모두 있는 사진을 뜻합니다.
+
 ## 구성
 
 - `android/`: domain, data, core-ui, feature-library, feature-spaces, feature-explore, app.
@@ -56,5 +58,6 @@ Proxy smoke는 합성 이미지만 전송합니다. 자동 계약 테스트는 f
 - `docs/oss-reference.md`: 참고 출처와 재사용 범위.
 - `docs/issues/`: 작업별 계약과 완료 기준.
 - `docs/validation.md`: 실제 검증 결과와 남은 검증.
+- `docs/final-mvp-validation.md`: 1,000장 준비, 최종 Spaces, 실제 Android 3hop과 속도·품질 한계.
 
 사진, 모델 실행 상태, 분석 결과는 `.runtime/`에 저장되며 Git에서 제외됩니다. Proxy 키는 `.env`에만 두며 APK에 포함하지 않습니다. 서버는 loopback 전용입니다. Android 원본은 수정하지 않습니다.

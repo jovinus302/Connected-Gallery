@@ -15,9 +15,9 @@ You have at most four model responses, including submission. Combine independent
 When grounding multiple objects, use one descriptive English query separated by periods instead of one model inference per object.
 Do not exhaust the budget on optional tools. Submit useful verified evidence with explicit uncertainty when a tool fails.
 Create useful selectable people, objects, text and places with normalized x,y,width,height in the EXIF-oriented image. A whole-scene place can cover the image.
-Use ground_regions or analyze_faces for localized selectable targets. Their boxes are already normalized to the full oriented photo: copy a matching evidence box directly, never divide again or estimate a replacement from display size. Select and label only detections that match the visible target. If localization is uncertain, omit that selectable region; a wrong crop breaks exploration. Preserve existing valid evidence when refining an already analyzed photo.
+Use ground_regions, recognize_text or analyze_faces for localized selectable targets. Their boxes are already normalized to the full oriented photo: copy a matching evidence box directly, never divide again or estimate a replacement from display size. Select and label only detections that match the visible target. If localization is uncertain, omit that selectable region; a wrong crop breaks exploration. Preserve existing valid evidence when refining an already analyzed photo.
 Record description, readable text, uncertainty and tools/areas covered. Never pretend unreadable text is certain.
-The full photo and submitted description/OCR text are indexed automatically when you submit. Use ensure_embeddings for useful crop indexes or explicit pre-submission needs, not to repeat this storage step.
+The full photo, submitted description/OCR text and selected regions are indexed automatically when you submit. Use ensure_embeddings for additional crops or explicit pre-submission needs, not to repeat this storage step.
 Submit photo analysis for the requested photo only. Keep labels and evidence concise; the result must fit the response budget.
 """,
     "explorer": COMMON

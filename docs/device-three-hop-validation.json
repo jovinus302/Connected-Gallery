@@ -1,0 +1,71 @@
+{
+  "agent_spec": 14,
+  "device": "SM-S918N / Android 16",
+  "continuous_sequence": true,
+  "apk_reinstall_or_server_restart_between_hops": false,
+  "cases": [
+    {
+      "hop": 1,
+      "selected_kind": "person",
+      "opened_previous_result": true,
+      "status": "completed",
+      "result_count": 4,
+      "review": [
+        {
+          "accepted_count": 4,
+          "anchor_supported": true,
+          "candidate_count": 4,
+          "seconds": 4.765
+        }
+      ],
+      "first_server_result_seconds": 35.46,
+      "first_android_callback_ms": 36308,
+      "model_calls": 4,
+      "review_format_retries": 0,
+      "error": null
+    },
+    {
+      "hop": 2,
+      "selected_kind": "object",
+      "opened_previous_result": true,
+      "status": "completed",
+      "result_count": 5,
+      "review": [
+        {
+          "accepted_count": 5,
+          "anchor_supported": true,
+          "candidate_count": 5,
+          "seconds": 6.156
+        }
+      ],
+      "first_server_result_seconds": 21.45,
+      "first_android_callback_ms": 22544,
+      "model_calls": 3,
+      "review_format_retries": 0,
+      "error": null
+    },
+    {
+      "hop": 3,
+      "selected_kind": "place",
+      "opened_previous_result": true,
+      "status": "completed",
+      "result_count": 3,
+      "review": [
+        {
+          "accepted_count": 3,
+          "anchor_supported": true,
+          "candidate_count": 3,
+          "seconds": 5.188
+        }
+      ],
+      "first_server_result_seconds": 23.53,
+      "first_android_callback_ms": 24246,
+      "model_calls": 3,
+      "review_format_retries": 0,
+      "error": null
+    }
+  ],
+  "runtime_errors": 0,
+  "all_result_screens_visually_checked": true,
+  "limits": "One scripted device sequence. Android callback timing excludes unmeasured display render latency; no population p95 or user Find/reuse scores."
+}

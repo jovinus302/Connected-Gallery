@@ -1,0 +1,52 @@
+{
+  "agent_spec": 10,
+  "api_regression_cases": [
+    {
+      "case": "object_retry1",
+      "status": "completed",
+      "result_count": 3,
+      "review": [
+        {
+          "accepted_count": 3,
+          "anchor_supported": true,
+          "candidate_count": 3,
+          "seconds": 8.64
+        }
+      ],
+      "first_result_seconds": 31.05,
+      "error": null
+    },
+    {
+      "case": "text",
+      "status": "completed",
+      "result_count": 2,
+      "review": [
+        {
+          "accepted_count": 2,
+          "anchor_supported": true,
+          "candidate_count": 2,
+          "seconds": 3.015
+        }
+      ],
+      "first_result_seconds": 88.32,
+      "error": null
+    },
+    {
+      "case": "person",
+      "status": "incomplete",
+      "result_count": 0,
+      "review": [
+        {
+          "accepted_count": 0,
+          "anchor_supported": true,
+          "candidate_count": 4,
+          "seconds": 4.984
+        }
+      ],
+      "first_result_seconds": 65.09,
+      "error": null
+    }
+  ],
+  "device_verification": "pending pattern unlock",
+  "limits": "Small regression sample; not library-wide precision or p95"
+}

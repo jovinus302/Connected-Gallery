@@ -1,12 +1,12 @@
 """Materialize searchable representations of the agent's submitted evidence.
 
 No categories, semantic judgments or ranking decisions live here. The stored
-photo and agent-written text must both be indexed before a new analysis commits.
+photo, agent-written text and agent-selected regions are indexed before a new analysis commits.
 """
 from __future__ import annotations
-import hashlib
 from connected_gallery.domain.models import PhotoAnalysis
 from connected_gallery.domain.ports import AnalysisRepository, EmbeddingProvider
+from connected_gallery.domain.index_keys import image_key, text_key, region_key
 
 
 class AnalysisIndexing:
@@ -16,20 +16,26 @@ class AnalysisIndexing:
 
     def keys(self, analysis, version):
         text = analysis.description + " " + analysis.ocr
-        return (
-            f"{analysis.photo_id}:image:{version}:{self.models.visual_space}",
-            f"{analysis.photo_id}:text:{hashlib.sha256(text.encode()).hexdigest()}:{self.models.text_space}",
-        )
+        return tuple(dict.fromkeys([
+            image_key(analysis.photo_id, version, self.models.visual_space),
+            text_key(analysis.photo_id, text, self.models.text_space),
+            *[region_key(analysis.photo_id, version, r.box, self.models.visual_space) for r in analysis.regions],
+        ]))
 
     def prepare(self, analysis, version):
-        image_key, text_key = self.keys(analysis, version)
+        full_key, evidence_key = self.keys(analysis, version)[:2]
         prepared = []
-        for key, expected_space, encode in (
-            (image_key, self.models.visual_space, lambda: self.models.image(self.store.read_image(analysis.photo_id))),
-            (text_key, self.models.text_space, lambda: self.models.text(analysis.description + " " + analysis.ocr, query=False)),
-        ):
-            if self.store.has_vector(key):
+        representations = [
+            (full_key, self.models.visual_space, lambda: self.models.image(self.store.read_image(analysis.photo_id))),
+            (evidence_key, self.models.text_space, lambda: self.models.text(analysis.description + " " + analysis.ocr, query=False)),
+            *[(region_key(analysis.photo_id, version, r.box, self.models.visual_space), self.models.visual_space,
+               lambda box=r.box: self.models.image(self.store.read_image(analysis.photo_id, box))) for r in analysis.regions],
+        ]
+        seen = set()
+        for key, expected_space, encode in representations:
+            if key in seen or self.store.has_vector(key):
                 continue
+            seen.add(key)
             space, vector = encode()
             if space != expected_space:
                 raise ValueError("Embedding provider returned an unexpected model space")
@@ -51,11 +57,16 @@ class AnalysisIndexing:
         assets, evidence, keys = self.store.analysis_snapshot()
         photos = {p.id: p for p in assets}
         analyses = [PhotoAnalysis.model_validate(a) for a in evidence]
-        ready, missing = [], []
+        ready, missing, full_ready = [], [], 0
+        selected_keys = set()
         for analysis in analyses:
             if analysis.photo_id not in photos:
                 continue
             required = self.keys(analysis, photos[analysis.photo_id].version)
+            full_ready += all(key in keys for key in required[:2])
+            selected_keys.update(required[2:])
             (ready if all(key in keys for key in required) else missing).append(analysis.photo_id)
         return {"photo_count": len(photos), "analyzed_count": len(analyses),
-                "ready_count": len(ready), "missing_index_ids": missing}
+                "ready_count": len(ready), "full_photo_text_ready_count": full_ready,
+                "selected_region_index_count": len(selected_keys),
+                "indexed_selected_region_count": len(selected_keys & keys), "missing_index_ids": missing}

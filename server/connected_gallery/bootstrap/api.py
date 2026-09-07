@@ -19,7 +19,7 @@ from connected_gallery.adapters.store import Store, encoded
 from connected_gallery.adapters.models import LocalModels
 from connected_gallery.adapters.proxy import ProxyGateway
 from connected_gallery.agent_runtime.runner import GraphAgentRunner
-from connected_gallery.agent_runtime.reviewer import EvidenceReviewer
+from connected_gallery.agent_runtime.reviewer import EvidenceReviewer, SpaceEvidenceReviewer
 from connected_gallery.application.service import RunService
 from connected_gallery.application.indexing import AnalysisIndexing
 
@@ -35,7 +35,9 @@ def create_app(root=None, runner_factory=None):
         runner = runner_factory(store)
     else:
         gateway = ProxyGateway()
-        runner = GraphAgentRunner(store, models, gateway, EvidenceReviewer(gateway))
+        interactive_gateway = ProxyGateway(attempt_timeout=15, repeat_primary=False)
+        runner = GraphAgentRunner(store, models, gateway, EvidenceReviewer(interactive_gateway),
+                                  explorer_gateway=interactive_gateway, space_reviewer=SpaceEvidenceReviewer(gateway))
     service = RunService(store, runner)
     indexing = AnalysisIndexing(store, models)
 
@@ -60,7 +62,7 @@ def create_app(root=None, runner_factory=None):
             "status": "ok",
             "revision": store.revision,
             "proxy_configured": bool(os.getenv("ANTHROPIC_API_KEY")),
-            "agent_spec": 9,
+            "agent_spec": 15,
             "analysis_concurrency": service.analysis_concurrency,
             "explore_timeout_seconds": service.explore_timeout,
         }

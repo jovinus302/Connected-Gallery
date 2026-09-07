@@ -1,0 +1,16 @@
+{
+  "agent_spec": 12,
+  "opened_different_photo": true,
+  "back_restored_photo": true,
+  "back_restored_query": true,
+  "back_restored_results": true,
+  "scroll_before": [
+    0,
+    176
+  ],
+  "scroll_after": [
+    0,
+    176
+  ],
+  "limits": "Navigation and nonzero scroll restoration tested with four previously stored results; their semantic quality is evaluated separately."
+}

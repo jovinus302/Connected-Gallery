@@ -43,6 +43,56 @@ class ScriptedGateway:
 
 
 @pytest.mark.asyncio
+async def test_organizer_gets_complete_catalog_and_one_plain_response_reminder(store):
+    import json
+
+    class OrganizerGateway:
+        calls = 0
+
+        async def invoke(self, messages, schemas):
+            self.calls += 1
+            if self.calls == 1:
+                pages = [json.loads(b["text"]) for b in messages[2].content
+                         if b.get("type") == "text" and b["text"].startswith('{"coverage"')]
+                assert {p["photo_id"] for page in pages for p in page["photos"]} == {"a", "b", "c"}
+                assert pages[-1]["coverage"]["covered_count"] == 3
+                return AIMessage(content="I will continue later")
+            assert "No Spaces have been saved" in messages[-1].content
+            return AIMessage(content="", tool_calls=[{
+                "name": "submit_space_proposal", "args": {"spaces": []},
+                "id": "saved", "type": "tool_call",
+            }])
+
+    gateway = OrganizerGateway()
+    result = await GraphAgentRunner(store, None, gateway).execute("organizer-reminder", RunRequest(role="organizer"))
+    assert result == {"spaces": []}
+    assert gateway.calls == 2
+
+
+def test_catalog_coverage_reports_next_missing_offset(store):
+    toolkit = GalleryTools(store, None, RunRequest(role="organizer"), "coverage-test")
+    page = toolkit.invoke("list_photos", {"offset": 0, "limit": 2})
+    assert page["coverage"] == {"covered_count": 2, "total_count": 3, "next_uncovered_offset": 2}
+    with pytest.raises(ValueError, match="next_uncovered_offset=2"):
+        toolkit.invoke("submit_space_proposal", {"spaces": []})
+
+
+@pytest.mark.asyncio
+async def test_organizer_plain_response_reminder_is_bounded(store):
+    class PlainGateway:
+        calls = 0
+
+        async def invoke(self, messages, schemas):
+            self.calls += 1
+            return AIMessage(content="No tool submission")
+
+    gateway = PlainGateway()
+    with pytest.raises(RuntimeError, match="without a valid submitted result"):
+        await GraphAgentRunner(store, None, gateway).execute("bounded-reminder", RunRequest(role="organizer"))
+    assert gateway.calls == 2
+
+
+@pytest.mark.asyncio
 async def test_real_graph_with_scripted_gateway(store):
     request = RunRequest(
         role="explorer",

@@ -1,0 +1,45 @@
+{
+  "agent_spec": 10,
+  "api_regression_cases": [
+    {
+      "case": "mobile",
+      "status": "completed",
+      "result_count": 3,
+      "review": [
+        {
+          "accepted_count": 3,
+          "anchor_supported": true,
+          "candidate_count": 3,
+          "seconds": 5.235
+        }
+      ],
+      "first_result_seconds": 31.76,
+      "error": null
+    },
+    {
+      "case": "object",
+      "status": "failed",
+      "result_count": null,
+      "review": [],
+      "first_result_seconds": null,
+      "error": "RuntimeError: Model unavailable (TimeoutError)"
+    },
+    {
+      "case": "place",
+      "status": "completed",
+      "result_count": 2,
+      "review": [
+        {
+          "accepted_count": 2,
+          "anchor_supported": true,
+          "candidate_count": 5,
+          "seconds": 5.625
+        }
+      ],
+      "first_result_seconds": 55.1,
+      "error": null
+    }
+  ],
+  "device_verification": "pending pattern unlock",
+  "limits": "Small regression sample; not library-wide precision or p95"
+}

@@ -1,14 +1,18 @@
 {
-  "at": "2026-09-07T12:46:26.473688",
+  "at": "2026-09-07T14:12:15.520685",
   "photo_count": 1000,
-  "analyzed_count": 865,
-  "ready_count": 865,
+  "analyzed_count": 1000,
+  "ready_count": 1000,
+  "full_photo_text_ready_count": 1000,
+  "selected_region_index_count": 4571,
+  "indexed_selected_region_count": 4571,
+  "index_scope": "full image, description/OCR text, and agent-selected cropped regions",
   "missing_index_count": 0,
   "uncovered_photo_count": 0,
   "original_analyses_preserved": 386,
   "original_photo_membership_restored": true,
   "active_duplicate_photo_count": 0,
-  "spaces": 0,
+  "spaces": 6,
   "runs": [
     {
       "role": "analyst",
@@ -18,47 +22,32 @@
     {
       "role": "analyst",
       "status": "completed",
-      "count": 864
+      "count": 999
     },
     {
       "role": "analyst",
       "status": "failed",
-      "count": 26
-    },
-    {
-      "role": "analyst",
-      "status": "queued",
-      "count": 130
-    },
-    {
-      "role": "analyst",
-      "status": "running",
-      "count": 5
+      "count": 29
     },
     {
       "role": "explorer",
       "status": "cancelled",
-      "count": 1
-    },
-    {
-      "role": "explorer",
-      "status": "completed",
-      "count": 13
-    },
-    {
-      "role": "explorer",
-      "status": "failed",
-      "count": 4
-    },
-    {
-      "role": "explorer",
-      "status": "incomplete",
       "count": 2
     },
     {
       "role": "explorer",
-      "status": "running",
-      "count": 1
+      "status": "completed",
+      "count": 32
+    },
+    {
+      "role": "explorer",
+      "status": "failed",
+      "count": 7
+    },
+    {
+      "role": "explorer",
+      "status": "incomplete",
+      "count": 4
     },
     {
       "role": "organizer",
@@ -67,8 +56,13 @@
     },
     {
       "role": "organizer",
-      "status": "queued",
-      "count": 1
+      "status": "completed",
+      "count": 2
+    },
+    {
+      "role": "organizer",
+      "status": "failed",
+      "count": 2
     }
   ]
 }

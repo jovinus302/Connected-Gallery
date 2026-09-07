@@ -1,0 +1,11 @@
+{
+  "agent_spec": 12,
+  "disconnect_method": "ADB reverse tcp:8765 removed, app restarted",
+  "offline_notice_visible": true,
+  "offline_photo_and_results_visible": true,
+  "offline_frame_preserved": true,
+  "reconnect_method": "ADB reverse tcp:8765 restored, app restarted",
+  "online_1000_photos_ready_notice_visible": true,
+  "reconnected_frame_preserved": true,
+  "original_photo_membership_preserved": true
+}

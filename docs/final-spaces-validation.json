@@ -1,0 +1,17 @@
+{
+  "accepted_memberships": 20,
+  "accepted_spaces": 6,
+  "proposed_memberships": 23,
+  "proposed_spaces": 6,
+  "seconds": 39.89,
+  "agent_spec": 15,
+  "photo_count": 1000,
+  "catalog_coverage_count": 1000,
+  "status": "completed",
+  "total_seconds": 98.65,
+  "model_calls": 2,
+  "review_format_retries": 0,
+  "stored_spaces": 6,
+  "stored_memberships": 20,
+  "distinct_member_photos": 20
+}

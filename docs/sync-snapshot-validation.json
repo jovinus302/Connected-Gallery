@@ -1,0 +1,9 @@
+{
+  "photo_count": 1000,
+  "analysis_snapshot_count": 887,
+  "active_analysis_count": 113,
+  "need_preview_count": 0,
+  "api_seconds": 0.36,
+  "request_count": 1,
+  "limits": "One API snapshot request; Android render time and cold-start reconnect are separate."
+}

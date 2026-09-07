@@ -111,7 +111,8 @@ class GalleryTools:
             ),
             "recognize_text": (
                 RegionArgs,
-                "Read text using Korean OCR; returns recognition evidence.",
+                "Read text using Korean OCR. Returns recognition evidence and normalized x,y,width,height "
+                "boxes in the FULL oriented photo, even for a crop. Copy matching boxes directly.",
             ),
             "ground_regions": (
                 GroundArgs,
@@ -277,6 +278,12 @@ class GalleryTools:
         )
         return result
 
+    def coverage_status(self):
+        photos = self.store.photos(self.request.explore.year if self.request.explore else None)
+        return {"covered_count": sum(p.id in self.covered for p in photos),
+                "total_count": len(photos),
+                "next_uncovered_offset": next((i for i, p in enumerate(photos) if p.id not in self.covered), None)}
+
     def list_photos(self, args):
         photos = self.store.photos(
             self.request.explore.year if self.request.explore else None
@@ -310,6 +317,7 @@ class GalleryTools:
         return {
             "total": len(photos),
             "next_offset": args.offset + len(page),
+            "coverage": self.coverage_status(),
             "photos": output,
         }
 
@@ -323,7 +331,17 @@ class GalleryTools:
         return self.image_block(args.photo_id, args.box)
 
     def recognize_text(self, args):
-        return self.artifact("ocr-v1", args, self.models.ocr)
+        result = self.artifact("ocr-v1", args, self.models.ocr)
+        image = self.store.read_image(args.photo_id, args.box)
+        texts = []
+        for page in result["pages"]:
+            evidence = page.get("res", page)
+            for text, score, xyxy in zip(evidence["rec_texts"], evidence["rec_scores"],
+                                         evidence["rec_boxes"], strict=True):
+                box = self.pixel_box(xyxy, image.size, args.box)
+                if box is not None:
+                    texts.append({"text": text, "score": score, "box": box})
+        return {"coordinate_space": "full_oriented_photo_normalized_xywh", "texts": texts}
 
     def ground_regions(self, args):
         result = self.artifact(
@@ -335,18 +353,25 @@ class GalleryTools:
         image = self.store.read_image(args.photo_id, args.box)
         labels = result.get("text_labels", result.get("labels", []))
         detections = []
-        for i, (left, top, right, bottom) in enumerate(result["boxes"]):
-            left, right = max(0, left / image.width), min(1, right / image.width)
-            top, bottom = max(0, top / image.height), min(1, bottom / image.height)
-            if right <= left or bottom <= top:
+        for i, xyxy in enumerate(result["boxes"]):
+            box = self.pixel_box(xyxy, image.size, args.box)
+            if box is None:
                 continue
-            box = self.full_photo_box(
-                {"x": left, "y": top, "width": right - left, "height": bottom - top}, args.box
-            )
             detections.append({"index": i, "label": labels[i],
                                "score": result["scores"][i], "box": box})
         return {"coordinate_space": "full_oriented_photo_normalized_xywh",
                 "detections": detections}
+
+    @classmethod
+    def pixel_box(cls, xyxy, size, crop):
+        left, top, right, bottom = xyxy
+        width, height = size
+        left, right = max(0, left / width), min(1, right / width)
+        top, bottom = max(0, top / height), min(1, bottom / height)
+        if right <= left or bottom <= top:
+            return None
+        return cls.full_photo_box({"x": left, "y": top, "width": right - left,
+                                   "height": bottom - top}, crop)
 
     @staticmethod
     def full_photo_box(box, crop):
@@ -577,11 +602,16 @@ class GalleryTools:
         self.result = args.model_dump(mode="json")
         if not self.defer_results:
             self.store.event(self.run_id, "results", self.result)
+        else:
+            self.store.event(self.run_id, "candidate_proposal", self.result)
         return {"saved": True, "complete": args.complete}
 
     def submit_space_proposal(self, args):
         if not self.allowed().issubset(self.covered):
-            raise ValueError("Page through the whole library before finalizing Spaces")
+            coverage = self.coverage_status()
+            raise ValueError(f"Page through the whole library before finalizing Spaces. "
+                             f"Covered {coverage['covered_count']}/{coverage['total_count']}; "
+                             f"list_photos next_uncovered_offset={coverage['next_uncovered_offset']}.")
         edits = [
             json.loads(r["data"]) for r in self.store.rows("SELECT data FROM feedback")
         ]
@@ -609,7 +639,17 @@ class GalleryTools:
                     space["items"].append(
                         {"photo_id": pid, "reason": "사용자가 포함한 사진"}
                     )
+        if getattr(self, "defer_spaces", False):
+            self.result = {"spaces": list(incoming.values())}
+            self.store.event(self.run_id, "space_candidate_proposal", self.result)
+            return {"saved": False, "pending_review": True}
         with self.store.lock, self.store.db:
+            states = self.store.rows("SELECT status FROM runs WHERE id=?", (self.run_id,))
+            if states and states[0]["status"] not in ("running", "queued"):
+                raise ValueError("Run is no longer active")
+            for space in incoming.values():
+                for item in space["items"]:
+                    self.authorize(item["photo_id"])
             self.store.db.execute("DELETE FROM spaces")
             for sid, space in incoming.items():
                 self.store.db.execute(

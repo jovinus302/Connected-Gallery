@@ -1,0 +1,45 @@
+{
+  "agent_spec": 9,
+  "api_regression_cases": [
+    {
+      "case": "mobile",
+      "status": "incomplete",
+      "result_count": 0,
+      "review": [
+        {
+          "accepted_count": 0,
+          "anchor_supported": true,
+          "candidate_count": 3,
+          "seconds": 4.453
+        }
+      ],
+      "first_result_seconds": 24.93,
+      "error": null
+    },
+    {
+      "case": "object",
+      "status": "failed",
+      "result_count": null,
+      "review": [],
+      "first_result_seconds": null,
+      "error": "TimeoutError"
+    },
+    {
+      "case": "place",
+      "status": "completed",
+      "result_count": 2,
+      "review": [
+        {
+          "accepted_count": 2,
+          "anchor_supported": true,
+          "candidate_count": 2,
+          "seconds": 4.0
+        }
+      ],
+      "first_result_seconds": 27.99,
+      "error": null
+    }
+  ],
+  "device_verification": "pending pattern unlock",
+  "limits": "Small regression sample; not library-wide precision or p95"
+}

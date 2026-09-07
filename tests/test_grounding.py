@@ -66,3 +66,19 @@ def test_crop_observation_does_not_claim_whole_photo_caption(store):
     assert json.loads(whole[0]["text"])["analysis"]["description"]
     assert json.loads(crop[0]["text"])["analysis"] is None
     assert crop[1]["type"] == "image"
+
+
+@pytest.mark.parametrize("crop", [None, Box(x=.2, y=.3, width=.5, height=.4)])
+def test_ocr_text_and_geometry_stay_paired_in_full_photo_coordinates(store, crop):
+    class OCR:
+        def ocr(self, image):
+            w, h = image.size
+            return {"pages": [{"res": {"rec_texts": ["예약"], "rec_scores": [.95],
+                    "rec_boxes": [[w*.1, h*.2, w*.7, h*.8]]}}]}
+
+    toolkit = GalleryTools(store, OCR(), RunRequest(role="analyst", photo_ids=["a"]), "ocr")
+    result = toolkit.recognize_text(RegionArgs(photo_id="a", box=crop))
+    assert result["texts"][0]["text"] == "예약"
+    assert result["texts"][0]["score"] == .95
+    expected = dict(x=.25, y=.38, width=.3, height=.24) if crop else dict(x=.1, y=.2, width=.6, height=.6)
+    assert result["texts"][0]["box"] == pytest.approx(expected)

@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageOps
 from connected_gallery.domain.models import PhotoAsset, PhotoAnalysis, Box
+from connected_gallery.domain.index_keys import region_key, text_key
 
 
 def encoded(value):
@@ -227,6 +228,20 @@ class Store:
             # A single transaction publishes evidence and its mandatory indexes.
             # No inference or nested auto-committing Store.write calls belong here.
             with self.db:
+                # Analysis-derived representations must follow corrections to
+                # geometry/text. Keep independent, explicitly requested crop
+                # artifacts and face embeddings, which still describe the photo.
+                obsolete = []
+                for row in self.db.execute("SELECT key,space FROM vectors WHERE photo_id=?", (analysis.photo_id,)):
+                    key, space = row["key"], row["space"]
+                    if key.startswith(f"{analysis.photo_id}:region:"):
+                        current = {region_key(analysis.photo_id, photo.version, r.box, space) for r in analysis.regions}
+                        if key not in current:
+                            obsolete.append((key,))
+                    elif key.startswith(f"{analysis.photo_id}:text:") and key != text_key(
+                            analysis.photo_id, analysis.description + " " + analysis.ocr, space):
+                        obsolete.append((key,))
+                self.db.executemany("DELETE FROM vectors WHERE key=?", obsolete)
                 self.db.execute("INSERT OR REPLACE INTO analyses VALUES(?,?)", (analysis.photo_id, analysis.model_dump_json()))
                 self.db.execute("DELETE FROM evidence_fts WHERE photo_id=?", (analysis.photo_id,))
                 self.db.execute("INSERT INTO evidence_fts VALUES(?,?)", (analysis.photo_id, analysis.description + " " + analysis.ocr))
@@ -253,7 +268,7 @@ class Store:
     def search(self, space, query, allowed, limit=20):
         q = np.asarray(query, dtype=np.float32).reshape(-1)
         q = q / max(float(np.linalg.norm(q)), 1e-12)
-        scored = []
+        scored = {}
         for row in self.rows(
             "SELECT key,photo_id,data FROM vectors WHERE space=?", (space,)
         ):
@@ -262,14 +277,15 @@ class Store:
             v = np.frombuffer(row["data"], dtype=np.float32)
             if v.shape != q.shape:
                 raise ValueError("Embedding dimension mismatch")
-            scored.append(
-                {
+            candidate = {
                     "photo_id": row["photo_id"],
                     "artifact": row["key"],
                     "similarity": float(v @ q),
                 }
-            )
-        return sorted(scored, key=lambda x: x["similarity"], reverse=True)[:limit]
+            previous = scored.get(row["photo_id"])
+            if previous is None or candidate["similarity"] > previous["similarity"]:
+                scored[row["photo_id"]] = candidate
+        return sorted(scored.values(), key=lambda x: x["similarity"], reverse=True)[:limit]
 
     def cache_get(self, key):
         rows = self.rows(

@@ -1,0 +1,48 @@
+{
+  "agent_spec": 14,
+  "membership_review": [
+    {
+      "space_number": 1,
+      "members": 4,
+      "supported": 3,
+      "uncertain": 0,
+      "rejected": 1,
+      "seconds": 4.94
+    },
+    {
+      "space_number": 2,
+      "members": 4,
+      "supported": 3,
+      "uncertain": 0,
+      "rejected": 1,
+      "seconds": 5.12
+    },
+    {
+      "space_number": 3,
+      "members": 4,
+      "supported": 4,
+      "uncertain": 0,
+      "rejected": 0,
+      "seconds": 9.19
+    },
+    {
+      "space_number": 4,
+      "members": 4,
+      "supported": 4,
+      "uncertain": 0,
+      "rejected": 0,
+      "seconds": 4.62
+    },
+    {
+      "space_number": 5,
+      "members": 4,
+      "supported": 3,
+      "uncertain": 0,
+      "rejected": 1,
+      "seconds": 4.83
+    }
+  ],
+  "limits": "Independent model comparison of generated entry-point memberships; not user reuse ratings or exhaustive 1000-photo classification.",
+  "status": "Historical partial audit of spec 14 proposal; sixth review failed index coverage validation",
+  "superseded_by": "Spec 15 production membership review before persistence"
+}

@@ -51,6 +51,16 @@ def test_vector_search_filters_before_top_k(store):
     assert store.search("other", [1, 0], {"b"}, 1) == []
 
 
+def test_candidate_limit_counts_distinct_photos_after_region_indexing(store):
+    store.vector("b:whole", "b", "test", [1, 0])
+    store.vector("b:crop1", "b", "test", [.99, .01])
+    store.vector("b:crop2", "b", "test", [.98, .02])
+    store.vector("c:whole", "c", "test", [.8, .2])
+    found = store.search("test", [1, 0], {"b", "c"}, 2)
+    assert [r["photo_id"] for r in found] == ["b", "c"]
+    assert found[0]["artifact"] == "b:whole"
+
+
 def test_explorer_rejects_unseen_and_wrong_year(store):
     req = RunRequest(
         role="explorer",

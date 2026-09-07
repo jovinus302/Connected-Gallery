@@ -1,0 +1,105 @@
+{
+  "agent_spec": 12,
+  "photo_count": 1000,
+  "full_index_ready_count": 1000,
+  "api_regression_cases": [
+    {
+      "case": "person",
+      "status": "completed",
+      "result_count": 5,
+      "review": [
+        {
+          "accepted_count": 5,
+          "anchor_supported": true,
+          "candidate_count": 5,
+          "seconds": 6.047
+        }
+      ],
+      "first_result_seconds": 27.0,
+      "finished_seconds": 27.08,
+      "error": null
+    },
+    {
+      "case": "object",
+      "status": "completed",
+      "result_count": 3,
+      "review": [
+        {
+          "accepted_count": 3,
+          "anchor_supported": true,
+          "candidate_count": 4,
+          "seconds": 4.344
+        }
+      ],
+      "first_result_seconds": 18.1,
+      "finished_seconds": 18.19,
+      "error": null
+    },
+    {
+      "case": "mobile",
+      "status": "completed",
+      "result_count": 3,
+      "review": [
+        {
+          "accepted_count": 3,
+          "anchor_supported": true,
+          "candidate_count": 4,
+          "seconds": 5.078
+        }
+      ],
+      "first_result_seconds": 23.96,
+      "finished_seconds": 24.04,
+      "error": null
+    },
+    {
+      "case": "text",
+      "status": "completed",
+      "result_count": 2,
+      "review": [
+        {
+          "accepted_count": 2,
+          "anchor_supported": true,
+          "candidate_count": 2,
+          "seconds": 3.266
+        }
+      ],
+      "first_result_seconds": 55.4,
+      "finished_seconds": 55.42,
+      "error": null
+    },
+    {
+      "case": "place",
+      "status": "completed",
+      "result_count": 1,
+      "review": [
+        {
+          "accepted_count": 1,
+          "anchor_supported": true,
+          "candidate_count": 5,
+          "seconds": 5.719
+        }
+      ],
+      "first_result_seconds": 27.52,
+      "finished_seconds": 27.61,
+      "error": null
+    },
+    {
+      "case": "same_moment",
+      "status": "completed",
+      "result_count": 3,
+      "review": [
+        {
+          "accepted_count": 3,
+          "anchor_supported": true,
+          "candidate_count": 3,
+          "seconds": 4.937
+        }
+      ],
+      "first_result_seconds": 24.51,
+      "finished_seconds": 24.57,
+      "error": null
+    }
+  ],
+  "device_verification": "Recorded separately in device-three-hop-validation.json",
+  "limits": "Small regression sample; not library-wide precision or p95. Reviewer judgments are model evidence, not user ratings."
+}
