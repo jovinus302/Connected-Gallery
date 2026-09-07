@@ -81,7 +81,7 @@ def test_one_use_key_grants_only_scoped_browser_session(demo):
         assert client.request(method, path, json=payload, headers={"Origin": session.origin}).status_code == 401
     for role in ["organizer", "analyst"]:
         req = {"role": role, "photo_ids": ["opaque_A"] if role == "analyst" else []}
-        assert client.post("/runs", json=req, headers={"Origin": session.origin}).status_code == 403
+        assert client.post("/runs", json=req, headers={"Origin": session.origin}).status_code == (410 if role == "organizer" else 403)
     assert len(app.state.store.photos()) == 2
 
 

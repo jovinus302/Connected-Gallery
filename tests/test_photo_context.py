@@ -35,6 +35,24 @@ def request():
     return RunRequest(role="context", photo_ids=["a"])
 
 
+def test_initial_time_neighborhood_is_only_candidate_acquisition_not_grouping_or_inspection(store):
+    from datetime import datetime, timedelta, timezone
+    source_time = datetime(2026, 9, 7, 12, tzinfo=timezone.utc)
+    for index in range(60):
+        store.upsert(PhotoAsset(id=f"early-{index:02}",device_id="d",version="v1",width=1,height=1,
+            captured_at=source_time-timedelta(days=100+index),time_source="media_store"))
+    for pid, offset in [("a",0),("b",60),("c",120)]:
+        value=store.photo(pid).model_copy(update={"version":"dated", "captured_at":source_time+timedelta(seconds=offset), "time_source":"media_store"})
+        store.upsert(value)
+    tools=ContextTools(store,None,request(),"neighborhood-prior")
+    page=tools.initial_catalog()
+    assert [p["photo_id"] for p in page["photos"][:3]]==["a","b","c"]
+    assert len(page["photos"])==40 and len(tools.catalog_seen)==40
+    assert {"b","c"}.issubset(tools.acquired)
+    assert not tools.full_seen and tools.result is None and tools.plan is None
+    assert not store.rows("SELECT * FROM events WHERE kind IN ('context_result','context_proposal')")
+
+
 def observation_plan(ids=("b", "c")):
     return {"source_observation": "원본 전체에서 빨간색이 보입니다.", "investigations": [
         {"question": "다른 사진에서 이 색이 어떤 모습으로 보이는가?", "evidence_needed": "후보 전체 이미지를 확인한다.",
@@ -144,6 +162,31 @@ async def test_context_uses_outside_connect_candidates_and_independent_images(st
     assert not store.rows("SELECT * FROM events WHERE kind IN ('results','space_candidate_proposal')")
     evidence = json.loads(store.rows("SELECT data FROM events WHERE kind='context_acquisition'")[-1]["data"])
     assert set(evidence["inspected"]) == {"a", "b", "c"}
+
+
+@pytest.mark.asyncio
+async def test_membership_failure_returns_exact_observed_ids_without_silently_editing_proposal(store):
+    class RecoveringGateway(ImageGateway):
+        async def invoke(self, messages, schemas):
+            response = await super().invoke(messages, schemas)
+            if schemas[0]["name"] != "submit_context_review":
+                if self.turns == 2:
+                    return AIMessage(content="", tool_calls=[{"id": "invalid-source", "type": "tool_call",
+                        "name": "submit_photo_context", "args": context(("a",))}])
+                if self.turns == 3:
+                    diagnostic = next(json.loads(m.content) for m in messages
+                        if getattr(m, "tool_call_id", None) == "invalid-source")
+                    assert diagnostic["validation_error"] == "member_is_source"
+                    assert diagnostic["source_photo_id"] == "a"
+                    assert diagnostic["allowed_submission_photo_ids"] == ["b", "c"]
+                    assert diagnostic["unresolved_planned_photo_ids"] == []
+            return response
+    gateway = RecoveringGateway()
+    result = await PhotoContextAgent(store, None, gateway).execute("exact-membership-repair", request())
+    assert result["groups"] == context()["groups"]
+    assert gateway.reviews == 1
+    proposals = store.rows("SELECT data FROM events WHERE run_id='exact-membership-repair' AND kind='context_proposal'")
+    assert len(proposals) == 1 and json.loads(proposals[0]["data"])["groups"] == context()["groups"]
 
 
 @pytest.mark.asyncio
@@ -987,3 +1030,35 @@ async def test_v3_ready_requires_plan_and_copy_review_provenance(store, tamper):
     store.cache_put(key, cached)
     store.write("DELETE FROM runs")
     assert service.context_ready("a")["state"] == "pending"
+
+
+@pytest.mark.parametrize("previous_spec,previous_policy", [
+    (3, "photo-context-v3-plan-and-wording-review"),
+    (5, "photo-context-v5-source-neighborhood-prior"),
+])
+def test_previous_context_policy_cannot_be_reused_under_the_merged_key(store, previous_spec, previous_policy):
+    """Both merge parents' prepared views require preparation under the new policy."""
+    service = RunService(store, ContextRunner(store=store))
+    raw = context()
+    raw["evidence"] = {
+        "gallery_revision": store.revision,
+        "source_version": store.photo("a").version,
+        "inspected_photo_ids": ["a", "b", "c"],
+        "photo_versions": {pid: store.photo(pid).version for pid in ("a", "b", "c")},
+        "summary_reviewed": True,
+        "reviewed_members": [{"group_id": "g", "photo_id": pid} for pid in ("b", "c")],
+        "planned_photo_ids": ["b", "c"],
+        "wording_review_model": CONTEXT_WORDING_MODEL,
+        "wording_reviewed": True,
+        "wording_checked_paths": [field["path"] for field in context_wording_fields(raw)],
+    }
+    cached = service.contexts.cache_value("a", raw)
+    assert cached["context_spec"] != previous_spec
+    cached.update(context_spec=previous_spec, context_policy=previous_policy)
+    current_key = service.contexts.key("a")
+    store.cache_put(current_key, cached)
+    before = store.db.total_changes
+    assert service.context_ready("a")["state"] == "pending"
+    assert store.db.total_changes == before
+    assert store.cache_get(current_key) == cached
+    assert not service.tasks and not store.rows("SELECT * FROM runs")

@@ -6,6 +6,7 @@ import com.connectedgallery.domain.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.channels.Channel
 import javax.inject.Inject
 import java.util.UUID
 import kotlinx.serialization.json.*
@@ -19,25 +20,56 @@ import kotlinx.serialization.json.*
  private var currentView=UUID.randomUUID().toString()
  private fun viewMetric(kind:String="")=buildJsonObject { put("view_id",currentView);put("photo_id",journey.value.current?.photoId?:"");put("kind",kind) }.toString()
  private var searchJob:Job?=null;private var analysisJob:Job?=null;private var syncJob:Job?=null
+ private var contextJob:Job?=null;private var contextGeneration=0L
+ private val journeyWrites=Channel<Journey>(Channel.CONFLATED)
  init {
+  viewModelScope.launch { for(value in journeyWrites)repo.saveJourney(value) }
   viewModelScope.launch {
    val initial=repo.photos.first();val saved=repo.loadJourney().withoutTimeFilters()
-   journey.value=if(saved.current?.photoId in initial.map { it.id })saved else Journey()
-   repo.saveJourney(journey.value)
-   journey.value.current?.let { observeAnalysis(it.photoId) }
+   if(journey.value.revision==0L)journey.value=if(saved.current?.photoId in initial.map { it.id })saved else Journey()
+   journeyWrites.trySend(journey.value)
+   journey.value.current?.let { observeAnalysis(it.photoId);observeContext(it.photoId) }
    repo.photos.collect { available ->
     val ids=available.map { it.id }.toSet()
-    if(journey.value.current?.photoId?.let { it !in ids }==true) { searchJob?.cancel();analysisJob?.cancel();update(Journey());analysis.value=null }
+    val j=journey.value
+    if(j.current?.photoId?.let { it !in ids }==true) { searchJob?.cancel();analysisJob?.cancel();contextJob?.cancel();contextGeneration++;update(Journey());analysis.value=null }
+    else if(j.history.any { it.photoId !in ids })update(j.copy(history=j.history.filter { it.photoId in ids }))
    }
   }
  }
- private fun update(j:Journey) { journey.value=j;viewModelScope.launch { repo.saveJourney(j) } }
+ private fun update(j:Journey) { journey.value=j;journeyWrites.trySend(j) }
  fun refresh() {
   if(syncJob?.isActive==true)return
-  syncJob=viewModelScope.launch { try { repo.refreshAndSync { status.value=it } } catch(e:CancellationException){throw e} catch(_:Exception){status.value="PC 연결을 확인해 주세요. 저장된 사진은 계속 볼 수 있어요"} }
+  syncJob=viewModelScope.launch { try { repo.refreshAndSync { status.value=it };journey.value.current?.let { observeContext(it.photoId) } } catch(e:CancellationException){throw e} catch(_:Exception){status.value="PC 연결을 확인해 주세요. 저장된 사진은 계속 볼 수 있어요"} }
  }
  fun open(id:String) {
-  searchJob?.cancel();exploring.value=false;status.value="";update(journey.value.open(id));observeAnalysis(id)
+  searchJob?.cancel();exploring.value=false;status.value="";update(journey.value.open(id));observeAnalysis(id);observeContext(id)
+ }
+ private fun observeContext(id:String,retry:Boolean=false) {
+  contextJob?.cancel();val generation=++contextGeneration
+  val j=journey.value
+  if(j.current?.photoId!=id)return
+  update(j.copy(current=j.current?.copy(context=ContextState(id,state="checking"))))
+  contextJob=viewModelScope.launch {
+   val started=System.currentTimeMillis()
+   repo.context(id,retry) { context ->
+    val current=journey.value
+    if(contextGeneration==generation && current.current?.photoId==id)
+     update(current.copy(current=current.current?.copy(context=context)))
+   }
+   if(contextGeneration==generation && journey.value.current?.context?.state in setOf("ready","empty"))
+    repo.metric("photo_context_ms",(System.currentTimeMillis()-started).toString())
+  }
+ }
+ fun retryContext() { journey.value.current?.let { observeContext(it.photoId,true) } }
+ fun focus(groupId:String) {
+  val j=journey.value;val frame=j.current?:return
+  val groups=if(frame.query==null)frame.context?.context?.groups else frame.result?.groups
+  if(groups?.any { it.id==groupId }==true)update(j.focus(groupId))
+ }
+ fun rowScroll(revision:Long,groupId:String,index:Int) {
+  val j=journey.value;val frame=j.current?:return
+  if(j.revision==revision)update(j.copy(current=frame.copy(rowPositions=frame.rowPositions+(groupId to index))))
  }
  private fun observeAnalysis(id:String) {
   analysisJob?.cancel();analysis.value=null;currentView=UUID.randomUUID().toString()
@@ -74,7 +106,7 @@ import kotlinx.serialization.json.*
   }
  }
  fun back() {
-  searchJob?.cancel();exploring.value=false;status.value="";viewModelScope.launch { repo.metric("back") };update(journey.value.back());journey.value.current?.let { observeAnalysis(it.photoId) }?:run { analysisJob?.cancel();analysis.value=null }
+  searchJob?.cancel();exploring.value=false;status.value="";viewModelScope.launch { repo.metric("back") };update(journey.value.back());journey.value.current?.let { observeAnalysis(it.photoId);observeContext(it.photoId) }?:run { analysisJob?.cancel();contextJob?.cancel();contextGeneration++;analysis.value=null }
  }
  fun scroll(revision:Long,index:Int,offset:Int) { val j=journey.value;if(j.revision==revision)update(j.copy(current=j.current?.copy(scrollIndex=index,scrollOffset=offset))) }
  fun name(region:Region,value:String) { viewModelScope.launch { try { repo.feedback("person_name",photoId=region.photo_id,regionId=region.id,value=value);val refreshed=repo.analysis(region.photo_id);if(journey.value.current?.photoId==region.photo_id)analysis.value=refreshed } catch(e:CancellationException){throw e} catch(_:Exception){if(journey.value.current?.photoId==region.photo_id)status.value="PC 연결 후 이름을 저장해 주세요"} } }

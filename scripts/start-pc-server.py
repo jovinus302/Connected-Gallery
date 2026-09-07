@@ -15,6 +15,29 @@ network = runtime / "network"
 connection_file = runtime / "pc-connection.json"
 
 
+def probe_manifest(client, url, headers, diagnostic_path):
+    """Record transport/status evidence without credentials or gallery payloads."""
+    record = {"time": time.time(), "url": url + "/manifest"}
+    try:
+        response = client.get(url + "/manifest", headers=headers)
+        record.update(status=response.status_code, server=response.headers.get("server"),
+                      ray=response.headers.get("cf-ray"))
+        ready = response.status_code == 200
+        if not ready and response.headers.get("server", "").lower() == "cloudflare":
+            error = re.search(r"(?:error code:\s*|Error\s*)(\d{3,4})", response.text, re.I)
+            if error:
+                record["cloudflare_error"] = error.group(1)
+    except httpx.TransportError as exc:
+        ready = False
+        credential = headers["Authorization"]
+        detail = str(exc).replace(credential, "[redacted]").replace(credential.removeprefix("Bearer "), "[redacted]")
+        record.update(error=type(exc).__name__, detail=detail)
+    with diagnostic_path.open("a", encoding="utf-8") as log:
+        log.write(json.dumps(record) + "\n")
+    print("HTTPS probe: " + json.dumps(record), flush=True)
+    return ready
+
+
 def main():
     os.chdir(project)
     load_dotenv(project / ".env")
@@ -69,6 +92,7 @@ def main():
                 pass
         stamp = str(time.time_ns())
         log_path = network / ("tunnel-" + stamp + ".log")
+        diagnostic_path = network / ("tunnel-" + stamp + "-probe.jsonl")
         with log_path.open("wb") as log:
             tunnel = subprocess.Popen([str(binary), "tunnel", "--url", "http://127.0.0.1:8765",
                 "--no-autoupdate"], cwd=project,
@@ -83,7 +107,7 @@ def main():
             if match:
                 url = match.group()
                 try:
-                    if client.get(url + "/manifest", headers=headers).status_code == 200:
+                    if probe_manifest(client, url, headers, diagnostic_path):
                         if client.get(url + "/assets").status_code != 401:
                             tunnel.terminate()
                             raise SystemExit("Public authentication check failed")
@@ -96,7 +120,7 @@ def main():
                     pass
             time.sleep(2)
         tunnel.terminate()
-        raise SystemExit("Tunnel startup timed out; inspect " + str(log_path))
+        raise SystemExit("Tunnel startup timed out; inspect " + str(log_path) + " and " + str(diagnostic_path))
 
 
 if __name__ == "__main__":

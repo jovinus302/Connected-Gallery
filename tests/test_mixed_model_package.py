@@ -9,6 +9,7 @@ import zipfile
 import pytest
 
 from connected_gallery.application.service import RunService
+from connected_gallery.domain.context import CONTEXT_SPEC
 from connected_gallery.domain.models import ExploreInput, RunRequest, SemanticAnchor
 from test_demo_package import fixture as package_fixture, packager
 from test_demo_profile_scripts import script
@@ -55,7 +56,7 @@ def mixed_stage(dataset, monkeypatch, positive_model=PRIMARY):
     report = script("stage-complete-demo.py").stage(dataset.args)
     staged = dataset.args.stage_dir
     assert rows(root) == before and report["retained_payload_bytes_and_revisions_unchanged"]
-    assert report["agent_spec"] == 18 and report["context_spec"] == 3
+    assert report["agent_spec"] == 18 and report["context_spec"] == CONTEXT_SPEC
     assert report["validation"]["confirmed_empty_connect"] == 1
     assert {row["cache_model"] for row in report["validation"]["cache_records"] if row["kind"] == "connect"} == {PRIMARY, OLD}
     return staged, keys, empty_model

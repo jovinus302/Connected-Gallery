@@ -47,41 +47,72 @@ import kotlinx.coroutines.flow.distinctUntilChanged
    Row { TextButton(onClick={manual=null}) { Text("취소") };TextButton(onClick={vm.select(SemanticAnchor(photo.id,box=b));manual=null}) { Text("이 부분 따라가기") } }
    Slider(value=b.width,onValueChange={ v -> val cx=b.x+b.width/2;val cy=b.y+b.height/2;manual=RegionBox((cx-v/2).coerceIn(0f,1-v),(cy-v/2).coerceIn(0f,1-v),v,v) },valueRange=.05f..1f,modifier=Modifier.padding(horizontal=16.dp))
   }
-  if(query!=null) {
-   if(busy) LinearProgressIndicator(Modifier.fillMaxWidth())
-   val screenRevision=journey.revision
-   key(screenRevision) {
-    val listState=rememberLazyListState(frame.scrollIndex,frame.scrollOffset)
-    LaunchedEffect(listState) { snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }.distinctUntilChanged().collect { vm.scroll(screenRevision,it.first,it.second) } }
-    val result=frame.result
-    val grouped=result?.hasValidGroups()==true
-    val sections=if(grouped)result!!.groups else if(result?.items?.isNotEmpty()==true) listOf(ResultGroup("flat","연결된 사진","",result.items.map { it.photo_id })) else emptyList()
-    val photosById=photos.associateBy { it.id }
-    val itemsById=result?.items?.associateBy { it.photo_id }.orEmpty()
-    LazyColumn(state=listState,modifier=Modifier.fillMaxWidth().weight(1f),contentPadding=PaddingValues(12.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
-     items(sections,key={it.id}) { group ->
-      Column(verticalArrangement=Arrangement.spacedBy(6.dp)) {
-       Text(group.title,style=MaterialTheme.typography.titleSmall)
-       if(group.reason.isNotBlank())Text(group.reason,style=MaterialTheme.typography.bodySmall)
-       LazyRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-        items(group.photo_ids,key={it}) { id -> photosById[id]?.let { p ->
-         Column(Modifier.width(120.dp).clickable { vm.open(p.id) },verticalArrangement=Arrangement.spacedBy(4.dp)) {
-          AsyncImage(model=p.local_uri,contentDescription=itemsById[id]?.reason?:group.title,contentScale=ContentScale.Crop,modifier=Modifier.fillMaxWidth().height(112.dp))
-          val reason=itemsById[id]?.reason.orEmpty()
-          if(reason.isNotBlank())Text(reason,style=MaterialTheme.typography.labelSmall,maxLines=2,overflow=TextOverflow.Ellipsis)
-         }
-        } }
-       }
+  val contextState=frame.context
+  val context=contextState?.context
+  val result=frame.result
+  val sections=if(query==null) context?.groups.orEmpty() else if(result?.hasValidGroups()==true) result.groups
+   else if(result?.items?.isNotEmpty()==true) listOf(ResultGroup("flat","연결된 사진","",result.items.map { it.photo_id })) else emptyList()
+  val focused=sections.find { it.id==frame.focusedGroup }
+  val screenRevision=journey.revision
+  if((query!=null && busy) || (query==null && contextState?.state in setOf(null,"checking","pending","running")))
+   LinearProgressIndicator(Modifier.fillMaxWidth())
+  val canRestore=query!=null || contextState?.state in setOf("ready","empty")
+  key(screenRevision,canRestore) {
+   val listState=rememberLazyListState(frame.scrollIndex,frame.scrollOffset)
+   LaunchedEffect(listState) { if(canRestore)snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }.distinctUntilChanged().collect { vm.scroll(screenRevision,it.first,it.second) } }
+   val photosById=photos.associateBy { it.id }
+   val itemsById=result?.items?.associateBy { it.photo_id }.orEmpty()
+   LazyColumn(state=listState,modifier=Modifier.fillMaxWidth().weight(1f),contentPadding=PaddingValues(12.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+    if(query==null) item(key="context-status") {
+     Column(verticalArrangement=Arrangement.spacedBy(6.dp)) {
+      contextState?.capture?.let { Text("촬영일 · ${it.date}",style=MaterialTheme.typography.labelSmall) }
+      when(contextState?.state) {
+       "ready","empty" -> Text(context?.summary.orEmpty(),style=MaterialTheme.typography.bodyMedium)
+       "failed" -> { Text("주변 사진의 맥락을 정리하지 못했어요");TextButton(onClick=vm::retryContext) { Text("다시 시도") } }
+       "offline" -> { Text("PC 연결을 확인하면 주변 사진을 볼 수 있어요");TextButton(onClick=vm::retryContext) { Text("연결 후 다시 시도") } }
+       else -> Text("이 사진의 주변 맥락을 살펴보고 있어요",style=MaterialTheme.typography.bodySmall)
       }
      }
     }
+    if(focused!=null) {
+     item(key="focused-title") { Column { Text(focused.title,style=MaterialTheme.typography.titleMedium);Text(focused.reason,style=MaterialTheme.typography.bodySmall) } }
+     items(focused.photo_ids.chunked(2),key={it.first()}) { ids ->
+      Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+       ids.forEach { id -> photosById[id]?.let { p -> PhotoThumbnail(p,itemsById[id]?.reason?:focused.title,Modifier.weight(1f),vm::open) } }
+       if(ids.size==1)Spacer(Modifier.weight(1f))
+      }
+     }
+    } else items(sections,key={"group:"+it.id}) { group ->
+     Column(verticalArrangement=Arrangement.spacedBy(6.dp)) {
+      Text(group.title,Modifier.fillMaxWidth().clickable { vm.focus(group.id) }.padding(vertical=8.dp),style=MaterialTheme.typography.titleSmall)
+      if(group.reason.isNotBlank())Text(group.reason,style=MaterialTheme.typography.bodySmall)
+      val rowState=rememberLazyListState(frame.rowPositions[group.id]?:0)
+      LaunchedEffect(rowState) { snapshotFlow { rowState.firstVisibleItemIndex }.distinctUntilChanged().collect { vm.rowScroll(screenRevision,group.id,it) } }
+      LazyRow(state=rowState,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+       items(group.photo_ids,key={it}) { id -> photosById[id]?.let { p ->
+        PhotoThumbnail(p,itemsById[id]?.reason?:group.title,Modifier.width(120.dp),vm::open)
+       } }
+      }
+     }
+    }
+    if(query!=null && !busy) item(key="connect-status") {
+     when {
+      result==null -> TextButton(onClick=vm::retry) { Text("다시 탐색") }
+      result.grouping_status=="failed" -> TextButton(onClick=vm::retry) { Text("연결은 찾았지만 정리를 마치지 못했어요 · 다시 시도") }
+      !result.complete -> TextButton(onClick=vm::retry) { Text("일부 결과예요 · 다시 탐색") }
+      result.items.isEmpty() -> Text("연결된 사진을 찾지 못했어요")
+     }
+    }
    }
-   if(frame.result?.items?.isEmpty()==true && !busy)Text("이 맥락에서 연결된 사진을 찾지 못했어요",Modifier.padding(12.dp))
-   if(!busy && frame.result?.grouping_status=="failed")TextButton(onClick=vm::retry) { Text("연결은 찾았지만 정리를 마치지 못했어요 · 다시 시도") }
-   else if(!busy && frame.result?.complete==false)TextButton(onClick=vm::retry) { Text("일부 결과예요 · 다시 탐색") }
-   if(!busy && frame.result==null)TextButton(onClick=vm::retry) { Text("다시 탐색") }
   }
  }
  if(choices.isNotEmpty())AlertDialog(onDismissRequest={choices=emptyList()},title={Text("어떤 의미를 따라갈까요?")},text={Column { choices.forEach { r -> Row { TextButton(onClick={select(r)}) { Text(r.label) };if(r.kind=="person")TextButton(onClick={naming=r;choices=emptyList()}) { Text("이름 지정") } } } }},confirmButton={})
  naming?.let { region -> AlertDialog(onDismissRequest={naming=null},title={Text("이 사람의 이름")},text={OutlinedTextField(value=personName,onValueChange={personName=it})},confirmButton={TextButton(onClick={vm.name(region,personName);naming=null}) { Text("저장") }}) }
+}
+
+@Composable private fun PhotoThumbnail(photo:Photo,reason:String,modifier:Modifier,onOpen:(String)->Unit) {
+ Column(modifier.clickable { onOpen(photo.id) },verticalArrangement=Arrangement.spacedBy(4.dp)) {
+  AsyncImage(model=photo.local_uri,contentDescription=reason,contentScale=ContentScale.Crop,modifier=Modifier.fillMaxWidth().height(112.dp))
+  if(reason.isNotBlank())Text(reason,style=MaterialTheme.typography.labelSmall,maxLines=2,overflow=TextOverflow.Ellipsis)
+ }
 }

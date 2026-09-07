@@ -5,7 +5,7 @@ class JourneyTest {
  @Test fun sameMomentIsRetiredFromSavedAndBackNavigation() {
   val old=Journey().open("one").select(SemanticAnchor("one")).modify(null,"same_moment").open("two")
   val migrated=old.withoutTimeFilters()
-  assertEquals("related",migrated.current!!.query!!.direction)
+  assertNull(migrated.current!!.query)
   assertTrue(migrated.history.all { it.query==null || it.query.direction=="related" })
   assertNull(migrated.current!!.result)
  }
@@ -27,10 +27,10 @@ class JourneyTest {
   val all=Journey().open("one").select(anchor).let { it.accept(it.revision,ExplorationResult("all")) }
   val dated=all.modify(2024,"related").let { it.accept(it.revision,ExplorationResult("dated")) }.open("two")
   val migrated=dated.withoutTimeFilters()
-  assertNull(migrated.current!!.query!!.year)
+  assertNull(migrated.current!!.query)
   assertNull(migrated.current!!.result)
   assertTrue(migrated.history.none { it.query?.year!=null })
-  assertEquals(anchor,migrated.current!!.query!!.anchor)
+  assertEquals(anchor,migrated.history.last().query!!.anchor)
   assertEquals(all.current,migrated.history[1])
   assertTrue(migrated.revision>dated.revision)
   assertNull(migrated.accept(dated.revision,ExplorationResult("stale")).current!!.result)
@@ -45,7 +45,7 @@ class JourneyTest {
   val journey=Journey().open("one").select(a).modify(2015,"related")
   assertEquals(a,journey.current!!.query!!.anchor)
   val opened=journey.open("two")
-  assertEquals(2015,opened.current!!.query!!.year)
+  assertNull(opened.current!!.query)
   val next=opened.select(SemanticAnchor("two",label="해변",kind="place"))
   assertNull(next.current!!.query!!.year)
   assertEquals("related",next.current!!.query!!.direction)

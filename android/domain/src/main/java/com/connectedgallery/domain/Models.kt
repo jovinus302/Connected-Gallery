@@ -36,23 +36,23 @@ import kotlinx.coroutines.flow.Flow
   state=="ready" && it.complete && it.hasValidGroups() && it.items.none { item -> item.photo_id==anchorPhotoId }
  }
 }
-@Serializable data class Space(val id:String,val name:String,val meaning:String,val items:List<ResultItem>)
 @Serializable data class RunState(val id:String,val status:String,val result:ExplorationResult?=null,val error:String?=null)
-@Serializable data class Frame(val photoId:String,val query:ExploreInput?=null,val result:ExplorationResult?=null,val scrollIndex:Int=0,val scrollOffset:Int=0)
+@Serializable data class Frame(val photoId:String,val query:ExploreInput?=null,val result:ExplorationResult?=null,val scrollIndex:Int=0,val scrollOffset:Int=0,val context:ContextState?=null,val focusedGroup:String?=null,val rowPositions:Map<String,Int> = emptyMap())
 @Serializable data class Journey(val current:Frame?=null,val history:List<Frame> = emptyList(),val revision:Long=0) {
  fun withoutTimeFilters():Journey {
-  fun retired(frame:Frame)=frame.query?.let { it.year!=null || it.direction!="related" }?:false
+  fun retired(frame:Frame)=frame.query?.let { it.year!=null || it.direction!="related" || it.anchor.photo_id!=frame.photoId }?:false
   if(current?.let(::retired)!=true && history.none(::retired))return this
   val nextRevision=revision+1
-  fun migrate(frame:Frame)=if(!retired(frame))frame else frame.copy(
+  fun migrate(frame:Frame)=if(frame.query!=null && frame.query.anchor.photo_id!=frame.photoId)Frame(frame.photoId) else if(!retired(frame))frame else frame.copy(
    query=frame.query!!.copy(year=null,direction="related",request_revision=nextRevision),result=null,scrollIndex=0,scrollOffset=0)
   return copy(current=current?.let(::migrate),history=history.map(::migrate),revision=nextRevision)
  }
- fun open(photoId:String)=copy(current=Frame(photoId,current?.query,current?.result),history=history+listOfNotNull(current),revision=revision+1)
+ fun open(photoId:String)=copy(current=Frame(photoId),history=history+listOfNotNull(current),revision=revision+1)
+ fun focus(groupId:String)=copy(current=current?.copy(focusedGroup=groupId,scrollIndex=0,scrollOffset=0),history=history+listOfNotNull(current),revision=revision+1)
  fun select(anchor:SemanticAnchor):Journey {
   if(current?.photoId!=anchor.photo_id)return this
   val rev=revision+1
-  return copy(current=current?.copy(query=ExploreInput(anchor,request_revision=rev),result=null,scrollIndex=0,scrollOffset=0),history=history+listOfNotNull(current),revision=rev)
+  return copy(current=current?.copy(query=ExploreInput(anchor,request_revision=rev),result=null,scrollIndex=0,scrollOffset=0,focusedGroup=null,rowPositions=emptyMap()),history=history+listOfNotNull(current),revision=rev)
  }
  fun modify(year:Int?,direction:String):Journey {
   val rev=revision+1
@@ -65,12 +65,11 @@ interface GalleryRepository {
  val photos:Flow<List<Photo>>
  suspend fun refreshAndSync(progress:(String)->Unit)
  suspend fun analysis(photoId:String):Analysis
+ suspend fun context(photoId:String,retry:Boolean=false,onUpdate:(ContextState)->Unit)
  suspend fun explore(input:ExploreInput,onUpdate:(ExplorationResult)->Unit):ExplorationResult
  suspend fun cancelExploration()
- suspend fun spaces(refresh:Boolean=true):List<Space>
- suspend fun organize(progress:(String)->Unit)
  suspend fun saveJourney(journey:Journey)
  suspend fun loadJourney():Journey
- suspend fun feedback(kind:String,photoId:String?=null,regionId:String?=null,spaceId:String?=null,value:String="")
+ suspend fun feedback(kind:String,photoId:String?=null,regionId:String?=null,value:String="")
  suspend fun metric(name:String,value:String="")
 }

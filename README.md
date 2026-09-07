@@ -1,16 +1,16 @@
 # Connected Gallery
 
-> PC 데모 완료 (2026-09-08): 합성 사진 20장·선택 대상 47개의 Connect와 사진별 자동 맥락을 준비하고, 두 출발점의 3hop·뒤로 가기 복원을 실제 브라우저에서 검증했다. [데모 실행과 검증 범위](docs/pc-demo-completion.md)를 참고한다. 아래 Android 연결 안내와 PC 데모의 검증 범위는 구분한다.
+> PC 데모 완료 (2026-09-08): 합성 사진 20장·선택 대상 47개의 Connect와 사진별 자동 맥락을 준비하고, 두 출발점의 3hop·뒤로 가기 복원을 실제 브라우저에서 검증했다. [데모 실행과 검증 범위](docs/pc-demo-completion.md)를 참고한다. 최신 main의 Android 자동 맥락·Space 제거·서버 복구 개선도 통합했다. [머지 검증과 캐시 버전](docs/demo-main-integration.md), [기존 Android 검증](docs/context-ux-validation.md)을 구분해 확인한다.
 
 **See → Tap → Follow → Tap → Follow**
 
-Android 갤러리에서 사진 속 사람·사물·텍스트·장소를 눌러 내 사진을 탐색합니다. MVP는 Organize + Connect입니다. Time/Timeline은 후속 기능으로 분리했습니다. 의미 판단은 모델이 도구를 선택하는 agentic 실행으로 처리합니다.
+Android 갤러리에서 사진 속 사람·사물·텍스트·장소를 눌러 내 사진을 탐색합니다. MVP는 Organize + Connect입니다. Organize는 사진 상세의 자동 맥락 표시이며, Space 생성·저장·목록·편집·사용자 쓰기 권한은 MVP에서 제외했습니다. 내부 맥락 캐시는 유지합니다. Time/Timeline은 후속 기능으로 분리했습니다. 의미 판단은 모델이 도구를 선택하는 agentic 실행으로 처리합니다.
 
 ## PC 데모
 
 사진을 열면 함께 볼 사진과 이유가 자동으로 나타납니다. 관심 대상을 선택해 Connect 결과를 보고, 결과나 맥락의 사진으로 이동해 다른 관심사를 따라갈 수 있습니다. 별도 Organize 버튼이나 Space 생성은 데모 흐름에 없습니다.
 
-별도로 전달한 준비 데이터가 `.runtime/demo`에 있다면 Python 3.12 이상에서 실행합니다.
+소스와 준비 데이터가 같은 맥락 계약 버전일 때 Python 3.12 이상에서 실행합니다. 검증한 20장 데모는 전달한 소스 ZIP과 준비 데이터 ZIP을 함께 사용합니다. 통합 main은 Context v6이므로 이전 v3/v5 맥락을 새 결과로 재사용하지 않으며, 새 소스에서는 맥락을 다시 준비해야 합니다.
 
 ```powershell
 python -m pip install -e .
@@ -55,7 +55,9 @@ PC를 다시 켰다면 `scripts/start-pc-server.ps1`을 실행합니다. 현재 
 
 운영 구조와 고정 주소·별도 백엔드 이전은 [PC 서버 연결 안내](docs/pc-server.md)를 참고하세요.
 
-앱의 **사진 연결**에서 접근을 허용한 사진 최대 1,000장을 연결합니다. **새로고침**으로 전송/분석을 재개합니다. 사진을 열고 대상을 누르세요. 길게 누르면 영역을 선택할 수 있습니다. 분석 중에도 수동 영역 탐색이 가능합니다. 이 브랜치의 최신 자동 사진 맥락 수용 검증은 PC 데모를 대상으로 합니다.
+앱의 **사진 연결**에서 접근을 허용한 사진 최대 1,000장을 연결합니다. **새로고침**으로 전송/분석을 재개합니다. 사진을 열면 아래에 주변 맥락이 표시되고, 처음 보는 맥락은 자동 준비합니다. 사진 속 대상을 누르면 관련 사진을 찾고, 결과의 다른 사진을 열면 그 사진의 맥락으로 전환합니다. 그룹 제목은 전체 목록을 펼치고 **돌아가기**는 이전 선택·결과·위치를 복원합니다. 길게 누르면 수동 영역을 선택할 수 있습니다. 실패한 맥락에는 재시도를 제공하며 빈 결과와 구분합니다.
+
+Spaces 탭·모으기·맥락 찾아보기와 분석 후 Space 자동 생성은 제거했습니다. 기존 대기 Organizer도 재실행하지 않으며 저장된 Space 데이터는 보존합니다. [Space 제거 검증](docs/space-removal-validation.md)과 [사진 맥락 계약](docs/photo-context-contract.md)을 참고하세요. 서버 코드를 업데이트한 뒤 기존 서버 프로세스도 재시작해야 새 맥락 API를 사용할 수 있습니다.
 
 ## 검증
 
@@ -75,12 +77,14 @@ Proxy smoke는 합성 이미지만 전송합니다. 자동 계약 테스트는 f
 
 ## 구성
 
-- `android/`: domain, data, core-ui, feature-library, feature-spaces, feature-explore, app.
+- `android/`: domain, data, core-ui, feature-library, feature-explore, app.
 - `server/connected_gallery/`: domain, application, agent_specs, agent_runtime, gallery_tools, adapters, bootstrap.
 - `docs/implementation-plan.md`: 제품·기술·10일 계획.
 - `docs/oss-reference.md`: 참고 출처와 재사용 범위.
 - `docs/issues/`: 작업별 계약과 완료 기준.
 - `docs/validation.md`: 실제 검증 결과와 남은 검증.
+- `docs/demo-main-integration.md`: PC 데모와 최신 main의 통합 검증·캐시 이전 범위.
+- `docs/context-ux-validation.md`: 이전 Android 자동 맥락·Connect 검증과 한계.
 - `docs/final-mvp-validation.md`: 1,000장 준비, 최종 Spaces, 실제 Android 3hop과 속도·품질 한계.
 
 사진, 모델 실행 상태, 분석 결과는 `.runtime/`에 저장되며 Git에서 제외됩니다. Proxy 키는 `.env`에만 두며 APK에 포함하지 않습니다. 서버 원점은 loopback에서 실행하고 HTTPS 터널을 통해 인증된 외부 요청을 받습니다. Android 원본은 수정하지 않습니다.

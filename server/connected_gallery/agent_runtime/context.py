@@ -5,6 +5,7 @@ import asyncio
 import json
 import re
 import time
+from contextvars import ContextVar
 from typing import Literal
 
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
@@ -13,12 +14,15 @@ from pydantic import Field, ValidationError
 from connected_gallery.adapters.store import encoded
 from connected_gallery.adapters.proxy import ProxyGateway
 from connected_gallery.agent_runtime.group_transport import container_shapes, decode_containers
+from connected_gallery.agent_runtime.photo_id_transport import PhotoIdTransport
 from connected_gallery.domain.context import (
     CONTEXT_SPEC, CONTEXT_WORDING_MODEL, MAX_CATALOG_PHOTOS, MAX_CONTEXT_IMAGES,
     PhotoContext, capture_metadata, context_wording_fields,
 )
 from connected_gallery.domain.models import Model
 from connected_gallery.gallery_tools.registry import GalleryTools
+
+_photo_id_transport = ContextVar("context_photo_id_transport", default=None)
 
 
 CONTEXT_PROMPT = """You construct useful context for the WHOLE photo currently open in a gallery.
@@ -237,6 +241,31 @@ class ContextTools(GalleryTools):
             self.catalog_hints[item["photo_id"]] = item
         return page
 
+    def initial_catalog(self):
+        source = self.authorize(self.source_id)
+        photos = self.store.photos()
+        known_time = capture_metadata(source) is not None
+        if known_time:
+            photos.sort(key=lambda p: (
+                abs((p.captured_at - source.captured_at).total_seconds()) if capture_metadata(p) else float("inf"), p.id))
+        # A retrieval prior supplies observations near the open photo without
+        # declaring a day/event group. Leave catalog budget for agent-led paging.
+        selected = photos[:40]
+        values = [{**self.catalog_entry(p), "capture": capture_metadata(p)} for p in selected]
+        ids = {p.id for p in selected}
+        self.catalog_seen.update(ids)
+        self.acquired.update(ids)
+        self.covered.update(ids)
+        self.catalog_hints.update({p["photo_id"]: p for p in values})
+        self.store.event(self.run_id, "context_initial_catalog", {
+            "selection_prior": "nearest_known_capture_times" if known_time else "catalog_order",
+            "photo_ids": sorted(ids), "total": len(photos),
+        })
+        return {"total": len(photos), "photos": values,
+                "selection_prior": "nearest known capture times" if known_time else "catalog order",
+                "instruction": "These are candidate hints only, not a relationship, same-day group or verified event. "
+                    "Inspect and select useful evidence yourself; use retrieval tools beyond this initial set when needed."}
+
     def image_block(self, photo_id, box=None):
         if photo_id not in self.acquired:
             raise ValueError("Acquire this candidate through catalog or retrieval before inspection")
@@ -392,8 +421,15 @@ class PhotoContextAgent:
 
     async def execute(self, run_id, request):
         tools = ContextTools(self.store, self.models, request, run_id)
+        token = _photo_id_transport.set(PhotoIdTransport(tools.versions))
+        try:
+            return await self._execute(run_id, tools)
+        finally:
+            _photo_id_transport.reset(token)
+
+    async def _execute(self, run_id, tools):
         initial = await asyncio.to_thread(tools.image_block, tools.source_id)
-        page = await asyncio.to_thread(tools.invoke, "list_photos", {"offset": 0, "limit": MAX_CATALOG_PHOTOS})
+        page = await asyncio.to_thread(tools.initial_catalog)
         messages = [SystemMessage(content=CONTEXT_PROMPT), HumanMessage(content=[
             {"type": "text", "text": encoded({"opened_photo_id": tools.source_id,
                 "context_spec": CONTEXT_SPEC, "explicit_initial_catalog": page})}, *initial,
@@ -490,7 +526,10 @@ class PhotoContextAgent:
     async def _invoke(self, run_id, messages, schemas, stage, *, gateway=None):
         started = time.monotonic()
         try:
-            return await (gateway or self.gateway).invoke(messages, schemas)
+            transport = _photo_id_transport.get() or PhotoIdTransport([])
+            response = await (gateway or self.gateway).invoke(
+                transport.outbound(messages), transport.schemas(schemas))
+            return transport.inbound(response)
         except asyncio.CancelledError:
             raise
         except Exception as exc:

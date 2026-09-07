@@ -1,5 +1,7 @@
 # 작업 단위
 
+2026-09-07 Space 제외 결정: 최신 범위는 [제품·UX 문서](connected-gallery-product-ux.md)를 따른다. CG-11은 사진 상세의 자동 맥락 구성으로 개정하며 Space 생성·저장·목록·편집·쓰기 권한과 사용자 영구 묶음 관리는 MVP 완료 조건에서 제외한다. 내부 맥락 캐시는 유지한다. 이 표는 레포 문서 기준이며 외부 GitHub 이슈의 제목·본문·상태를 이번 수정에서 변경한 것은 아니다.
+
 | 작업 | 선행 | 완료 기준 |
 |---|---|---|
 | [CG-01: 모듈·데이터·API·탐색 상태 계약](https://github.com/jovinus302/Connected-Gallery/issues/1) | 없음 | 연도 변경은 anchor 유지, 새 탭은 전체 기간·Related로 초기화 |
@@ -12,7 +14,7 @@
 | [CG-08: Explorer와 후보의 시각 확인](https://github.com/jovinus302/Connected-Gallery/issues/8) | CG-07 | 실제 ID·확인한 이미지·연도 범위만 제출 |
 | [CG-09: 사진 속 탭·결과 표시·연속 hop](https://github.com/jovinus302/Connected-Gallery/issues/9) | CG-03, CG-08 | See→Tap→Follow 3회 이상, 대기 중 사진 유지 |
 | [CG-10: Related·Same moment·Time·기록](https://github.com/jovinus302/Connected-Gallery/issues/10) | CG-09 | anchor 보존, Same moment는 사건 맥락, 뒤로 가기 복원 |
-| [CG-11: Organizer·Spaces·사용자 수정](https://github.com/jovinus302/Connected-Gallery/issues/11) | CG-07, CG-09 | 고정 taxonomy 없음, 사용자 포함·제외 유지 |
+| [CG-11: 사진 상세의 Organize 맥락](issues/CG-11.md) | CG-07, CG-09 | 별도 요청 없이 근거 있는 맥락 표시, Space 없이 다음 탐색과 복원 |
 | [CG-12: 캐시·취소·삭제·재개·오프라인](https://github.com/jovinus302/Connected-Gallery/issues/12) | CG-04, CG-06, CG-09 | 오래된 응답 차단, 삭제 후 재등장 방지 |
 | [CG-13: 지표 수집과 사용자·성능 평가](https://github.com/jovinus302/Connected-Gallery/issues/13) | CG-02, CG-10, CG-11 | 실측·목표·미검증 구분, 실제 n과 실패 보고 |
 | [CG-14: 통합 QA·APK·문서](https://github.com/jovinus302/Connected-Gallery/issues/14) | CG-12, CG-13 | 빌드·계약 테스트 통과, 실제 기기 검증 상태 보고 |

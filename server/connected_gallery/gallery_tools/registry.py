@@ -155,6 +155,8 @@ class GalleryTools:
                 "Read existing Spaces and explicit user feedback.",
             ),
         }
+        if request.role != "organizer":
+            self.definitions.pop("read_spaces", None)
         submit = {
             "analyst": ("submit_photo_analysis", PhotoAnalysisSubmission),
             "explorer": ("submit_exploration_result", ExplorationResult),
@@ -171,7 +173,7 @@ class GalleryTools:
                                  "submit_photo_analysis"}
             self.definitions = {k: v for k, v in self.definitions.items() if k in observation_tools}
         elif request.role in ("explorer", "context"):
-            self.definitions.pop("read_spaces")
+            self.definitions.pop("read_spaces", None)
 
     def schemas(self):
         schemas = [
@@ -298,36 +300,26 @@ class GalleryTools:
         )
         page = photos[args.offset : args.offset + args.limit]
         self.covered.update(p.id for p in page)
-        output = []
-        for p in page:
-            analysis = self.store.analysis(p.id)
-            # Bound transport context for 1,000 photos; full evidence is available via inspection.
-            summary = (
-                None
-                if analysis is None
-                else {
-                    "description_excerpt": analysis["description"][:160],
-                    "ocr_excerpt": analysis.get("ocr", "")[:64],
-                    "region_count": len(analysis.get("regions", [])),
-                    "truncated": len(analysis["description"]) > 160
-                    or len(analysis.get("ocr", "")) > 64,
-                }
-            )
-            output.append(
-                {
-                    "photo_id": p.id,
-                    "captured_at": p.captured_at,
-                    "time_source": p.time_source,
-                    "summary": summary,
-                    "image_ready": self.store.image_path(p.id).exists(),
-                }
-            )
+        output = [self.catalog_entry(p) for p in page]
         return {
             "total": len(photos),
             "next_offset": args.offset + len(page),
             "coverage": self.coverage_status(),
             "photos": output,
         }
+
+    def catalog_entry(self, photo):
+        analysis = self.store.analysis(photo.id)
+        # Bound transport context; full evidence is available via inspection.
+        summary = None if analysis is None else {
+            "description_excerpt": analysis["description"][:160],
+            "ocr_excerpt": analysis.get("ocr", "")[:64],
+            "region_count": len(analysis.get("regions", [])),
+            "truncated": len(analysis["description"]) > 160 or len(analysis.get("ocr", "")) > 64,
+        }
+        return {"photo_id": photo.id, "captured_at": photo.captured_at,
+                "time_source": photo.time_source, "summary": summary,
+                "image_ready": self.store.image_path(photo.id).exists()}
 
     def inspect_photos(self, args):
         content = []

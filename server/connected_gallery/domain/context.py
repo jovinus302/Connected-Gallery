@@ -4,8 +4,8 @@ from typing import Literal
 from pydantic import Field, field_validator, model_validator
 from connected_gallery.domain.models import Model, ResultGroup
 
-CONTEXT_SPEC = 3
-CONTEXT_POLICY = "photo-context-v3-plan-and-wording-review"
+CONTEXT_SPEC = 6
+CONTEXT_POLICY = "photo-context-v6-source-prior-plan-and-wording-review"
 CONTEXT_WORDING_MODEL = "gpt-5.4-mini"
 MAX_CONTEXT_IMAGES = 24
 MAX_CATALOG_PHOTOS = 100
