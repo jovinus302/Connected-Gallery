@@ -13,9 +13,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.connectedgallery.coreui.PhotoCanvas
 import com.connectedgallery.domain.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlin.math.roundToInt
 
 @Composable fun ExploreScreen(vm:GalleryViewModel,modifier:Modifier=Modifier) {
  val photos by vm.photos.collectAsState();val journey by vm.journey.collectAsState()
@@ -26,19 +24,14 @@ import kotlin.math.roundToInt
  var manual by remember(photo.id) { mutableStateOf<RegionBox?>(null) }
  val spaces by vm.spaces.collectAsState()
  var addToSpace by remember { mutableStateOf(false) }
- var timeVisible by remember { mutableStateOf(false) }
  var naming by remember { mutableStateOf<Region?>(null) };var personName by remember { mutableStateOf("") }
  val regions=analysis?.takeIf { it.photo_id==photo.id }?.regions?:emptyList()
  val query=frame.query
- val years=photos.filter { it.time_source in listOf("exif","media_store") }.mapNotNull { it.captured_at?.take(4)?.toIntOrNull() }.distinct().sorted()
- var scrub by remember(query?.year,years) { mutableFloatStateOf((years.indexOf(query?.year).takeIf { it>=0 }?:years.lastIndex.coerceAtLeast(0)).toFloat()) }
- var dragging by remember { mutableStateOf(false) }
- LaunchedEffect(scrub,dragging) { if(dragging && years.isNotEmpty()) { delay(300);vm.modify(years[scrub.roundToInt().coerceIn(years.indices)],query?.direction?:"related") } }
  fun select(r:Region) { reveal=false;choices=emptyList();manual=null;vm.select(SemanticAnchor(r.photo_id,r.id,r.box,r.label,r.kind)) }
  Column(modifier) {
   Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),horizontalArrangement=Arrangement.SpaceBetween) {
    TextButton(onClick=vm::back) { Text("돌아가기") }
-   Text(query?.let { "${frame.result?.label?.takeIf(String::isNotBlank)?:it.anchor.label} · ${it.year?:"전체"}" }?:"사진 속 의미를 따라가세요",modifier=Modifier.weight(1f).padding(12.dp),style=MaterialTheme.typography.labelLarge)
+   Text(query?.let { frame.result?.label?.takeIf(String::isNotBlank)?:it.anchor.label }?:"사진 속 의미를 따라가세요",modifier=Modifier.weight(1f).padding(12.dp),style=MaterialTheme.typography.labelLarge)
    if(spaces.isNotEmpty())TextButton(onClick={addToSpace=true}) { Text("모으기") }
   }
   PhotoCanvas(photo,regions,reveal,manual?:query?.anchor?.takeIf { it.photo_id==photo.id }?.box,onTap={ hits ->
@@ -57,14 +50,8 @@ import kotlin.math.roundToInt
   }
   if(query!=null) {
    Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceEvenly) {
-    TextButton(onClick={vm.modify(query.year,"related")}) { Text(if(query.direction=="related")"• Related" else "Related") }
-    TextButton(onClick={vm.modify(query.year,"same_moment")}) { Text(if(query.direction=="same_moment")"• Same moment" else "Same moment") }
-    TextButton(onClick={timeVisible=!timeVisible}) { Text("↔ Time") }
-   }
-   if(timeVisible) {
-    Row(Modifier.padding(horizontal=16.dp)) { TextButton(onClick={vm.modify(null,query.direction)}) { Text("전체") };Text(if(years.isNotEmpty()) years[scrub.roundToInt().coerceIn(years.indices)].toString() else "촬영 연도 없음",Modifier.padding(12.dp)) }
-    if(years.size>1)Slider(value=scrub,onValueChange={scrub=it;dragging=true},onValueChangeFinished={dragging=false;vm.modify(years[scrub.roundToInt()],query.direction)},valueRange=0f..years.lastIndex.toFloat(),steps=(years.size-2).coerceAtLeast(0),modifier=Modifier.padding(horizontal=16.dp))
-    else if(years.size==1)TextButton(onClick={vm.modify(years.first(),query.direction)}) { Text("${years.first()}년 보기") }
+    TextButton(onClick={vm.modify("related")}) { Text(if(query.direction=="related")"• Related" else "Related") }
+    TextButton(onClick={vm.modify("same_moment")}) { Text(if(query.direction=="same_moment")"• Same moment" else "Same moment") }
    }
    if(busy) LinearProgressIndicator(Modifier.fillMaxWidth())
    val listState=rememberLazyListState(frame.scrollIndex,frame.scrollOffset)

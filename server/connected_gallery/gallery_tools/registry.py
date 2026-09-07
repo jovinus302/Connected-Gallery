@@ -94,6 +94,7 @@ class GalleryTools:
         self.covered = set()
         self.searched = set()
         self.result = None
+        self.defer_results = False
         self.versions = {p.id: p.version for p in store.photos()}
         self.definitions = {
             "list_photos": (
@@ -114,11 +115,13 @@ class GalleryTools:
             ),
             "ground_regions": (
                 GroundArgs,
-                "Find bounding boxes for a descriptive object query.",
+                "Find objects for a descriptive query. Returns normalized x,y,width,height boxes "
+                "in the FULL oriented photo, even when searching a crop. Copy these boxes directly.",
             ),
             "analyze_faces": (
                 RegionArgs,
-                "Detect faces and index face embeddings; does not identify names.",
+                "Detect faces and index face embeddings; does not identify names. "
+                "Boxes are normalized x,y,width,height in the FULL oriented photo.",
             ),
             "ensure_embeddings": (
                 EmbedArgs,
@@ -212,7 +215,9 @@ class GalleryTools:
                         "photo_id": photo_id,
                         "captured_at": asset.captured_at,
                         "time_source": asset.time_source,
-                        "analysis": self.store.analysis(photo_id),
+                        # A whole-photo caption can describe objects outside a crop
+                        # and must not substitute for the selected visual evidence.
+                        "analysis": self.store.analysis(photo_id) if box is None else None,
                         "box": box.model_dump() if box else None,
                     }
                 ),
@@ -321,9 +326,37 @@ class GalleryTools:
         return self.artifact("ocr-v1", args, self.models.ocr)
 
     def ground_regions(self, args):
-        return self.artifact(
+        result = self.artifact(
             "ground-v1", args, lambda im: self.models.ground(im, args.query)
         )
+        # Cached detector evidence is pixel xyxy in the exact input image.
+        # Convert here, not in the language model: uploaded previews can have
+        # different dimensions from PhotoAsset and a crop has a different origin.
+        image = self.store.read_image(args.photo_id, args.box)
+        labels = result.get("text_labels", result.get("labels", []))
+        detections = []
+        for i, (left, top, right, bottom) in enumerate(result["boxes"]):
+            left, right = max(0, left / image.width), min(1, right / image.width)
+            top, bottom = max(0, top / image.height), min(1, bottom / image.height)
+            if right <= left or bottom <= top:
+                continue
+            box = self.full_photo_box(
+                {"x": left, "y": top, "width": right - left, "height": bottom - top}, args.box
+            )
+            detections.append({"index": i, "label": labels[i],
+                               "score": result["scores"][i], "box": box})
+        return {"coordinate_space": "full_oriented_photo_normalized_xywh",
+                "detections": detections}
+
+    @staticmethod
+    def full_photo_box(box, crop):
+        local = Box.model_validate(box)
+        if crop is None:
+            return local.model_dump()
+        return Box(x=crop.x + local.x * crop.width,
+                   y=crop.y + local.y * crop.height,
+                   width=local.width * crop.width,
+                   height=local.height * crop.height).model_dump()
 
     def analyze_faces(self, args):
         result = self.artifact("sface-v1", args, self.models.faces)
@@ -331,8 +364,8 @@ class GalleryTools:
         for i, f in enumerate(result["faces"]):
             key = f"{args.photo_id}:face:{hashlib.sha256(encoded(args.model_dump()).encode()).hexdigest()[:12]}:{i}"
             self.store.vector(key, args.photo_id, "sface", f["vector"])
-            face_list.append({"index": i, "box": f["box"], "artifact": key})
-        return {"faces": face_list}
+            face_list.append({"index": i, "box": self.full_photo_box(f["box"], args.box), "artifact": key})
+        return {"coordinate_space": "full_oriented_photo_normalized_xywh", "faces": face_list}
 
     def ensure_embeddings(self, args):
         results = []
@@ -542,7 +575,8 @@ class GalleryTools:
             if pid not in self.seen:
                 raise ValueError("Inspect candidate images before selecting them")
         self.result = args.model_dump(mode="json")
-        self.store.event(self.run_id, "results", self.result)
+        if not self.defer_results:
+            self.store.event(self.run_id, "results", self.result)
         return {"saved": True, "complete": args.complete}
 
     def submit_space_proposal(self, args):

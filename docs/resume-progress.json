@@ -1,8 +1,8 @@
 {
-  "at": "2026-09-07T11:36:18.566979",
+  "at": "2026-09-07T12:46:26.473688",
   "photo_count": 1000,
-  "analyzed_count": 549,
-  "ready_count": 549,
+  "analyzed_count": 865,
+  "ready_count": 865,
   "missing_index_count": 0,
   "uncovered_photo_count": 0,
   "original_analyses_preserved": 386,
@@ -18,22 +18,22 @@
     {
       "role": "analyst",
       "status": "completed",
-      "count": 548
+      "count": 864
     },
     {
       "role": "analyst",
       "status": "failed",
-      "count": 23
+      "count": 26
     },
     {
       "role": "analyst",
       "status": "queued",
-      "count": 447
+      "count": 130
     },
     {
       "role": "analyst",
       "status": "running",
-      "count": 4
+      "count": 5
     },
     {
       "role": "explorer",
@@ -43,7 +43,7 @@
     {
       "role": "explorer",
       "status": "completed",
-      "count": 9
+      "count": 13
     },
     {
       "role": "explorer",
@@ -53,6 +53,11 @@
     {
       "role": "explorer",
       "status": "incomplete",
+      "count": 2
+    },
+    {
+      "role": "explorer",
+      "status": "running",
       "count": 1
     },
     {

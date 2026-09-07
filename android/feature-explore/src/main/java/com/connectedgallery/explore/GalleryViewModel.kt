@@ -22,8 +22,9 @@ import kotlinx.serialization.json.*
  private var searchJob:Job?=null;private var analysisJob:Job?=null;private var syncJob:Job?=null
  init {
   viewModelScope.launch {
-   val initial=repo.photos.first();val saved=repo.loadJourney()
+   val initial=repo.photos.first();val saved=repo.loadJourney().withoutTimeFilters()
    journey.value=if(saved.current?.photoId in initial.map { it.id })saved else Journey()
+   repo.saveJourney(journey.value)
    journey.value.current?.let { observeAnalysis(it.photoId) };spaces.value=repo.spaces(false)
    repo.photos.collect { available ->
     val ids=available.map { it.id }.toSet()
@@ -52,10 +53,10 @@ import kotlinx.serialization.json.*
  fun select(anchor:SemanticAnchor) {
   update(journey.value.select(anchor));viewModelScope.launch { repo.metric("object_tap",viewMetric(anchor.kind));repo.metric("hop") };runSearch()
  }
- fun modify(year:Int?,direction:String) {
+ fun modify(direction:String) {
   val current=journey.value.current?.query?:return
-  if(current.year==year && current.direction==direction)return
-  update(journey.value.modify(year,direction));runSearch()
+  if(current.year==null && current.direction==direction)return
+  update(journey.value.modify(null,direction));runSearch()
  }
  fun retry() { runSearch() }
  private fun runSearch() {

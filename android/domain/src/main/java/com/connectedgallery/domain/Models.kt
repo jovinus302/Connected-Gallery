@@ -16,6 +16,13 @@ import kotlinx.coroutines.flow.Flow
 @Serializable data class RunState(val id:String,val status:String,val result:ExplorationResult?=null,val error:String?=null)
 @Serializable data class Frame(val photoId:String,val query:ExploreInput?=null,val result:ExplorationResult?=null,val scrollIndex:Int=0,val scrollOffset:Int=0)
 @Serializable data class Journey(val current:Frame?=null,val history:List<Frame> = emptyList(),val revision:Long=0) {
+ fun withoutTimeFilters():Journey {
+  if(current?.query?.year==null && history.none { it.query?.year!=null })return this
+  val nextRevision=revision+1
+  fun migrate(frame:Frame)=if(frame.query?.year==null)frame else frame.copy(
+   query=frame.query.copy(year=null,request_revision=nextRevision),result=null,scrollIndex=0,scrollOffset=0)
+  return copy(current=current?.let(::migrate),history=history.map(::migrate),revision=nextRevision)
+ }
  fun open(photoId:String)=copy(current=Frame(photoId,current?.query,current?.result),history=history+listOfNotNull(current),revision=revision+1)
  fun select(anchor:SemanticAnchor):Journey {
   val rev=revision+1

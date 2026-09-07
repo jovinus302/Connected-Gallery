@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
  @Query("SELECT * FROM cache WHERE `key` LIKE 'photo:%'") fun photos():Flow<List<CacheEntry>>
  @Query("SELECT value FROM cache WHERE `key`=:key") suspend fun get(key:String):String?
  @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun put(entry:CacheEntry)
+ @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun putAll(entries:List<CacheEntry>)
  @Query("DELETE FROM cache WHERE `key`=:key") suspend fun remove(key:String)
  @Query("DELETE FROM cache WHERE `key` LIKE :prefix") suspend fun clear(prefix:String)
 }

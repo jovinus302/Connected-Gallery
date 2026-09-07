@@ -2,7 +2,7 @@
 
 **See → Tap → Follow → Tap → Follow**
 
-Android 갤러리에서 사진 속 사람·사물·텍스트·장소를 눌러 내 사진을 탐색합니다. Organize는 진입점, Time은 Connect modifier입니다. 의미 판단은 모델이 도구를 선택하는 agentic 실행으로 처리합니다.
+Android 갤러리에서 사진 속 사람·사물·텍스트·장소를 눌러 내 사진을 탐색합니다. MVP는 Organize + Connect입니다. Time/Timeline은 후속 기능으로 분리했습니다. 의미 판단은 모델이 도구를 선택하는 agentic 실행으로 처리합니다.
 
 ## 시작
 

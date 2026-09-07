@@ -24,16 +24,18 @@ class State(TypedDict):
 
 
 class GraphAgentRunner:
-    def __init__(self, store, models, gateway):
+    def __init__(self, store, models, gateway, reviewer=None):
         self.store = store
         self.models = models
         self.gateway = gateway
+        self.reviewer = reviewer
         # Every saver targets the same file. Serialize its short DB operations,
         # while keeping model calls and tool execution concurrent.
         self.checkpoint_lock = asyncio.Lock()
 
     async def execute(self, run_id, request):
         toolkit = GalleryTools(self.store, self.models, request, run_id)
+        toolkit.defer_results = request.role == "explorer" and self.reviewer is not None
         for row in self.store.rows(
             "SELECT data FROM events WHERE run_id=? AND kind='tool'", (run_id,)
         ):
@@ -152,7 +154,8 @@ class GraphAgentRunner:
         def after_tools(state):
             return (
                 END
-                if toolkit.result and toolkit.result.get("complete", True)
+                if toolkit.result and (toolkit.result.get("complete", True)
+                                       or state.get("turns", 0) >= turns)
                 else "model"
             )
 
@@ -173,7 +176,7 @@ class GraphAgentRunner:
                 "recursion_limit": 2 * turns + 5,
             }
             checkpoint = await compiled.aget_state(config)
-            if checkpoint.next and checkpoint.values.get("spec_version") != 7:
+            if checkpoint.next and checkpoint.values.get("spec_version") != 9:
                 # Old prompts/budgets must not resume halfway through the new graph.
                 # Stored model artifacts survive; only this run's conversation resets.
                 await saver.adelete_thread(run_id)
@@ -205,7 +208,7 @@ class GraphAgentRunner:
                     ],
                     "turns": 0,
                     "calls": 0,
-                    "spec_version": 7,
+                    "spec_version": 9,
                     "repair_pending": False,
                     "repair_used": False,
                 }
@@ -217,4 +220,9 @@ class GraphAgentRunner:
                 await saver.adelete_thread(run_id)
         if toolkit.result is None:
             raise RuntimeError("Agent finished without a valid submitted result")
+        if toolkit.defer_results:
+            result = await self.reviewer.review(toolkit, request, toolkit.result)
+            toolkit.authorize(request.explore.anchor.photo_id)
+            self.store.event(run_id, "results", result)
+            return result
         return toolkit.result

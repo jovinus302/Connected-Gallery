@@ -54,6 +54,21 @@ async def test_real_graph_with_scripted_gateway(store):
     assert len(store.rows("SELECT * FROM events WHERE kind='results'")) == 1
 
 
+@pytest.mark.asyncio
+async def test_confirmed_incomplete_result_survives_final_response_budget(store):
+    class IncompleteGateway:
+        async def invoke(self, messages, schemas):
+            return AIMessage(content="", tool_calls=[{
+                "name": "submit_exploration_result", "id": "partial", "type": "tool_call",
+                "args": {"label": "대상을 다시 선택해 주세요", "items": [], "complete": False},
+            }])
+
+    request = RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(photo_id="a")))
+    result = await GraphAgentRunner(store, None, IncompleteGateway()).execute("incomplete-final", request)
+    assert result["complete"] is False
+    assert result["items"] == []
+
+
 def test_cancelled_tool_cannot_submit(store):
     request = RunRequest(role="analyst", photo_ids=["a"])
     store.write(
@@ -312,8 +327,8 @@ async def test_explorer_receives_selected_crop_before_first_model_turn(store):
     request = RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(
         photo_id="a", box=Box(x=0, y=0, width=.25, height=.5))))
     runner = GraphAgentRunner(store, None, CropGateway())
-    with pytest.raises(RuntimeError, match="budget exceeded"):
-        await runner.execute("initial-crop", request)
+    result = await runner.execute("initial-crop", request)
+    assert result["complete"] is False
 
 
 @pytest.mark.asyncio

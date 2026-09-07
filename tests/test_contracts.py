@@ -147,6 +147,30 @@ def test_api_runs_and_idempotency(tmp_path):
         assert client.get("/assets/a/analysis").status_code == 400
 
 
+def test_sync_snapshot_returns_only_requested_current_analysis_and_active_jobs(tmp_path):
+    app = create_app(tmp_path, lambda s: SubmittedRunner())
+    with TestClient(app) as client:
+        s = app.state.store
+        for pid in ("a", "b", "c"):
+            s.upsert(asset(pid))
+        for pid in ("a", "b"):
+            s.save_analysis(PhotoAnalysis(photo_id=pid, description="existing evidence"))
+        request = RunRequest(role="analyst", photo_ids=["c"])
+        s.write("INSERT INTO runs VALUES(?,?,?,?,?,?,?)", (
+            "active-c", "active-c", request.model_dump_json(), "queued", None, None, 0,
+        ))
+        response = client.post("/assets/sync", json={"assets": [
+            asset("a").model_dump(mode="json"), asset("c").model_dump(mode="json"),
+        ]}).json()
+        assert [a["photo_id"] for a in response["analyses"]] == ["a"]
+        assert response["active_analysis_ids"] == ["c"]
+        assert s.analysis("b") is not None
+        changed = asset("a").model_copy(update={"version": "2"})
+        response = client.post("/assets/sync", json={"assets": [changed.model_dump(mode="json")]}).json()
+        assert response["analyses"] == []
+        assert response["active_analysis_ids"] == []
+
+
 def test_empty_index_cannot_claim_complete_no_results(store):
     request = RunRequest(
         role="explorer",

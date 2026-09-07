@@ -25,24 +25,28 @@ import javax.inject.Singleton
   cache.put(CacheEntry("deleted",json.encodeToString(pending.distinct())))
   if(removed.isNotEmpty()) { cache.clear("result:%");cache.remove("journey");cache.remove("spaces") }
   for(id in removed) { cache.remove("photo:$id");cache.remove("analysis:$id") }
-  for(p in latest) {
-   if(old.find { it.id==p.id }?.version!=p.version) { cache.remove("analysis:${p.id}");cache.clear("result:%") }
-   cache.put(CacheEntry("photo:${p.id}",json.encodeToString(p)))
-  }
+  val oldById=old.associateBy { it.id }
+  for(p in latest) if(oldById[p.id]?.version!=p.version) { cache.remove("analysis:${p.id}");cache.clear("result:%") }
+  cache.putAll(latest.map { CacheEntry("photo:${it.id}",json.encodeToString(it)) })
   val reply=api.call("/assets/sync","POST",buildJsonObject { put("assets",json.encodeToJsonElement(latest));put("deleted_ids",json.encodeToJsonElement(pending.distinct())) })
   cache.remove("deleted")
   val need=reply["need_preview"]!!.jsonArray.map { it.jsonPrimitive.content }.toSet()
+  val snapshot=reply["analyses"]?.jsonArray?.associateBy { it.jsonObject["photo_id"]!!.jsonPrimitive.content }
+  val active=reply["active_analysis_ids"]?.jsonArray?.map { it.jsonPrimitive.content }?.toSet()?:emptySet()
+  val prepared=mutableListOf<CacheEntry>()
   for((index,p) in latest.withIndex()) {
    if(p.id in need) {
     val bytes=try { media.preview(p) } catch(e:CancellationException){throw e} catch(_:Exception){progress("읽을 수 없는 사진 한 장을 건너뛰었어요");continue}
     api.upload(p.id,bytes)
    }
-   progress("사진 준비 ${index+1} / ${latest.size}")
-   val analysis=api.call("/assets/${p.id}/analysis")
-   if(analysis["pending"]?.jsonPrimitive?.booleanOrNull==true) {
+   progress("사진 동기화 ${index+1} / ${latest.size}")
+   val analysis=if(snapshot!=null)snapshot[p.id]?.jsonObject else api.call("/assets/${p.id}/analysis")
+   if(analysis==null || analysis["pending"]?.jsonPrimitive?.booleanOrNull==true) {
+    if(p.id in active)continue
     api.call("/runs","POST",buildJsonObject { put("role","analyst");put("photo_ids",json.encodeToJsonElement(listOf(p.id)));put("idempotency_key","analysis-${p.id}-${p.version}") })
-   } else cache.put(CacheEntry("analysis:${p.id}",analysis.toString()))
+   } else prepared.add(CacheEntry("analysis:${p.id}",analysis.toString()))
   }
+  cache.putAll(prepared)
   progress("${latest.size}장의 사진을 준비했어요. 사진을 열어 탐색해 보세요")
  }
  override suspend fun analysis(photoId:String):Analysis {

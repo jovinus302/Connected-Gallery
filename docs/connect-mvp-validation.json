@@ -1,0 +1,72 @@
+{
+  "scope": "Organize + Connect; Timeline/Time deferred by user on 2026-09-07",
+  "agent_spec": 8,
+  "time_ui_removed": true,
+  "persisted_year_filter_migration_unit_tests": "passed",
+  "python_tests": {
+    "passed": 41
+  },
+  "object_regression": {
+    "failure": "Stored selectable box missed the object despite correct detector pixel evidence",
+    "fix": "Tool converts actual inference image pixel boxes to full oriented normalized coordinates; model selects semantic evidence",
+    "existing_region_repaired": 1,
+    "repair_method": "Independent model selected an existing visual detection; coordinates copied deterministically; descriptions and region IDs preserved",
+    "old_candidate_comparison": {
+      "supported": 1,
+      "rejected": 2
+    },
+    "android_new_query": {
+      "year": null,
+      "status": "completed",
+      "result_count": 4,
+      "first_server_result_seconds": 37.84,
+      "server_finished_seconds": 37.92,
+      "visually_supported_results": 4,
+      "independent_model_supported_results": 4,
+      "ui_render_latency_measured": false
+    },
+    "limits": "One object query, not a library-wide precision estimate. Other old regions have not all been repaired. Speed targets remain unmet."
+  },
+  "full_1000_analysis_and_final_spaces": "in progress",
+  "continuous_three_hop_retest": "in progress",
+  "tap_device_regressions": {
+    "passed": 3,
+    "device": "SM-S918N, Android 16",
+    "checks": [
+      "fitted image tap",
+      "center long press after zoom",
+      "late analysis and updated gesture callbacks"
+    ],
+    "regression_reproduced_before_fix": true,
+    "runner": "ADB AndroidJUnitRunner; Gradle device runner separately had a logcat connection timeout"
+  },
+  "android_assemble_unit_tests_lint": "passed",
+  "sync_snapshot_contract_test": "passed",
+  "development_three_hop_sequence": {
+    "runs": [
+      {
+        "hop": 1,
+        "status": "completed",
+        "results": 4,
+        "first_seconds": 37.84,
+        "final_seconds": 37.92
+      },
+      {
+        "hop": 2,
+        "status": "completed",
+        "results": 4,
+        "first_seconds": 70.79,
+        "final_seconds": 70.88
+      },
+      {
+        "hop": 3,
+        "status": "completed",
+        "results": 2,
+        "first_seconds": 23.7,
+        "final_seconds": 23.87
+      }
+    ],
+    "errors": 0,
+    "limits": "Three linked Android queries completed; APK installation and gesture repair occurred between hops. A clean uninterrupted final-device sequence remains to be measured."
+  }
+}

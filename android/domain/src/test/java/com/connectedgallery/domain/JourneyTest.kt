@@ -2,6 +2,24 @@ package com.connectedgallery.domain
 import org.junit.Assert.*
 import org.junit.Test
 class JourneyTest {
+ @Test fun retiredTimeFiltersCannotHideInCurrentOrBackStack() {
+  val anchor=SemanticAnchor("one",label="대상")
+  val all=Journey().open("one").select(anchor).let { it.accept(it.revision,ExplorationResult("all")) }
+  val dated=all.modify(2024,"related").let { it.accept(it.revision,ExplorationResult("dated")) }.open("two")
+  val migrated=dated.withoutTimeFilters()
+  assertNull(migrated.current!!.query!!.year)
+  assertNull(migrated.current!!.result)
+  assertTrue(migrated.history.none { it.query?.year!=null })
+  assertEquals(anchor,migrated.current!!.query!!.anchor)
+  assertEquals(all.current,migrated.history[1])
+  assertTrue(migrated.revision>dated.revision)
+  assertNull(migrated.accept(dated.revision,ExplorationResult("stale")).current!!.result)
+  assertEquals(migrated,migrated.withoutTimeFilters())
+ }
+ @Test fun currentMvpJourneysKeepResultsAndScroll() {
+  val journey=Journey(current=Frame("one",ExploreInput(SemanticAnchor("one")),ExplorationResult("saved"),3,12),revision=8)
+  assertEquals(journey,journey.withoutTimeFilters())
+ }
  @Test fun yearRetainsAnchorAndNewTapResetsModifiers() {
   val a=SemanticAnchor("one",label="이 사람",kind="person")
   val journey=Journey().open("one").select(a).modify(2015,"related")

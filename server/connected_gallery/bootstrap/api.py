@@ -19,6 +19,7 @@ from connected_gallery.adapters.store import Store, encoded
 from connected_gallery.adapters.models import LocalModels
 from connected_gallery.adapters.proxy import ProxyGateway
 from connected_gallery.agent_runtime.runner import GraphAgentRunner
+from connected_gallery.agent_runtime.reviewer import EvidenceReviewer
 from connected_gallery.application.service import RunService
 from connected_gallery.application.indexing import AnalysisIndexing
 
@@ -30,11 +31,11 @@ def create_app(root=None, runner_factory=None):
     root = Path(root or os.getenv("CG_DATA_DIR", ".runtime"))
     store = Store(root)
     models = LocalModels(root)
-    runner = (
-        runner_factory(store)
-        if runner_factory
-        else GraphAgentRunner(store, models, ProxyGateway())
-    )
+    if runner_factory:
+        runner = runner_factory(store)
+    else:
+        gateway = ProxyGateway()
+        runner = GraphAgentRunner(store, models, gateway, EvidenceReviewer(gateway))
     service = RunService(store, runner)
     indexing = AnalysisIndexing(store, models)
 
@@ -59,7 +60,7 @@ def create_app(root=None, runner_factory=None):
             "status": "ok",
             "revision": store.revision,
             "proxy_configured": bool(os.getenv("ANTHROPIC_API_KEY")),
-            "agent_spec": 7,
+            "agent_spec": 9,
             "analysis_concurrency": service.analysis_concurrency,
             "explore_timeout_seconds": service.explore_timeout,
         }
@@ -98,8 +99,18 @@ def create_app(root=None, runner_factory=None):
             store.upsert(asset)
         if req.deleted_ids:
             await service.recover()
+        ids = {p.id for p in req.assets}
+        # One catalog snapshot avoids a serial analysis GET for every photo on
+        # Android resume. Active work remains owned by the persistent queue.
+        analyses = [json.loads(r["data"]) for r in store.rows("SELECT photo_id,data FROM analyses")
+                    if r["photo_id"] in ids]
+        active = {json.loads(r["request"])["photo_ids"][0] for r in store.rows(
+            "SELECT request FROM runs WHERE status IN ('queued','running') "
+            "AND json_extract(request,'$.role')='analyst'")}
         return {
             "revision": store.revision,
+            "analyses": analyses,
+            "active_analysis_ids": sorted(ids & active),
             "need_preview": [
                 p.id for p in req.assets if not store.image_path(p.id).exists()
             ],
