@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Connected Gallery · Demo</title><link rel="stylesheet" href="/demo/style.css"><script src="/demo/app.js" defer></script></head>
+<body>
+  <header class="topbar"><a class="brand" href="/demo"><span class="mark">c<span>g</span></span>Connected Gallery</a><span class="demo-badge"><i></i> 가상 사진 데모</span><button id="logout" class="text-button hidden">연결 해제</button></header>
+  <main>
+    <section id="login" class="login-panel hidden">
+      <span class="eyebrow">LOCAL DEMO</span><h1>데모 갤러리 열기</h1><p>시작 도구가 만든 <strong>demo-launch.html</strong>을 열거나,<br>로컬 시작 키를 입력해 연결하세요.</p>
+      <form id="login-form"><label for="key">로컬 시작 키</label><div class="login-row"><input id="key" type="password" autocomplete="off" spellcheck="false" required><button class="primary" type="submit">연결</button></div></form><p id="login-error" role="alert"></p><p class="fine">개인 사진과 분리된 샘플 서버입니다.</p>
+    </section>
+    <section id="library" class="hidden">
+      <div class="intro"><div><span class="eyebrow">YOUR PHOTOS, CONNECTED</span><h1>사진에서, 다음 사진으로.</h1><p>사진을 열어 함께 볼 사진을 발견하고, 궁금한 대상을 따라가세요.</p></div><span id="library-stat" class="library-stat"></span></div>
+      <form id="search-form" class="search-bar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input id="search" aria-label="저장된 사진 설명에서 검색" placeholder="사진 설명에서 검색" maxlength="100" autocomplete="off"><button type="submit">검색</button><button id="clear-search" class="hidden" type="button" aria-label="검색 지우기">×</button></form>
+      <div class="section-line"><h2 id="grid-title">모든 사진</h2><span id="grid-count"></span></div>
+      <div id="grid" class="photo-grid"></div><p id="grid-empty" class="empty hidden">일치하는 사진 설명이 없어요. 다른 단어로 찾아보세요.</p>
+      <p class="fine library-note">AI로 만든 가상 사진입니다. 사진 연결은 저장된 분석과 실제 검색 결과를 사용합니다.</p>
+    </section>
+    <section id="detail" class="hidden">
+      <nav class="detail-nav"><button id="back" class="back-button">← <span>이전으로</span></button><div class="trail"><span>사진</span><span>/</span><strong id="trail-label">대상 선택</strong></div></nav>
+      <div class="explore-layout">
+        <div class="source-panel"><div class="source-label"><span class="eyebrow">지금 보고 있는 사진</span><span id="source-count"></span></div>
+          <div id="photo-stage" class="photo-stage"><img id="source-photo" alt="선택한 사진"><div id="regions" class="regions"></div></div>
+          <section id="photo-context" class="photo-context" aria-live="polite" aria-labelledby="context-title"><div class="context-header"><h2 id="context-title">이 사진과 함께 보면</h2><span id="context-state" class="status-badge pending">확인 중</span></div><p id="capture-info" class="capture-info hidden"></p><div id="context-content"></div></section>
+          <p id="source-description" class="source-description"></p>
+        </div>
+        <section class="connections" aria-live="polite"><div class="selection-intro"><h2>어떤 부분이 궁금한가요?</h2><p>사진의 표시나 아래 대상을 눌러보세요.</p></div><div id="region-chips" class="region-chips"></div><div class="result-header"><div><span class="eyebrow">선택한 대상의 연결</span><h2 id="result-title">선택한 부분에서 이어집니다</h2></div><span id="ready-badge" class="status-badge hidden"></span></div>
+          <p id="result-subtitle" class="result-subtitle">관심 있는 대상을 고르면, 관련 사진을 관계별로 정리해 보여드려요.</p>
+          <div id="result-content"><div class="result-placeholder"><div class="connection-glyph"><span></span><span></span><span></span></div><p>사진 속 대상을 선택해보세요</p><small>같은 사진에서도 선택한 부분에 따라<br>연결되는 사진이 달라집니다.</small></div></div>
+        </section>
+      </div>
+    </section>
+    <div id="global-error" class="toast hidden" role="alert"></div>
+  </main>
+</body></html>

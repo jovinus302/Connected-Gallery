@@ -10,6 +10,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from connected_gallery.agent_specs.prompts import PROMPTS
+from connected_gallery.agent_specs.versions import AGENT_SPEC_VERSION
 from connected_gallery.gallery_tools.registry import GalleryTools
 from connected_gallery.adapters.store import encoded
 
@@ -26,18 +27,30 @@ class State(TypedDict):
 
 
 class GraphAgentRunner:
-    def __init__(self, store, models, gateway, reviewer=None, explorer_gateway=None, space_reviewer=None):
+    def __init__(self, store, models, gateway, reviewer=None, explorer_gateway=None, space_reviewer=None, result_organizer=None, context_agent=None):
         self.store = store
         self.models = models
         self.gateway = gateway
         self.reviewer = reviewer
         self.explorer_gateway = explorer_gateway or gateway
         self.space_reviewer = space_reviewer
+        if result_organizer is not None and reviewer is None:
+            raise ValueError("Result organization requires independent candidate review")
+        self.result_organizer = result_organizer
+        self.context_agent = context_agent
         # Every saver targets the same file. Serialize its short DB operations,
         # while keeping model calls and tool execution concurrent.
         self.checkpoint_lock = asyncio.Lock()
 
     async def execute(self, run_id, request):
+        if request.role == "context":
+            from connected_gallery.agent_runtime.context import PhotoContextAgent
+            agent = self.context_agent or PhotoContextAgent(self.store, self.models, self.gateway)
+            return await agent.execute(run_id, request)
+        # Asset versions alone do not cover replacement previews, updated
+        # analyses or changes to the candidate corpus. Retain the revision from
+        # BEFORE retrieval, rather than adopting a newer one after review.
+        exploration_revision = self.store.revision if request.role == "explorer" else None
         toolkit = GalleryTools(self.store, self.models, request, run_id)
         toolkit.defer_results = request.role == "explorer" and self.reviewer is not None
         toolkit.defer_spaces = request.role == "organizer" and self.space_reviewer is not None
@@ -50,6 +63,10 @@ class GraphAgentRunner:
             toolkit.searched.update(data.get("searched", []))
         turns = {"analyst": 4, "explorer": 6, "organizer": 30}[request.role]
         max_calls = {"analyst": 12, "explorer": 12, "organizer": 100}[request.role]
+
+        def require_current_corpus():
+            if exploration_revision is not None and self.store.revision != exploration_revision:
+                raise ValueError("Gallery changed during exploration; prepare again")
 
         async def model(state):
             repairing = (state.get("turns", 0) >= turns
@@ -161,19 +178,29 @@ class GraphAgentRunner:
                 return "tools"
             if toolkit.result is not None and toolkit.defer_results:
                 return "review"
-            if (request.role == "organizer" and toolkit.result is None
+            if (request.role in ("organizer", "explorer") and toolkit.result is None
                     and not state.get("submission_reminded", False)
                     and state.get("turns", 0) < turns):
                 return "remind_submission"
             return END
 
         async def remind_submission(state):
-            return {"submission_reminded": True, "messages": [HumanMessage(content=(
+            instruction = (
+                "No exploration result has been submitted. A plain response cannot complete this run. "
+                "Use the remaining response/tool budget to submit_exploration_result. "
+                "Use only candidates whose images you actually inspected; preserve the original selected anchor. "
+                "If evidence is missing, submit the confirmed partial items with complete=false, or an empty "
+                "incomplete result. Do not invent matches or mark an unsearched library complete. "
+                "This reminder is available once, within the original time, response and tool limits."
+            ) if request.role == "explorer" else (
                 "No Spaces have been saved. A plain response cannot complete this run. "
                 "Use the remaining tool budget to finish library coverage and submit_space_proposal. "
                 "Follow the most recent validation errors; do not invent evidence or skip unexamined photos. "
                 "This reminder is available once, within the original time and response limits."
-            ))]}
+            )
+            self.store.event(run_id, "submission_reminder", {"role": request.role,
+                             "turns_used": state.get("turns", 0), "calls_used": state.get("calls", 0)})
+            return {"submission_reminded": True, "messages": [HumanMessage(content=instruction)]}
 
         def after_tools(state):
             return (
@@ -184,8 +211,10 @@ class GraphAgentRunner:
             )
 
         async def review(state):
+            require_current_corpus()
             reviewed = await self.reviewer.review(toolkit, request, toolkit.result)
             toolkit.authorize(request.explore.anchor.photo_id)
+            require_current_corpus()
             attempts = state.get("review_attempts", 0) + 1
             # One evidence-guided refinement is available within the original
             # model/tool/time budgets. No keyword or semantic fallback is used.
@@ -197,8 +226,15 @@ class GraphAgentRunner:
                     "independent_visual_evidence": toolkit.review_feedback,
                     "instruction": "None of the proposed candidates was visually supported. Keep the original selected meaning. Use this evidence to refine your retrieval and inspect new candidates if the remaining budget permits. Do not repeat unsupported claims or broaden to the surrounding scene. If evidence remains insufficient, submit incomplete.",
                 }))]}
-            toolkit.result = reviewed
-            self.store.event(run_id, "results", reviewed)
+            if self.result_organizer is not None:
+                reviewed = await self.result_organizer.organize(toolkit, request, reviewed)
+            with self.store.lock:
+                toolkit.authorize(request.explore.anchor.photo_id)
+                for item in reviewed["items"]:
+                    toolkit.authorize(item["photo_id"], source=False)
+                require_current_corpus()
+                toolkit.result = reviewed
+                self.store.event(run_id, "results", reviewed)
             return {"review_attempts": attempts}
 
         def after_review(state):
@@ -225,7 +261,7 @@ class GraphAgentRunner:
                 "recursion_limit": 2 * turns + 5,
             }
             checkpoint = await compiled.aget_state(config)
-            if checkpoint.next and checkpoint.values.get("spec_version") != 16:
+            if checkpoint.next and checkpoint.values.get("spec_version") != AGENT_SPEC_VERSION:
                 # Old prompts/budgets must not resume halfway through the new graph.
                 # Stored model artifacts survive; only this run's conversation resets.
                 await saver.adelete_thread(run_id)
@@ -270,7 +306,7 @@ class GraphAgentRunner:
                     ],
                     "turns": 0,
                     "calls": 0,
-                    "spec_version": 16,
+                    "spec_version": AGENT_SPEC_VERSION,
                     "review_attempts": 0,
                     "submission_reminded": False,
                     "repair_pending": False,

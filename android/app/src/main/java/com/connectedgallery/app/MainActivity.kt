@@ -57,7 +57,7 @@ import com.connectedgallery.data.PcApi
         TextButton(onClick={permissions.launch(if(Build.VERSION.SDK_INT>=34)arrayOf(Manifest.permission.READ_MEDIA_IMAGES,Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) else if(Build.VERSION.SDK_INT>=33)arrayOf(Manifest.permission.READ_MEDIA_IMAGES) else arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))}) { Text("사진 연결") }
        }
        Row(Modifier.padding(horizontal=16.dp)) {
-        Text("내 사진",Modifier.align(androidx.compose.ui.Alignment.CenterVertically))
+        Text("내 사진",Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.labelLarge)
         Spacer(Modifier.weight(1f));TextButton(onClick={showServer=true}) { Text("서버") };TextButton(onClick={showNotice=true}) { Text("안내") };TextButton(onClick=vm::refresh) { Text("새로고침") }
        }
       }

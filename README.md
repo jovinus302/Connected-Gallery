@@ -1,6 +1,6 @@
 # Connected Gallery
 
-> 제품 UX 개정 (2026-09-07): [Connect와 사진 맥락 UX](docs/connected-gallery-product-ux.md)에서 ‘사진 열기와 동시에 주변 맥락 표시’를 확정했다. 현재 결과 그룹핑 데모와 구분되는 후속 구현 범위이며, 아래 실행 안내는 기존 코드 기준이다.
+> 2026-09-08: 사진을 열면 주변 맥락을 자동 준비·표시하고, 대상을 누르면 Connect 결과로 이어지는 서버·Android UX를 통합했습니다. [검증 결과와 한계](docs/context-ux-validation.md)를 확인하세요. 제품 기준은 [Connect와 사진 맥락 UX](docs/connected-gallery-product-ux.md)입니다.
 
 **See → Tap → Follow → Tap → Follow**
 
@@ -42,7 +42,9 @@ PC를 다시 켰다면 `scripts/start-pc-server.ps1`을 실행합니다. 현재 
 
 운영 구조와 고정 주소·별도 백엔드 이전은 [PC 서버 연결 안내](docs/pc-server.md)를 참고하세요.
 
-앱의 **사진 연결**에서 접근을 허용한 사진 최대 1,000장을 연결합니다. **새로고침**으로 전송/분석을 재개합니다. 사진을 열고 대상을 누르세요. 길게 누르면 영역을 선택할 수 있습니다. 분석 중에도 수동 영역 탐색이 가능합니다. Spaces 탭·모으기·맥락 찾아보기와 분석 후 Space 자동 생성은 제거했습니다. 서버 재시작 시 기존 대기 중 Organizer 작업도 재실행하지 않습니다. 기존 Space 데이터는 보존합니다. 사진 상세의 새로운 자동 맥락 UX는 아직 후속 구현이며, [Space 제거 검증](docs/space-removal-validation.md)과 구분합니다.
+앱의 **사진 연결**에서 접근을 허용한 사진 최대 1,000장을 연결합니다. **새로고침**으로 전송/분석을 재개합니다. 사진을 열면 아래에 주변 맥락이 표시되고, 처음 보는 맥락은 자동 준비합니다. 사진 속 대상을 누르면 관련 사진을 찾고, 결과의 다른 사진을 열면 그 사진의 맥락으로 전환합니다. 그룹 제목은 전체 목록을 펼치고 **돌아가기**는 이전 선택·결과·위치를 복원합니다. 길게 누르면 수동 영역을 선택할 수 있습니다. 실패한 맥락에는 재시도를 제공하며 빈 결과와 구분합니다.
+
+Spaces 탭·모으기·맥락 찾아보기와 분석 후 Space 자동 생성은 제거했습니다. 기존 대기 Organizer도 재실행하지 않으며 저장된 Space 데이터는 보존합니다. [Space 제거 검증](docs/space-removal-validation.md)과 [사진 맥락 계약](docs/photo-context-contract.md)을 참고하세요. 서버 코드를 업데이트한 뒤 기존 서버 프로세스도 재시작해야 새 맥락 API를 사용할 수 있습니다.
 
 ## 검증
 
@@ -68,6 +70,7 @@ Proxy smoke는 합성 이미지만 전송합니다. 자동 계약 테스트는 f
 - `docs/oss-reference.md`: 참고 출처와 재사용 범위.
 - `docs/issues/`: 작업별 계약과 완료 기준.
 - `docs/validation.md`: 실제 검증 결과와 남은 검증.
+- `docs/context-ux-validation.md`: 현재 자동 맥락·Connect 그룹 통합의 코드·실기기·실제 사진 검증.
 - `docs/final-mvp-validation.md`: 1,000장 준비, 최종 Spaces, 실제 Android 3hop과 속도·품질 한계.
 
 사진, 모델 실행 상태, 분석 결과는 `.runtime/`에 저장되며 Git에서 제외됩니다. Proxy 키는 `.env`에만 두며 APK에 포함하지 않습니다. 서버 원점은 loopback에서 실행하고 HTTPS 터널을 통해 인증된 외부 요청을 받습니다. Android 원본은 수정하지 않습니다.

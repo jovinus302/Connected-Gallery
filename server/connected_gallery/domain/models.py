@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 from uuid import uuid4
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 def new_id() -> str:
@@ -32,12 +32,21 @@ class PhotoAsset(Model):
     local_uri: str = ""
     version: str
     captured_at: datetime | None = None
-    time_source: Literal["exif", "media_store", "modified", "unknown"] = "unknown"
+    time_source: Literal["exif", "media_store", "modified", "unknown", "demo_fixture"] = "unknown"
     width: int = Field(gt=0)
     height: int = Field(gt=0)
     rotation: int = 0
     latitude: float | None = Field(default=None, ge=-90, le=90)
     longitude: float | None = Field(default=None, ge=-180, le=180)
+
+    @model_validator(mode="after")
+    def fixture_time(self):
+        if self.time_source == "demo_fixture" and (
+            self.device_id != "synthetic-demo" or self.captured_at is None
+            or self.captured_at.tzinfo is None
+        ):
+            raise ValueError("Demo fixture time requires a synthetic-demo asset and an aware timestamp")
+        return self
 
     @property
     def year(self):
@@ -66,6 +75,12 @@ class PhotoAnalysis(Model):
     regions: list[Region] = Field(default_factory=list)
 
 
+class PhotoAnalysisSubmission(PhotoAnalysis):
+    """New analyst submissions are bounded; historical analyses stay readable."""
+
+    regions: list[Region] = Field(default_factory=list, max_length=3)
+
+
 class SemanticAnchor(Model):
     photo_id: str
     region_id: str | None = None
@@ -82,14 +97,54 @@ class ExploreInput(Model):
 
 
 class ResultItem(Model):
-    photo_id: str
+    photo_id: str = Field(pattern=r"^[a-zA-Z0-9_-]{1,128}$")
     reason: str
+
+
+class ResultGroup(Model):
+    id: str = Field(min_length=1, max_length=128)
+    title: str = Field(min_length=1, max_length=120)
+    reason: str = Field(min_length=1, max_length=600)
+    photo_ids: list[str] = Field(min_length=1, max_length=1000)
+
+    @field_validator("id", "title", "reason")
+    @classmethod
+    def not_blank(cls, value):
+        if not value.strip():
+            raise ValueError("Group fields must not be blank")
+        return value
+
+    @field_validator("photo_ids")
+    @classmethod
+    def valid_ids(cls, values):
+        if any(not value.strip() for value in values):
+            raise ValueError("Group photo IDs must not be blank")
+        return values
 
 
 class ExplorationResult(Model):
     label: str
     items: list[ResultItem]
     complete: bool = True
+    groups: list[ResultGroup] = Field(default_factory=list, max_length=8)
+    grouping_status: Literal["legacy", "ready", "failed"] = "legacy"
+
+    @model_validator(mode="after")
+    def valid_groups(self):
+        if self.grouping_status != "ready":
+            if self.groups:
+                raise ValueError("Only independently verified ready results may contain groups")
+            return self
+        ids = [item.photo_id for item in self.items]
+        members = [pid for group in self.groups for pid in group.photo_ids]
+        group_ids = [group.id for group in self.groups]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Duplicate result IDs")
+        if len(group_ids) != len(set(group_ids)):
+            raise ValueError("Duplicate group IDs")
+        if len(members) != len(set(members)) or set(members) != set(ids):
+            raise ValueError("Groups must partition every accepted result exactly once")
+        return self
 
 
 class Space(Model):
@@ -104,9 +159,7 @@ class SpaceProposal(Model):
 
 
 class RunRequest(Model):
-    # Keep legacy organizer requests readable for durable-run recovery.
-    # RunService rejects new ones and retires queued/running legacy work.
-    role: Literal["analyst", "explorer", "organizer"]
+    role: Literal["analyst", "explorer", "organizer", "context"]
     photo_ids: list[str] = Field(default_factory=list, max_length=1000)
     explore: ExploreInput | None = None
     idempotency_key: str = Field(default_factory=new_id, max_length=160)
@@ -115,8 +168,10 @@ class RunRequest(Model):
     def required(self):
         if self.role == "explorer" and self.explore is None:
             raise ValueError("explore is required")
-        if self.role == "analyst" and len(self.photo_ids) != 1:
+        if self.role in ("analyst", "context") and len(self.photo_ids) != 1:
             raise ValueError("One durable analysis run per photo")
+        if self.role == "context" and self.explore is not None:
+            raise ValueError("Photo context is independent of a selected Connect region")
         return self
 
 

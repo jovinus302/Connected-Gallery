@@ -1,0 +1,90 @@
+{
+  "server_tests": 336,
+  "browser_tests": 22,
+  "android_unit_tests": 29,
+  "android_unit_suites": [
+    {
+      "name": "com.connectedgallery.coreui.CoordinateTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.connectedgallery.data.PhotoContextFlowTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.connectedgallery.data.PreparedExplorationFlowTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.connectedgallery.data.ServerEndpointTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.connectedgallery.domain.ExplorationResultTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.connectedgallery.domain.JourneyTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.connectedgallery.domain.PhotoContextJourneyTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    }
+  ],
+  "android_device_tests": 5,
+  "device": "Galaxy S23 Ultra SM-S918N / Android 16",
+  "lint_errors": 0,
+  "lint_warnings": 6,
+  "real_context_attempts": [
+    {
+      "status": "failed",
+      "error": "RuntimeError: Context agent did not submit a verified context within budget",
+      "seconds": 71.66654706001282
+    },
+    {
+      "status": "failed",
+      "error": "RuntimeError: Context agent did not submit a verified context within budget",
+      "seconds": 47.82545328140259
+    },
+    {
+      "status": "completed",
+      "error": null,
+      "seconds": 40.96517372131348
+    },
+    {
+      "status": "completed",
+      "error": null,
+      "seconds": 32.19573760032654
+    }
+  ],
+  "real_context_final_seconds": 32.22,
+  "real_context_groups": 3,
+  "real_context_members": 13,
+  "manual_quality_review": {
+    "v4": "failed: one poster and four shelf photos described as posters",
+    "v5": "bounded pass: table changes, wine pouring, food; source and all 13 members visually inspected; not general accuracy evidence"
+  },
+  "prepared_context_loopback_ms": [
+    8.95,
+    2.33,
+    1.89,
+    1.85,
+    1.88
+  ],
+  "approved_distinct_photos_inspected": 19
+}

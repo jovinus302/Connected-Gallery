@@ -58,16 +58,27 @@ import javax.inject.Singleton
    return cached?.let { json.decodeFromString(it) }?:Analysis(photoId,pending=true)
   }
  }
- override suspend fun explore(input:ExploreInput,onUpdate:(ExplorationResult)->Unit):ExplorationResult {
-  val key="result:exclude-anchor-v2:"+json.encodeToString(input.copy(request_revision=0))
+ override suspend fun context(photoId:String,retry:Boolean,onUpdate:(ContextState)->Unit)=loadPhotoContext(
+  photoId=photoId,retry=retry,
+  read={json.decodeFromJsonElement<ContextState>(api.call("/assets/$photoId/context"))},
+  prepare={json.decodeFromJsonElement<ContextState>(api.call("/assets/$photoId/context/prepare","POST"))},
+  publish=onUpdate)
+ override suspend fun explore(input:ExploreInput,onUpdate:(ExplorationResult)->Unit):ExplorationResult=preparedOrLive(
+  anchorPhotoId=input.anchor.photo_id,
+  // Prepared reads must precede crop uploads: uploading an unchanged crop can invalidate server work.
+  lookup={json.decodeFromJsonElement<PreparedExploration>(api.call("/explorations/ready","POST",json.encodeToJsonElement(input)))},
+  live={exploreLive(input,onUpdate)},onUpdate=onUpdate)
+ private suspend fun exploreLive(input:ExploreInput,onUpdate:(ExplorationResult)->Unit):ExplorationResult {
+  val key="result:relationship-groups-v1:"+json.encodeToString(input.copy(request_revision=0))
+  var revisionConfirmed=false
   try {
    val health=api.call("/health")
    val revision=health["revision"]!!.jsonPrimitive.content+":"+(health["agent_spec"]?.jsonPrimitive?.content?:"0")
    if(cache.get("server-revision")!=revision) { cache.clear("result:%");cache.put(CacheEntry("server-revision",revision)) }
+   revisionConfirmed=true
   } catch(e:CancellationException){throw e} catch(_:Exception){}
-  val cached=cache.get(key)?.let { json.decodeFromString<ExplorationResult>(it) }
-   ?.takeIf { result -> result.items.none { it.photo_id==input.anchor.photo_id } }
-  cached?.let(onUpdate)
+  val cached=if(revisionConfirmed)cache.get(key)?.let { json.decodeFromString<ExplorationResult>(it).forAnchor(input.anchor.photo_id) }
+   ?.takeIf { it.complete && it.grouping_status!="failed" } else null
   var rid:String?=null
   try {
    input.anchor.box?.let { box ->
@@ -82,19 +93,19 @@ import javax.inject.Singleton
    while(currentCoroutineContext().isActive) {
     val events=api.call("/runs/$rid/events?after=$cursor")
     cursor=events["cursor"]!!.jsonPrimitive.long
-    events["events"]!!.jsonArray.forEach { e -> if(e.jsonObject["kind"]!!.jsonPrimitive.content=="results") onUpdate(json.decodeFromJsonElement(e.jsonObject["data"]!!)) }
+    events["events"]!!.jsonArray.forEach { e -> if(e.jsonObject["kind"]!!.jsonPrimitive.content=="results") onUpdate(json.decodeFromJsonElement<ExplorationResult>(e.jsonObject["data"]!!).forAnchor(input.anchor.photo_id)) }
     val state=api.call("/runs/$rid")
     val status=state["status"]!!.jsonPrimitive.content
     if(status in listOf("completed","incomplete")) {
-     val result=json.decodeFromJsonElement<ExplorationResult>(state["result"]!!).let { if(status=="incomplete")it.copy(complete=false) else it }
-     if(status=="completed") cache.put(CacheEntry(key,json.encodeToString(result)))
+     val result=json.decodeFromJsonElement<ExplorationResult>(state["result"]!!).forAnchor(input.anchor.photo_id).let { if(status=="incomplete")it.copy(complete=false) else it }
+     if(status=="completed" && result.complete && result.grouping_status!="failed") cache.put(CacheEntry(key,json.encodeToString(result)))
      onUpdate(result);return result
     }
     if(status in listOf("failed","cancelled")) error("탐색을 마치지 못했어요. 다시 시도해 주세요")
     delay(500)
    }
    throw CancellationException()
-  } catch(e:CancellationException) { throw e } catch(e:Exception) { if(cached!=null)return cached;throw e }
+  } catch(e:CancellationException) { throw e } catch(e:Exception) { if(cached!=null) { onUpdate(cached);return cached };throw e }
   finally {
    if(rid!=null) withContext(NonCancellable) { runCatching { api.call("/runs/$rid/cancel","POST") } }
    if(activeRun==rid) activeRun=null

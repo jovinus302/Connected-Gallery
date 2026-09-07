@@ -76,7 +76,9 @@ class EvidenceReviewer:
                     "the selected object need not appear in every photo, and anchor_supported concerns the full source context. "
                     "Do not infer this solely from similar decor. "
                     "Do not change the source to match candidates. Use rejected or uncertain when evidence is insufficient. "
-                    "Judge every candidate index exactly once. Give concise Korean evidence and submit_candidate_review."
+                    "Judge every candidate index exactly once. Reasons are shown to the user: describe visible photos "
+                    "and subjects naturally in concise Korean, without candidate numbers, internal IDs, or tool/model terms. "
+                    "Keep required candidate indexes only in the structured index field. Submit_candidate_review."
                 )), HumanMessage(content=content),
             ], len(batch))
             meanings.append(review.selected_meaning)
@@ -156,7 +158,9 @@ class SpaceEvidenceReviewer(EvidenceReviewer):
                     "Do not infer personal names, family relationships or religious beliefs from appearance. "
                     "Event imagery can support an event context without claims about beliefs or identities. "
                     "Mark unsupported or insufficient evidence rejected or uncertain. Judge every zero-based candidate index "
-                    "exactly once, give concise Korean visible evidence, and submit_candidate_review."
+                    "exactly once. Reasons are user-facing: describe visible subjects naturally in concise Korean; "
+                    "do not mention candidate numbers, internal IDs, or tool/model terms. Put indexes only in their "
+                    "structured field and submit_candidate_review."
                 )), HumanMessage(content=content)], len(batch), MembershipReview)
                 for decision in reviewed.decisions:
                     item = batch[decision.index]

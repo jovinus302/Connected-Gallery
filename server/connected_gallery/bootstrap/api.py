@@ -7,7 +7,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
-from connected_gallery.domain.models import SyncRequest, RunRequest, Feedback, Box
+from connected_gallery.domain.models import SyncRequest, RunRequest, Feedback, Box, ExploreInput
 from pydantic import BaseModel
 from connected_gallery.bootstrap.auth import server_token
 
@@ -22,11 +22,13 @@ from connected_gallery.adapters.models import LocalModels
 from connected_gallery.adapters.proxy import ProxyGateway
 from connected_gallery.agent_runtime.runner import GraphAgentRunner
 from connected_gallery.agent_runtime.reviewer import EvidenceReviewer
+from connected_gallery.agent_runtime.organizer import ResultOrganizer
+from connected_gallery.agent_specs.versions import AGENT_SPEC_VERSION
 from connected_gallery.application.service import RunService
 from connected_gallery.application.indexing import AnalysisIndexing
 
 
-def create_app(root=None, runner_factory=None):
+def create_app(root=None, runner_factory=None, *, demo=None, recover_runs=True):
     load_dotenv()
     os.environ["LANGSMITH_TRACING"] = "false"
     os.environ["LANGCHAIN_TRACING_V2"] = "false"
@@ -40,16 +42,23 @@ def create_app(root=None, runner_factory=None):
         gateway = ProxyGateway()
         interactive_gateway = ProxyGateway(attempt_timeout=15, repeat_primary=False)
         runner = GraphAgentRunner(store, models, gateway, EvidenceReviewer(interactive_gateway),
-                                  explorer_gateway=interactive_gateway)
+                                  explorer_gateway=interactive_gateway,
+                                  result_organizer=ResultOrganizer(interactive_gateway))
     service = RunService(store, runner)
     indexing = AnalysisIndexing(store, models)
 
     @asynccontextmanager
     async def lifespan(app):
-        await service.recover()
-        yield
-        await service.stop(preserve_pending=True)
-        store.close()
+        if recover_runs:
+            await service.recover()
+        try:
+            yield
+        finally:
+            # A prepared-only observer must not recover or reset rows owned by
+            # the separate preparation process, including during shutdown.
+            if recover_runs:
+                await service.stop(preserve_pending=True)
+            store.close()
 
     app = FastAPI(title="Connected Gallery", version="0.1.0", lifespan=lifespan)
     app.state.store = store
@@ -57,6 +66,14 @@ def create_app(root=None, runner_factory=None):
 
     @app.middleware("http")
     async def authenticate(request: Request, call_next):
+        if demo:
+            rejected = demo.check_request(request)
+            if rejected:
+                return rejected
+            if demo.public_path(request.url.path) or demo.cookie_authorized(request):
+                response = await call_next(request)
+                demo.response_headers(response)
+                return response
         supplied = request.headers.get("authorization", "").encode("utf-8")
         expected = ("Bearer " + token).encode("ascii")
         if not secrets.compare_digest(supplied, expected):
@@ -64,6 +81,8 @@ def create_app(root=None, runner_factory=None):
                                 headers={"WWW-Authenticate": "Bearer", "Cache-Control": "no-store"})
         response = await call_next(request)
         response.headers["Cache-Control"] = "no-store"
+        if demo:
+            demo.response_headers(response)
         return response
 
     @app.exception_handler(ValueError)
@@ -76,7 +95,7 @@ def create_app(root=None, runner_factory=None):
             "status": "ok",
             "revision": store.revision,
             "proxy_configured": bool(os.getenv("ANTHROPIC_API_KEY")),
-            "agent_spec": 16,
+            "agent_spec": AGENT_SPEC_VERSION,
             "analysis_concurrency": service.analysis_concurrency,
             "explore_timeout_seconds": service.explore_timeout,
         }
@@ -168,6 +187,19 @@ def create_app(root=None, runner_factory=None):
             "pending": True,
         }
 
+    @app.get("/assets/{pid}/context")
+    def photo_context(pid: str):
+        return service.contexts.ready(pid)
+
+    @app.post("/assets/{pid}/context/prepare")
+    async def prepare_photo_context(pid: str):
+        if demo and not demo.live_enabled:
+            raise HTTPException(403, "Prepared-only demo does not start context preparation")
+        result = service.contexts.prepare(pid)
+        if demo and result.get("run_id"):
+            demo.owned_runs.add(result["run_id"])
+        return result
+
     @app.get("/assets/{pid}/preview")
     def preview(pid: str):
         path = store.image_path(pid)
@@ -186,7 +218,16 @@ def create_app(root=None, runner_factory=None):
     async def start(req: RunRequest):
         if req.role == "organizer":
             raise HTTPException(410, "Spaces are no longer part of the MVP")
-        return service.start(req)
+        if demo and (req.role != "explorer" or req.explore.direction != "related" or req.explore.year is not None):
+            raise HTTPException(403, "This demo supports related exploration only")
+        result = service.start(req)
+        if demo:
+            demo.owned_runs.add(result["id"])
+        return result
+
+    @app.post("/explorations/ready")
+    def ready(req: ExploreInput):
+        return service.ready(req)
 
     @app.get("/runs/{rid}")
     def get_run(rid: str):
@@ -233,4 +274,6 @@ def create_app(root=None, runner_factory=None):
             store.bump()
         return {"saved": True}
 
+    if demo:
+        demo.install(app, store)
     return app

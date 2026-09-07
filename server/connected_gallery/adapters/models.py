@@ -147,7 +147,9 @@ class LocalModels:
         import cv2
 
         with self.face_lock:
-            model_dir = self.root / "models"
+            # Public model weights may be shared, while every gallery's images,
+            # observations and execution state remain in its own data root.
+            model_dir = Path(os.getenv("CG_MODEL_DIR", str(self.root / "models")))
             yunet = model_dir / "face_detection_yunet_2023mar.onnx"
             sface = model_dir / "face_recognition_sface_2021dec.onnx"
             if not yunet.exists() or not sface.exists():

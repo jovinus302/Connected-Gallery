@@ -66,9 +66,9 @@
     "id": "CG-08",
     "title": "Explorer와 후보의 시각 확인",
     "depends": "CG-07",
-    "work": "anchor/direction/year→확인된 결과",
-    "accept": "실제 ID·확인한 이미지·연도 범위만 제출",
-    "test": "허구 ID·미확인 후보·연도 밖 결과 거부",
+    "work": "선택 영역 → 확인된 후보 → 독립 검토·결과 그룹",
+    "accept": "관찰한 실제 후보만 그룹화, 현재 revision의 준비 결과 조회",
+    "test": "미확인·추가·누락·중복·변경 중 게시 거부",
     "url": "https://github.com/jovinus302/Connected-Gallery/issues/8"
   },
   {
@@ -91,11 +91,11 @@
   },
   {
     "id": "CG-11",
-    "title": "Organizer·Spaces·사용자 수정",
+    "title": "사진 상세의 자동 Organize 맥락",
     "depends": "CG-07, CG-09",
-    "work": "사진 근거→재사용 맥락 Spaces",
-    "accept": "고정 taxonomy 없음, 사용자 포함·제외 유지",
-    "test": "전체 사진 coverage·사용자 수정 재생성",
+    "work": "사진 전체 → 근거 검토 → 자동 맥락·다음 탐색",
+    "accept": "고정 분류·Space 없이 자동 노출, 상태 구분과 뒤로 복원",
+    "test": "실기기 3hop UI·준비 실패·실제 사진 품질 및 지연은 통합 검증 참조",
     "url": "https://github.com/jovinus302/Connected-Gallery/issues/11"
   },
   {
