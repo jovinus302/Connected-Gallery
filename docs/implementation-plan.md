@@ -1,5 +1,13 @@
 # Connected Gallery MVP — 인터랙션 중심 구현계획
 
+## 현재 제품 기준 — 2026-09-07 개정
+
+[Connect와 사진 맥락 UX](connected-gallery-product-ux.md)가 아래 초기 계획의 제품 범위에 우선한다. **대상 탭 → 관련 사진 → 사진 열기와 동시에 맥락 표시 → 다음 탐색**을 구현 목표로 삼는다. Organize는 에이전트가 열린 사진의 주변 관계를 구성하는 역할이다. 별도 자동 묶음 홈이나 맥락 요청 버튼을 전제하지 않는다.
+
+사진 상세 맥락의 후보 확보·입력·API·사전 준비·화면 상태는 후속 설계다. 아래의 Space 진입점, Same moment 동작, 전역 Organizer와 초기 완료 조건은 당시 계획 이력이며 최신 UX의 완료 여부를 판단하는 기준으로 사용하지 않는다.
+
+## 초기 구현계획 (이력)
+
 ## 제품 계약
 
 See → Tap → Follow → Tap → Follow. Organize는 실제 Gallery의 재사용 맥락 진입점이며 Connect가 핵심이다. 사용자 결정(2026-09-07)에 따라 Time/Timeline은 후속 기능으로 분리한다. 이번 MVP는 Organize + Connect이며 연도 스크럽과 과거 탐색은 완료 조건에서 제외한다. Rediscovery는 결과다.

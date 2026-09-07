@@ -1,5 +1,7 @@
 # Connected Gallery
 
+> 제품 UX 개정 (2026-09-07): [Connect와 사진 맥락 UX](docs/connected-gallery-product-ux.md)에서 ‘사진 열기와 동시에 주변 맥락 표시’를 확정했다. 현재 결과 그룹핑 데모와 구분되는 후속 구현 범위이며, 아래 실행 안내는 기존 코드 기준이다.
+
 **See → Tap → Follow → Tap → Follow**
 
 Android 갤러리에서 사진 속 사람·사물·텍스트·장소를 눌러 내 사진을 탐색합니다. MVP는 Organize + Connect입니다. Time/Timeline은 후속 기능으로 분리했습니다. 의미 판단은 모델이 도구를 선택하는 agentic 실행으로 처리합니다.
