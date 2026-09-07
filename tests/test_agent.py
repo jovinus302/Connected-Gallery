@@ -430,11 +430,12 @@ async def test_pause_and_delete_recovers_unrelated_analysis(store):
 def test_configured_deadline_is_shared_by_service_and_tools(store, monkeypatch):
     import time
     monkeypatch.setenv("CG_EXPLORE_TIMEOUT_SECONDS", "120")
+    monkeypatch.setattr(time, "monotonic", lambda: 237.359)
     service = RunService(store, None)
     request = RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(photo_id="a")))
     tools = GalleryTools(store, None, request, "deadline")
     assert service.explore_timeout == 120
-    assert 119 < tools.deadline - time.monotonic() <= 120
+    assert tools.deadline - time.monotonic() == pytest.approx(120)
     # Tools remain authorized past the old, hard-coded 45-second boundary.
     tools.deadline -= 46
     tools.authorize("a")
