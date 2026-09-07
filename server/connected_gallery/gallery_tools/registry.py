@@ -8,12 +8,13 @@ from datetime import datetime
 from pydantic import BaseModel, Field, model_validator
 from connected_gallery.domain.models import (
     Box,
-    PhotoAnalysis,
+    PhotoAnalysisSubmission,
     ExplorationResult,
     SpaceProposal,
 )
 from connected_gallery.adapters.store import encoded
 from connected_gallery.agent_specs.budgets import run_timeout
+from connected_gallery.domain.context import PhotoContext
 
 
 class InspectArgs(BaseModel):
@@ -155,9 +156,10 @@ class GalleryTools:
             ),
         }
         submit = {
-            "analyst": ("submit_photo_analysis", PhotoAnalysis),
+            "analyst": ("submit_photo_analysis", PhotoAnalysisSubmission),
             "explorer": ("submit_exploration_result", ExplorationResult),
             "organizer": ("submit_space_proposal", SpaceProposal),
+            "context": ("submit_photo_context", PhotoContext),
         }[request.role]
         self.definitions[submit[0]] = (
             submit[1],
@@ -168,12 +170,18 @@ class GalleryTools:
                                  "ground_regions", "analyze_faces", "ensure_embeddings",
                                  "submit_photo_analysis"}
             self.definitions = {k: v for k, v in self.definitions.items() if k in observation_tools}
+        elif request.role in ("explorer", "context"):
+            self.definitions.pop("read_spaces")
 
     def schemas(self):
-        return [
+        schemas = [
             {"name": n, "description": d, "input_schema": m.model_json_schema()}
             for n, (m, d) in self.definitions.items()
         ]
+        for schema in schemas:
+            if schema["name"] == "submit_exploration_result":
+                schema["input_schema"]["properties"].pop("empty_evidence", None)
+        return schemas
 
     def allowed(self):
         year = self.request.explore.year if self.request.explore else None
@@ -549,7 +557,7 @@ class GalleryTools:
         for p in photos:
             if p.id not in eligible:
                 continue
-            if p.captured_at is None or p.captured_at.tzinfo is None or p.time_source not in ("exif", "media_store"):
+            if p.captured_at is None or p.captured_at.tzinfo is None or p.time_source not in ("exif", "media_store", "demo_fixture"):
                 unknown += 1
                 continue
             if args.start <= p.captured_at <= args.end:
@@ -562,6 +570,9 @@ class GalleryTools:
                 "constraint": "Temporal candidates only. Inspect images before declaring a shared event."}
 
     def submit_photo_analysis(self, args):
+        # Reject an oversized submission and let the agent choose the primary
+        # subjects in its existing repair budget. Never truncate or categorize.
+        args = PhotoAnalysisSubmission.model_validate(args.model_dump(mode="json"))
         if args.photo_id != self.request.photo_ids[0] or args.photo_id not in self.seen:
             raise ValueError("Inspect requested photo before submission")
         self.authorize(args.photo_id)
@@ -579,6 +590,10 @@ class GalleryTools:
         return {"saved": True}
 
     def submit_exploration_result(self, args):
+        if args.empty_evidence is not None:
+            raise ValueError("Independent negative evidence cannot be supplied by the retrieval agent")
+        if args.groups or args.grouping_status != "legacy":
+            raise ValueError("Submit candidates only; groups are created after independent evidence review")
         ids = [x.photo_id for x in args.items]
         if len(ids) != len(set(ids)):
             raise ValueError("Duplicate result IDs")
@@ -599,7 +614,7 @@ class GalleryTools:
             self.authorize(pid, source=False)
             if pid not in self.seen:
                 raise ValueError("Inspect candidate images before selecting them")
-        self.result = args.model_dump(mode="json")
+        self.result = args.model_dump(mode="json", exclude={"groups", "grouping_status", "empty_evidence"})
         if not self.defer_results:
             self.store.event(self.run_id, "results", self.result)
         else:

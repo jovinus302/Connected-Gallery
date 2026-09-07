@@ -2,17 +2,21 @@ import os
 import asyncio
 from langchain_anthropic import ChatAnthropic
 
+_DEFAULT_FALLBACK = object()
+
 
 class ProxyGateway:
-    def __init__(self, attempt_timeout=30, repeat_primary=True):
-        self.primary = os.getenv("CG_MODEL", "gpt-5.4-mini")
-        self.fallback = os.getenv("CG_FALLBACK_MODEL", "claude-sonnet-5")
+    def __init__(self, attempt_timeout=30, repeat_primary=True, *, primary=None, fallback=_DEFAULT_FALLBACK):
+        self.primary = primary if primary is not None else os.getenv("CG_MODEL", "gpt-5.4-mini")
+        self.fallback = os.getenv("CG_FALLBACK_MODEL", "claude-sonnet-5") if fallback is _DEFAULT_FALLBACK else fallback
         self.attempt_timeout = attempt_timeout
         self.repeat_primary = repeat_primary
 
     async def invoke(self, messages, tool_schemas):
         last = None
-        names = (self.primary, self.primary, self.fallback) if self.repeat_primary else (self.primary, self.fallback)
+        names = [self.primary] * (2 if self.repeat_primary else 1)
+        if self.fallback is not None:
+            names.append(self.fallback)
         for name in names:
             try:
                 model = ChatAnthropic(

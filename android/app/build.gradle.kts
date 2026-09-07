@@ -30,6 +30,5 @@ dependencies {
  implementation(project(":data"))
  implementation(project(":core-ui"))
  implementation(project(":feature-library"))
- implementation(project(":feature-spaces"))
  implementation(project(":feature-explore"))
 }

@@ -2,6 +2,26 @@ package com.connectedgallery.domain
 import org.junit.Assert.*
 import org.junit.Test
 class JourneyTest {
+ @Test fun sameMomentIsRetiredFromSavedAndBackNavigation() {
+  val old=Journey().open("one").select(SemanticAnchor("one")).modify(null,"same_moment").open("two")
+  val migrated=old.withoutTimeFilters()
+  assertEquals("related",migrated.current!!.query!!.direction)
+  assertTrue(migrated.history.all { it.query==null || it.query.direction=="related" })
+  assertNull(migrated.current!!.result)
+ }
+ @Test fun groupedResultsAndAnchorReturnOnBackWithoutAcceptingLateSecondHop() {
+  val a=SemanticAnchor("one",region_id="bottle",box=RegionBox(.1f,.1f,.2f,.6f))
+  val result=ExplorationResult("병",listOf(ResultItem("two")),groups=listOf(ResultGroup("same","같은 병","라벨 일치",listOf("two"))),grouping_status="ready")
+  val selected=Journey().open("one").select(a)
+  val first=selected.accept(selected.revision,result).let { it.copy(current=it.current!!.copy(scrollIndex=2,scrollOffset=15)) }
+  val opened=first.open("two")
+  val second=opened.select(SemanticAnchor("two",region_id="person"))
+  val back=second.back().back()
+  assertEquals(first.current,back.current)
+  assertEquals(a,back.current!!.query!!.anchor)
+  assertEquals(result,back.accept(second.revision,ExplorationResult("late")).current!!.result)
+  assertEquals(back,back.select(SemanticAnchor("two",region_id="stale-click")))
+ }
  @Test fun retiredTimeFiltersCannotHideInCurrentOrBackStack() {
   val anchor=SemanticAnchor("one",label="대상")
   val all=Journey().open("one").select(anchor).let { it.accept(it.revision,ExplorationResult("all")) }

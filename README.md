@@ -1,10 +1,25 @@
 # Connected Gallery
 
+> PC 데모 완료 (2026-09-08): 합성 사진 20장·선택 대상 47개의 Connect와 사진별 자동 맥락을 준비하고, 두 출발점의 3hop·뒤로 가기 복원을 실제 브라우저에서 검증했다. [데모 실행과 검증 범위](docs/pc-demo-completion.md)를 참고한다. 아래 Android 연결 안내와 PC 데모의 검증 범위는 구분한다.
+
 **See → Tap → Follow → Tap → Follow**
 
 Android 갤러리에서 사진 속 사람·사물·텍스트·장소를 눌러 내 사진을 탐색합니다. MVP는 Organize + Connect입니다. Time/Timeline은 후속 기능으로 분리했습니다. 의미 판단은 모델이 도구를 선택하는 agentic 실행으로 처리합니다.
 
-## 시작
+## PC 데모
+
+사진을 열면 함께 볼 사진과 이유가 자동으로 나타납니다. 관심 대상을 선택해 Connect 결과를 보고, 결과나 맥락의 사진으로 이동해 다른 관심사를 따라갈 수 있습니다. 별도 Organize 버튼이나 Space 생성은 데모 흐름에 없습니다.
+
+별도로 전달한 준비 데이터가 `.runtime/demo`에 있다면 Python 3.12 이상에서 실행합니다.
+
+```powershell
+python -m pip install -e .
+python scripts/start-demo.py --data-dir .runtime/demo --prepared-only --port 8879
+```
+
+서버가 출력하는 로컬 `demo-launch.html`로 접속합니다. 준비 데이터 조회에는 모델 API 키나 휴대폰이 필요 없습니다. [사용·전달 안내](docs/pc-demo-completion.md)에 데이터 준비, 의미 검수와 속도 측정의 범위를 기록했습니다.
+
+## Android와 PC 서버 시작
 
 Windows / Python 3.12 / JDK 17 / Android SDK 36.
 
@@ -40,7 +55,7 @@ PC를 다시 켰다면 `scripts/start-pc-server.ps1`을 실행합니다. 현재 
 
 운영 구조와 고정 주소·별도 백엔드 이전은 [PC 서버 연결 안내](docs/pc-server.md)를 참고하세요.
 
-앱의 **사진 연결**에서 접근을 허용한 사진 최대 1,000장을 연결합니다. **새로고침**으로 전송/분석을 재개합니다. 사진을 열고 대상을 누르세요. 길게 누르면 영역을 선택할 수 있습니다. 분석 중에도 수동 영역 탐색이 가능합니다. 사진 분석이 끝나면 Spaces를 자동으로 생성합니다. **맥락 찾아보기**로 다시 정리할 수 있습니다.
+앱의 **사진 연결**에서 접근을 허용한 사진 최대 1,000장을 연결합니다. **새로고침**으로 전송/분석을 재개합니다. 사진을 열고 대상을 누르세요. 길게 누르면 영역을 선택할 수 있습니다. 분석 중에도 수동 영역 탐색이 가능합니다. 이 브랜치의 최신 자동 사진 맥락 수용 검증은 PC 데모를 대상으로 합니다.
 
 ## 검증
 

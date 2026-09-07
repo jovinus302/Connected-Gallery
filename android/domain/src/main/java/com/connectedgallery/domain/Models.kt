@@ -11,20 +11,46 @@ import kotlinx.coroutines.flow.Flow
 @Serializable data class SemanticAnchor(val photo_id:String,val region_id:String?=null,val box:RegionBox?=null,val label:String="선택한 부분",val kind:String="object")
 @Serializable data class ExploreInput(val anchor:SemanticAnchor,val direction:String="related",val year:Int?=null,val request_revision:Long=0)
 @Serializable data class ResultItem(val photo_id:String,val reason:String="")
-@Serializable data class ExplorationResult(val label:String="",val items:List<ResultItem> = emptyList(),val complete:Boolean=true)
+@Serializable data class ResultGroup(val id:String,val title:String,val reason:String,val photo_ids:List<String>)
+@Serializable data class ExplorationResult(
+ val label:String="",val items:List<ResultItem> = emptyList(),val complete:Boolean=true,
+ val groups:List<ResultGroup> = emptyList(),val grouping_status:String="legacy"
+) {
+ fun hasValidGroups():Boolean {
+  if(grouping_status!="ready")return false
+  val ids=items.map { it.photo_id }
+  val members=groups.flatMap { it.photo_ids }
+  return ids.distinct().size==ids.size && groups.map { it.id }.distinct().size==groups.size &&
+   groups.all { it.id.isNotBlank() && it.title.isNotBlank() && it.reason.isNotBlank() && it.photo_ids.isNotEmpty() } &&
+   members.size==members.distinct().size && members.toSet()==ids.toSet()
+ }
+ fun forAnchor(photoId:String):ExplorationResult {
+  val safeItems=items.filter { it.photo_id!=photoId }.distinctBy { it.photo_id }
+  if(safeItems!=items || (grouping_status=="ready" && !hasValidGroups()))
+   return copy(items=safeItems,groups=emptyList(),grouping_status="failed",complete=false)
+  return if(grouping_status=="failed")copy(groups=emptyList(),complete=false) else this
+ }
+}
+@Serializable data class PreparedExploration(val state:String,val revision:Long,val result:ExplorationResult?=null) {
+ fun readyResult(anchorPhotoId:String):ExplorationResult?=result?.takeIf {
+  state=="ready" && it.complete && it.hasValidGroups() && it.items.none { item -> item.photo_id==anchorPhotoId }
+ }
+}
 @Serializable data class Space(val id:String,val name:String,val meaning:String,val items:List<ResultItem>)
 @Serializable data class RunState(val id:String,val status:String,val result:ExplorationResult?=null,val error:String?=null)
 @Serializable data class Frame(val photoId:String,val query:ExploreInput?=null,val result:ExplorationResult?=null,val scrollIndex:Int=0,val scrollOffset:Int=0)
 @Serializable data class Journey(val current:Frame?=null,val history:List<Frame> = emptyList(),val revision:Long=0) {
  fun withoutTimeFilters():Journey {
-  if(current?.query?.year==null && history.none { it.query?.year!=null })return this
+  fun retired(frame:Frame)=frame.query?.let { it.year!=null || it.direction!="related" }?:false
+  if(current?.let(::retired)!=true && history.none(::retired))return this
   val nextRevision=revision+1
-  fun migrate(frame:Frame)=if(frame.query?.year==null)frame else frame.copy(
-   query=frame.query.copy(year=null,request_revision=nextRevision),result=null,scrollIndex=0,scrollOffset=0)
+  fun migrate(frame:Frame)=if(!retired(frame))frame else frame.copy(
+   query=frame.query!!.copy(year=null,direction="related",request_revision=nextRevision),result=null,scrollIndex=0,scrollOffset=0)
   return copy(current=current?.let(::migrate),history=history.map(::migrate),revision=nextRevision)
  }
  fun open(photoId:String)=copy(current=Frame(photoId,current?.query,current?.result),history=history+listOfNotNull(current),revision=revision+1)
  fun select(anchor:SemanticAnchor):Journey {
+  if(current?.photoId!=anchor.photo_id)return this
   val rev=revision+1
   return copy(current=current?.copy(query=ExploreInput(anchor,request_revision=rev),result=null,scrollIndex=0,scrollOffset=0),history=history+listOfNotNull(current),revision=rev)
  }
