@@ -2,7 +2,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 from uuid import uuid4
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator, model_serializer
+from connected_gallery.domain.empty_evidence import EMPTY_EVIDENCE_SPEC, EMPTY_EVIDENCE_POLICY, MAX_EMPTY_CANDIDATES
 
 
 def new_id() -> str:
@@ -122,19 +123,70 @@ class ResultGroup(Model):
         return values
 
 
+class EmptyCandidateEvidence(Model):
+    photo_id: str
+    verdict: Literal["unrelated"]
+    reason: str = Field(min_length=1, max_length=500)
+
+
+class EmptyEvidence(Model):
+    spec: Literal[EMPTY_EVIDENCE_SPEC]
+    policy: Literal[EMPTY_EVIDENCE_POLICY]
+    reviewed: Literal[True]
+    anchor_supported: Literal[True]
+    scope_sufficient: Literal[True]
+    selected_meaning: str = Field(min_length=1, max_length=500)
+    scope_reason: str = Field(min_length=1, max_length=500)
+    anchor: SemanticAnchor
+    direction: Literal["related", "same_moment"]
+    year: int | None
+    gallery_revision: int = Field(ge=0)
+    cache_model: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+    inspection_mode: Literal["source_crop_and_full_candidates"]
+    eligible_photo_ids: list[str] = Field(max_length=MAX_EMPTY_CANDIDATES)
+    inspected_photo_ids: list[str] = Field(min_length=1, max_length=MAX_EMPTY_CANDIDATES + 1)
+    photo_versions: dict[str, str]
+    decisions: list[EmptyCandidateEvidence] = Field(max_length=MAX_EMPTY_CANDIDATES)
+
+    @model_validator(mode="after")
+    def full_negative_coverage(self):
+        ids = self.eligible_photo_ids
+        inspected = self.inspected_photo_ids
+        reviewed = [decision.photo_id for decision in self.decisions]
+        if (len(ids) != len(set(ids)) or len(inspected) != len(set(inspected)) or self.anchor.photo_id in ids
+                or set(inspected) != set(ids) | {self.anchor.photo_id}
+                or set(self.photo_versions) != set(inspected) or len(reviewed) != len(ids) or set(reviewed) != set(ids)):
+            raise ValueError("Empty evidence must inspect and independently reject every eligible photo exactly once")
+        if not self.selected_meaning.strip() or not self.scope_reason.strip() or any(not d.reason.strip() for d in self.decisions):
+            raise ValueError("Empty evidence requires meaningful review reasons")
+        return self
+
+
 class ExplorationResult(Model):
     label: str
     items: list[ResultItem]
     complete: bool = True
     groups: list[ResultGroup] = Field(default_factory=list, max_length=8)
     grouping_status: Literal["legacy", "ready", "failed"] = "legacy"
+    empty_evidence: EmptyEvidence | None = None
+
+    @model_serializer(mode="wrap")
+    def omit_absent_empty_evidence(self, handler):
+        result = handler(self)
+        if self.empty_evidence is None:
+            result.pop("empty_evidence", None)
+        return result
 
     @model_validator(mode="after")
     def valid_groups(self):
+        if self.empty_evidence is not None and (self.items or not self.complete):
+            raise ValueError("Negative evidence belongs only to a completed empty result")
         if self.grouping_status != "ready":
             if self.groups:
                 raise ValueError("Only independently verified ready results may contain groups")
             return self
+        if not self.items and self.empty_evidence is None:
+            raise ValueError("A ready empty result requires independent negative evidence")
         ids = [item.photo_id for item in self.items]
         members = [pid for group in self.groups for pid in group.photo_ids]
         group_ids = [group.id for group in self.groups]

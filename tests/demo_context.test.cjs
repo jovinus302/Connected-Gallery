@@ -172,11 +172,11 @@ for(const observed of [false,true])test(`Back refetches analysis and clears old 
   assert.equal(h.window.scrollY,470);
 });
 
-test('Back to a deleted photo returns to the refreshed library instead of reusing its saved detail',async()=>{
+for(const missing of [{httpStatus:404},{httpStatus:400,detail:'Unknown photo ID'}])test(`Back to a deleted photo (${missing.httpStatus}) returns to the refreshed library instead of reusing its saved detail`,async()=>{
   let deleted=false;
   const h=harness(path=>{
     if(path.startsWith('/demo/catalog?'))return {assets:[],total:0,revision:10,live_enabled:false};
-    if(path==='/assets/a/context'&&deleted)return {httpStatus:404};
+    if(path==='/assets/a/context'&&deleted)return missing;
     if(path.endsWith('/context'))return ready(path.split('/')[2]);
     return defaultRoute(path);
   });
@@ -192,12 +192,12 @@ test('Back to a deleted photo returns to the refreshed library instead of reusin
   assert.equal(h.requests.filter(r=>r.path.startsWith('/demo/catalog?')).length,1);
 });
 
-test('an analysis 404 also clears the deleted photo and aborts its independent context request',async()=>{
+for(const missing of [{httpStatus:404},{httpStatus:400,detail:'Unknown photo ID'}])test(`an analysis deletion (${missing.httpStatus}) also clears the deleted photo and aborts its independent context request`,async()=>{
   const context=deferred();
   const h=harness(path=>{
     if(path.startsWith('/demo/catalog?'))return {assets:[],total:0,revision:10,live_enabled:false};
     if(path.endsWith('/context'))return context.promise;
-    if(path.endsWith('/analysis'))return {httpStatus:404};
+    if(path.endsWith('/analysis'))return missing;
     return defaultRoute(path);
   });
   await h.exec('openPhoto("a")');await h.settle();
@@ -206,6 +206,15 @@ test('an analysis 404 also clears the deleted photo and aborts its independent c
   context.resolve(ready('a'));await h.settle();
   assert.equal(h.element('library').classList.contains('hidden'),false);
   assert.equal(h.element('context-content').children.length,0);
+});
+
+for(const detail of ['Unknown anchor region','Invalid request','Unknown photo ID with other details',null])test(`an unrelated 400 (${detail}) does not clear the opened photo`,async()=>{
+  const h=harness(path=>path.endsWith('/context')?{httpStatus:400,detail}:defaultRoute(path));
+  await h.exec('openPhoto("a")');await h.settle();
+  assert.equal(h.exec('current.id'),'a');
+  assert.equal(h.exec('current.context.state'),'failed');
+  assert.equal(h.element('detail').classList.contains('hidden'),false);
+  assert.equal(h.requests.some(r=>r.path.startsWith('/demo/catalog?')),false);
 });
 
 test('restoration waits for the image size and never scrolls a later photo',async()=>{

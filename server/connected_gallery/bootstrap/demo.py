@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 
 
 WEB_ROOT = Path(__file__).resolve().parents[3] / "web" / "demo"
-COOKIE = "cg_demo_session"
+COOKIE = "cg_demo_session_8877"
 
 
 class DemoSession:
@@ -28,6 +28,9 @@ class DemoSession:
             raise ValueError("Choose a separate unprivileged demo port")
         self.origin = f"http://127.0.0.1:{port}"
         self.host = f"127.0.0.1:{port}"
+        # Browser cookies are scoped by host/path, not by port. A validation
+        # server must not overwrite the user's other local demo session.
+        self.cookie_name = f"cg_demo_session_{port}"
         self.launch_key = launch_key
         self.launch_until = time.monotonic() + 1800
         self.session = None
@@ -58,7 +61,7 @@ class DemoSession:
         return None
 
     def cookie_authorized(self, request):
-        supplied = request.cookies.get(COOKIE, "")
+        supplied = request.cookies.get(self.cookie_name, "")
         if not self.session or time.monotonic() > self.session_until:
             return False
         if not secrets.compare_digest(supplied.encode("utf-8"), self.session.encode("ascii")):
@@ -122,14 +125,14 @@ class DemoSession:
             self.session = secrets.token_urlsafe(32)
             self.session_until = time.monotonic() + 8 * 3600
             response = RedirectResponse("/demo", status_code=303) if is_form else JSONResponse({"ready": True})
-            response.set_cookie(COOKIE, self.session, httponly=True, samesite="lax", max_age=8 * 3600, path="/")
+            response.set_cookie(self.cookie_name, self.session, httponly=True, samesite="lax", max_age=8 * 3600, path="/")
             return response
 
         @app.post("/demo/logout")
         def logout():
             self.session = None
             response = JSONResponse({"signed_out": True})
-            response.delete_cookie(COOKIE, path="/")
+            response.delete_cookie(self.cookie_name, path="/")
             return response
 
         @app.get("/demo/catalog")

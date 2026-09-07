@@ -52,13 +52,16 @@ def test_service_audit_reads_cache_for_marker_model(tmp_path, monkeypatch):
     monkeypatch.setenv("CG_MODEL", "claude-sonnet-5")
     store = Store(root)
     store.upsert(PhotoAsset(id="sample", device_id="synthetic-demo", version="v1", width=40, height=30))
+    store.upsert(PhotoAsset(id="related", device_id="synthetic-demo", version="v1", width=40, height=30))
     region = {"id": "region", "photo_id": "sample", "box": {"x": 0, "y": 0, "width": 1, "height": 1},
               "kind": "object", "label": "선택 대상", "evidence": "visible fixture"}
     store.write("INSERT INTO analyses VALUES(?,?)", ("sample", json.dumps({"regions": [region]})))
     query = ExploreInput(anchor=SemanticAnchor(photo_id="sample", region_id="region", box=region["box"], kind="object", label="선택 대상"))
     service = RunService(store, audit.NoExecution())
     store.cache_put(service.cache_key(RunRequest(role="explorer", explore=query)), {
-        "label": "대상", "items": [], "complete": True, "groups": [], "grouping_status": "ready"})
+        "label": "대상", "items": [{"photo_id": "related", "reason": "verified fixture"}], "complete": True,
+        "groups": [{"id": "g", "title": "Related", "reason": "verified fixture", "photo_ids": ["related"]}],
+        "grouping_status": "ready"})
     store.close()
     monkeypatch.setenv("CG_MODEL", "wrong-model")
     report = tmp_path / "report.json"

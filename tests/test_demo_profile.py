@@ -62,7 +62,9 @@ def test_profile_selects_matching_cache_without_model_execution(store, monkeypat
     service = RunService(store, None)
     explore = ExploreInput(anchor=SemanticAnchor(photo_id="a"))
     request = RunRequest(role="explorer", explore=explore)
-    result = {"label": "prepared", "items": [], "complete": True, "groups": [], "grouping_status": "ready"}
+    result = {"label": "prepared", "items": [{"photo_id": "b", "reason": "verified fixture"}], "complete": True,
+              "groups": [{"id": "g", "title": "Related", "reason": "verified fixture", "photo_ids": ["b"]}],
+              "grouping_status": "ready"}
     selected_key = service.cache_key(request)
     store.cache_put(selected_key, result)
     monkeypatch.delenv("CG_MODEL")

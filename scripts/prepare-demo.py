@@ -66,7 +66,12 @@ async def bounded_prepare(items, run_one, workers):
 
 
 async def main(args):
+    from connected_gallery.agent_runtime.runner import GraphAgentRunner, validate_exploration_responses
+    exploration_responses = validate_exploration_responses(getattr(args, "exploration_responses", 6))
     grouping_timeout = grouping_timeout_seconds(getattr(args, "grouping_timeout_seconds", 45))
+    model_timeout = getattr(args, "model_timeout_seconds", 30)
+    if not isinstance(model_timeout, int) or isinstance(model_timeout, bool) or not 15 <= model_timeout <= 60:
+        raise ValueError("Model attempt timeout must be an integer from 15 to 60 seconds")
     from dotenv import load_dotenv
     if args.env_file:
         load_dotenv(args.env_file, override=False)
@@ -77,18 +82,19 @@ async def main(args):
     os.environ["LANGSMITH_TRACING"] = "false"
     os.environ["LANGCHAIN_TRACING_V2"] = "false"
 
-    from connected_gallery.application.demo_profile import prepare_demo_profile
+    from connected_gallery.application.demo_profile import prepare_demo_profile, connection_models
     workers = getattr(args, "workers", 1)
+    refresh = bool(getattr(args, "refresh", False))
     if workers not in (1, 2):
         raise ValueError("Preparation workers must be 1 or 2")
     data = Path(args.data_dir).resolve()
-    prepare_demo_profile(data, getattr(args, "model", None))
+    prepare_demo_profile(data, getattr(args, "model", None),
+                         compatible_connection_models=getattr(args, "compatible_model", None))
 
     from PIL import Image
     from connected_gallery.adapters.store import Store
     from connected_gallery.adapters.models import LocalModels
     from connected_gallery.adapters.proxy import ProxyGateway
-    from connected_gallery.agent_runtime.runner import GraphAgentRunner
     from connected_gallery.agent_runtime.reviewer import EvidenceReviewer
     from connected_gallery.agent_specs.versions import AGENT_SPEC_VERSION, RETRIEVAL_POLICY
     from connected_gallery.application.service import RunService
@@ -96,9 +102,10 @@ async def main(args):
 
     store = Store(data)
     models = LocalModels(data)
-    gateway = ProxyGateway(attempt_timeout=30, repeat_primary=False)
+    gateway = ProxyGateway(attempt_timeout=model_timeout, repeat_primary=False)
     runner = GraphAgentRunner(store, models, gateway, EvidenceReviewer(gateway),
-                              explorer_gateway=gateway, result_organizer=preparation_organizer(gateway, grouping_timeout))
+                              explorer_gateway=gateway, result_organizer=preparation_organizer(gateway, grouping_timeout),
+                              exploration_responses=exploration_responses)
     service = RunService(store, runner)
     service.auto_enabled = False
     service.interactive = asyncio.Semaphore(workers)
@@ -110,8 +117,13 @@ async def main(args):
         report["agent_spec"] = AGENT_SPEC_VERSION
         report["retrieval_policy"] = RETRIEVAL_POLICY
         report["connection_model"] = gateway.primary
+        report["compatible_connection_models"] = connection_models(gateway.primary)[1:]
         report["preparation_workers"] = workers
+        report["refresh_requested"] = refresh
         report["grouping_timeout_seconds"] = grouping_timeout
+        report["model_timeout_seconds"] = model_timeout
+        report["exploration_responses"] = exploration_responses
+        report["exploration_tool_calls"] = 2 * exploration_responses
         temp = report_path.with_suffix(".tmp")
         temp.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         temp.replace(report_path)
@@ -151,7 +163,7 @@ async def main(args):
                 if store.analysis(photo.id):
                     continue
                 state, seconds = await wait_run(service.start(RunRequest(role="analyst", photo_ids=[photo.id])))
-                result = {"status": state["status"], "seconds": seconds,
+                result = {"run_id": state["id"], "status": state["status"], "seconds": seconds,
                           "model": gateway.primary,
                           "regions": len((store.analysis(photo.id) or {}).get("regions", []))}
                 report["analysis"][photo.id] = result
@@ -173,7 +185,7 @@ async def main(args):
                             continue
                         query = ExploreInput(anchor=SemanticAnchor(photo_id=photo.id, region_id=region.id,
                                                  box=region.box, kind=region.kind, label=region.label))
-                        if service.ready(query)["state"] == "ready":
+                        if not refresh and service.ready(query)["state"] == "ready":
                             continue
                         if args.limit is not None and prepared >= args.limit:
                             return
@@ -182,17 +194,24 @@ async def main(args):
 
             async def run_one(item):
                 photo_id, region_id, query = item
-                state, seconds = await wait_run(service.start(RunRequest(role="explorer", explore=query)))
+                request = RunRequest(role="explorer", explore=query)
+                created = service.start(request, refresh_prepared=True) if refresh else service.start(request)
+                state, seconds = await wait_run(created)
                 return photo_id, region_id, query, state, seconds
 
             async for photo_id, region_id, query, state, seconds in bounded_prepare(queries(), run_one, workers):
                 result = state.get("result") or {}
-                record = {"status": state["status"], "seconds": seconds, "model": gateway.primary,
+                ready = service.ready(query)
+                record = {"run_id": state["id"], "status": state["status"], "seconds": seconds, "model": gateway.primary,
+                          "model_timeout_seconds": model_timeout,
+                          "exploration_responses": exploration_responses,
+                          "exploration_tool_calls": 2 * exploration_responses,
                           "grouping_timeout_seconds": grouping_timeout,
                           "agent_spec": AGENT_SPEC_VERSION, "revision": store.revision,
                           "items": len(result.get("items", [])), "groups": len(result.get("groups", [])),
                           "grouping_status": result.get("grouping_status", "legacy"),
-                          "ready": service.ready(query)["state"] == "ready"}
+                          "refresh_requested": refresh,
+                          "ready": ready["state"] == "ready", "ready_cache_model": ready.get("cache_model")}
                 report["connections"][region_id] = record
                 save()
                 emit({"stage": "connection", "photo_id": photo_id, "region_id": region_id, **record})
@@ -209,10 +228,18 @@ def argument_parser():
     parser.add_argument("--env-file", type=Path)
     parser.add_argument("--model-dir", type=Path)
     parser.add_argument("--model", help="Public model name for this synthetic demo profile; preserves provider credentials and fallback")
+    parser.add_argument("--compatible-model", action="append",
+                        help="Also read verified Connect caches from this public model namespace; repeat for multiple models (maximum 4)")
+    parser.add_argument("--refresh", action="store_true",
+                        help="Explicitly rerun matching prepared Connect choices in the primary namespace; photo/region filters and limit still apply")
     parser.add_argument("--workers", type=int, choices=(1, 2), default=1,
                         help="Bounded connection preparation workers; analysis remains sequential")
     parser.add_argument("--grouping-timeout-seconds", type=grouping_timeout_seconds, default=45,
                         help="Offline grouping stage budget, 45-90 seconds; still limited by the remaining explorer budget")
+    parser.add_argument("--model-timeout-seconds", type=int, choices=range(15, 61), default=30,
+                        help="Single model attempt budget; the overall explorer wall-clock limit still applies")
+    parser.add_argument("--exploration-responses", type=int, choices=range(6, 13), default=6,
+                        help="Offline Explorer response budget (6-12); tool calls are twice this value and the overall deadline is unchanged")
     parser.add_argument("--stage", choices=("seed", "analyze", "prepare", "all"), default="all")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--photo-id", help="Prepare a selected source ID; never used as an expected result")

@@ -1,4 +1,3 @@
-from connected_gallery.domain.context import CONTEXT_WORDING_MODEL, context_wording_fields
 """Acceptance auditor must distinguish incomplete evidence from reviewed empty."""
 import importlib.util
 import json
@@ -10,6 +9,8 @@ import pytest
 from connected_gallery.adapters.store import Store
 from connected_gallery.application.service import RunService
 from connected_gallery.domain.models import ExploreInput, PhotoAsset, SemanticAnchor, RunRequest
+from connected_gallery.domain.context import CONTEXT_WORDING_MODEL, context_wording_fields
+from empty_proof_fixture import negative_proof
 
 spec = importlib.util.spec_from_file_location("complete_demo_audit", Path(__file__).resolve().parents[1] / "scripts" / "audit-complete-demo.py")
 audit_module = importlib.util.module_from_spec(spec)
@@ -19,6 +20,8 @@ spec.loader.exec_module(audit_module)
 @pytest.fixture
 def dataset(tmp_path, monkeypatch):
     monkeypatch.setenv("CG_MODEL", "fixture-model")
+    monkeypatch.delenv("CG_CONTEXT_MODEL", raising=False)
+    monkeypatch.delenv("CG_COMPATIBLE_CONNECTION_MODELS", raising=False)
     root = tmp_path / "synthetic"
     root.mkdir()
     (root / "synthetic-demo.json").write_text('{"synthetic":true,"model":"fixture-model"}')
@@ -40,7 +43,8 @@ def dataset(tmp_path, monkeypatch):
                       "items": [{"photo_id": target, "reason": "Stored relation"}],
                       "groups": [{"id": "g", "title": "Relation", "reason": "Stored group", "photo_ids": [target]}]}
             if region["id"] == "empty":
-                result.update(items=[], groups=[])
+                result.update(items=[], groups=[], empty_evidence=negative_proof(store, query))
+                key = service.empty_cache_key(query)
             store.cache_put(key, result)
             connect_keys[region["id"]] = key
         members = [] if pid == "d" else [{"a": "c", "b": "d", "c": "a"}[pid]]
@@ -50,9 +54,8 @@ def dataset(tmp_path, monkeypatch):
                                 "inspected_photo_ids": list("abcd"), "photo_versions": dict.fromkeys("abcd", "v1"),
                                 "reviewed_members": [{"group_id": "context", "photo_id": value} for value in members],
                                 "summary_reviewed": True}}
-        context["evidence"].update(planned_photo_ids=[other for other in context["evidence"]["inspected_photo_ids"] if other != pid],
-            wording_review_model=CONTEXT_WORDING_MODEL, wording_reviewed=True,
-            wording_checked_paths=[f["path"] for f in context_wording_fields(context)])
+        context["evidence"].update(planned_photo_ids=members, wording_review_model=CONTEXT_WORDING_MODEL,
+                                   wording_reviewed=True, wording_checked_paths=[field["path"] for field in context_wording_fields(context)])
         key = service.contexts.key(pid)
         store.cache_put(key, service.contexts.cache_value(pid, context))
         context_keys[pid] = key
@@ -137,7 +140,8 @@ def test_failed_context_and_corrupt_connect_are_not_empty(dataset):
     context = next(row for row in report["contexts"]["photos"] if row["photo_id"] == "a")
     connection = next(row for row in report["connect"]["choices"] if row["source_region"]["region_id"] == "rb")
     assert context["state"] == "failed" and context["confirmed_empty"] is False
-    assert connection["state"] == "invalid" and connection["confirmed_empty"] is False
+    assert connection["state"] == "pending" and connection["confirmed_empty"] is False
+    assert connection["cache_diagnosis"] == "corrupt_json"
     assert not report["prepared_acceptance_passed"]
 
 
@@ -167,3 +171,18 @@ def test_aware_fixture_uses_seoul_date_unknown_and_naive_have_no_capture():
 def test_two_photo_cycle_cannot_count_as_three_hops():
     edges = [{"source_photo_id": "a", "next_photo_id": "b"}, {"source_photo_id": "b", "next_photo_id": "a"}]
     assert audit_module.three_hop_routes(edges)["example_count"] == 0
+
+
+@pytest.mark.parametrize("damage", ["missing_plan", "wording_paths", "wording_model"])
+def test_context_v3_review_evidence_is_required(dataset, damage):
+    store = Store(dataset.args.data_dir)
+    key = dataset.context_keys["a"]
+    value = store.cache_get(key)
+    if damage == "missing_plan": del value["evidence"]["planned_photo_ids"]
+    elif damage == "wording_paths": value["evidence"]["wording_checked_paths"] = ["/summary"]
+    else: value["evidence"]["wording_review_model"] = "wrong-model"
+    store.cache_put(key, value)
+    store.close()
+    report = audit_module.audit(dataset.args)
+    context = next(row for row in report["contexts"]["photos"] if row["photo_id"] == "a")
+    assert not context["prepared"] and not context["evidence_valid"] and not context["confirmed_empty"]

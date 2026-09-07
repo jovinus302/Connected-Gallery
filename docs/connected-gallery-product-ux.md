@@ -1,6 +1,6 @@
 # Connected Gallery — Connect와 사진 맥락 UX
 
-2026-09-07 제품 결정 · 2026-09-08 구현 상태 갱신. 구현·검증 범위는 [통합 검증](context-ux-validation.md)을 따른다.
+2026-09-07 제품 결정 · 2026-09-08 구현 상태 갱신. 이전 Android 검증은 [통합 검증](context-ux-validation.md), 합성 PC 데모는 [데모 완료 기록](pc-demo-completion.md), 두 구현을 합친 소스의 검증과 v6 계약은 [머지 기록](demo-main-integration.md)을 따른다.
 
 ## 1. 제품의 중심
 
@@ -18,7 +18,7 @@ Organize는 핵심 역할로 유지한다. 사진을 열면 에이전트가 근�
 
 준비된 연결·맥락의 내부 저장 및 캐시, 버전·무효화·복원은 유지한다. 이는 사용자가 이름을 붙이고 관리하는 영구 묶음과 별개의 인프라다. 향후 다시 방문할 탐색을 저장할 필요가 확인되면 사진 묶음·맥락·탐색 경로 중 무엇을 저장할지부터 별도로 결정한다. Space 재도입을 예정된 후속 작업으로 두지 않는다.
 
-Space 제외는 후속 코드 변경으로 반영했다. Android의 Spaces 모듈·진입·모으기·관련 호출을 제거했고, 서버의 목록 API·새 Organizer 실행·Space 편집·자동 생성을 차단했다. 재시작 시 기존 대기 중 Organizer 작업은 취소한다. DB·저장 데이터와 과거 검증용 서버 내부 타입·도구는 보존하되 활성 Explorer에 Space 도구를 제공하지 않는다. [Space 제거 검증](space-removal-validation.md)을 참조한다. 사진 상세 자동 맥락 UX의 구현 완료를 의미하지 않는다.
+Space 제외는 후속 코드 변경으로 반영했다. Android의 Spaces 모듈·진입·모으기·관련 호출을 제거했고, 서버의 목록 API·새 Organizer 실행·Space 편집·자동 생성을 차단했다. 재시작 시 기존 대기 중 Organizer 작업은 취소한다. DB·저장 데이터와 과거 검증용 서버 내부 타입·도구는 보존하되 활성 Explorer에 Space 도구를 제공하지 않는다. [Space 제거 검증](space-removal-validation.md)을 참조한다. 사진 상세 맥락 구현·품질·성능은 각 버전의 별도 검증 기록을 따른다.
 
 ## 2. 확정한 사용자 흐름
 

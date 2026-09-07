@@ -13,7 +13,9 @@ from PIL import Image
 from pydantic import ValidationError
 
 from connected_gallery.adapters.store import encoded
-from connected_gallery.agent_runtime.context import ContextTools, PhotoContextAgent as ProductionPhotoContextAgent
+from connected_gallery.agent_runtime.context import (
+    ContextTools, PhotoContextAgent as ProductionPhotoContextAgent, tool_validation_diagnostic,
+)
 from connected_gallery.agent_runtime.runner import GraphAgentRunner
 from connected_gallery.application.service import RunService
 from connected_gallery.bootstrap.api import create_app
@@ -69,6 +71,9 @@ class WordingGateway:
         self.checked_images.append(sum(block["type"] == "image" for block in content))
         assert "observation_plan" not in encoded(content) and "context_scope_reason" not in encoded(content)
         fields = json.loads(content[-1]["text"])["final_fields_to_check"]
+        schema = schemas[0]["input_schema"]
+        assert schema["$defs"]["ContextWordingCheck"]["properties"]["path"]["enum"] == [field["path"] for field in fields]
+        assert schema["properties"]["checks"]["minItems"] == schema["properties"]["checks"]["maxItems"] == len(fields)
         checks = [{"path":field["path"], "readable": True, "claims_supported": True,
                    "reason":"사진과 정확한 문구 범위를 확인했습니다.", "problematic_excerpts": []} for field in fields]
         if self.mode in ("readability", "claim"):
@@ -82,8 +87,14 @@ class WordingGateway:
             checks[0]["path"] = "/private/unknown"
         if self.mode == "wrong_excerpt":
             checks[0]["problematic_excerpts"] = ["This does not occur in this field"]
+        if self.mode == "missing_excerpt":
+            checks[0]["readable"] = False
+        if self.mode == "invalid_schema":
+            del checks[0]["reason"]
+        if self.mode == "no_tool":
+            return AIMessage(content="untrusted provider text that must not enter diagnostics")
         return AIMessage(content="", tool_calls=[{"id":f"wording-{self.calls}", "type":"tool_call",
-            "name":"submit_context_wording_review", "args":{"checks":checks}}],
+            "name":"private_unknown_tool" if self.mode == "wrong_tool" else "submit_context_wording_review", "args":{"checks":checks}}],
             response_metadata={"model_name":CONTEXT_WORDING_MODEL})
 
 
@@ -133,8 +144,7 @@ class ImageGateway:
             if self.turns == 1:
                 assert "explicit_initial_catalog" in encoded([m.content for m in messages])
                 return AIMessage(content="", tool_calls=[
-                    {"name": "plan_photo_context", "id": f"plan-{self.calls}", "type": "tool_call", "args": observation_plan(self.ids)},
-                    {"name": "inspect_photos", "id": str(self.calls), "type": "tool_call", "args": {"photo_ids": list(self.ids)}}])
+                    {"name": "plan_photo_context", "id": f"plan-{self.calls}", "type": "tool_call", "args": observation_plan(self.ids)}])
             else:
                 args, name = context(() if self.empty else self.ids), "submit_photo_context"
         return AIMessage(content="", tool_calls=[{"id": str(self.calls), "type": "tool_call", "name": name, "args": args}])
@@ -209,9 +219,10 @@ async def test_membership_failure_returns_exact_observed_ids_without_silently_ed
                 if self.turns == 3:
                     diagnostic = next(json.loads(m.content) for m in messages
                         if getattr(m, "tool_call_id", None) == "invalid-source")
-                    assert diagnostic["source_photo_id_not_allowed_as_member"] == "a"
-                    assert diagnostic["fully_inspected_other_photo_ids"] == ["b", "c"]
-                    assert diagnostic["planned_photo_ids_still_needing_full_inspection"] == []
+                    assert diagnostic["validation_error"] == "member_is_source"
+                    assert diagnostic["source_photo_id"] == "a"
+                    assert diagnostic["allowed_submission_photo_ids"] == ["b", "c"]
+                    assert diagnostic["unresolved_planned_photo_ids"] == []
             return response
     gateway = RecoveringGateway()
     result = await PhotoContextAgent(store, None, gateway).execute("exact-membership-repair", request())
@@ -222,8 +233,8 @@ async def test_membership_failure_returns_exact_observed_ids_without_silently_ed
 
 
 @pytest.mark.asyncio
-async def test_progress_exposes_unfinished_observation_plan_before_submission(store):
-    class PlanThenInspect(ImageGateway):
+async def test_progress_reflects_images_observed_by_the_declared_plan_before_submission(store):
+    class PlanThenSubmit(ImageGateway):
         planning_calls = 0
 
         async def invoke(self, messages, schemas):
@@ -233,19 +244,19 @@ async def test_progress_exposes_unfinished_observation_plan_before_submission(st
             progress = json.loads(messages[-2].content)["observation_progress"]
             if self.planning_calls == 1:
                 name, args = "plan_photo_context", observation_plan()
-            elif self.planning_calls == 2:
-                assert progress["planned_photo_ids_still_needing_full_inspection"] == ["b", "c"]
-                assert progress["fully_inspected_other_photo_ids"] == []
-                assert progress["observation_tools_available"]
-                name, args = "inspect_photos", {"photo_ids": ["b", "c"]}
             else:
+                assert self.planning_calls == 2
                 assert progress["planned_photo_ids_still_needing_full_inspection"] == []
+                assert progress["fully_inspected_other_photo_ids"] == ["b", "c"]
+                plan_output = next(m.content for m in messages if getattr(m, "tool_call_id", None) == "1")
+                assert sum(block["type"] == "image" for block in plan_output) == 2
+                assert json.loads(plan_output[0]["text"])["newly_observed_photo_ids"] == ["b", "c"]
                 name, args = "submit_photo_context", context()
             return AIMessage(content="", tool_calls=[{"id": str(self.planning_calls), "type": "tool_call",
                 "name": name, "args": args}])
-    gateway = PlanThenInspect()
+    gateway = PlanThenSubmit()
     result = await PhotoContextAgent(store, None, gateway).execute("progress", request())
-    assert result["complete"] and gateway.planning_calls == 3 and gateway.reviews == 1
+    assert result["complete"] and gateway.planning_calls == 2 and gateway.reviews == 1
 
 
 @pytest.mark.asyncio
@@ -276,7 +287,7 @@ async def test_valid_empty_requires_full_image_inspection_and_independent_review
     tools = ContextTools(store, None, request(), "missing-images")
     tools.image_block("a")
     tools.invoke("list_photos", {})
-    tools.invoke("plan_photo_context", observation_plan())
+    tools.invoke("plan_photo_context", observation_plan(("b",)))
     with pytest.raises(ValueError, match="every planned candidate|every candidate"):
         tools.submit_photo_context(PhotoContext.model_validate(context(())))
 
@@ -287,7 +298,7 @@ def test_context_rejects_unacquired_uninspected_source_and_foreign_members(store
         tools.image_block("b")
     tools.image_block("a")
     tools.invoke("list_photos", {})
-    tools.invoke("plan_photo_context", observation_plan())
+    tools.invoke("plan_photo_context", observation_plan(()))
     for ids in [("b",), ("a",), ("foreign",)]:
         with pytest.raises(ValueError):
             tools.submit_photo_context(PhotoContext.model_validate(context(ids)))
@@ -439,11 +450,12 @@ def test_candidate_crop_does_not_count_as_full_photo_inspection(store):
     tools = ContextTools(store, None, request(), "crop-only")
     tools.image_block("a")
     tools.invoke("list_photos", {})
-    tools.invoke("plan_photo_context", observation_plan(("b",)))
+    tools.invoke("plan_photo_context", observation_plan(()))
     tools.image_block("b", Box(x=0, y=0, width=.1, height=.1))
     assert "b" in tools.seen and "b" not in tools.full_seen
-    with pytest.raises(ValueError, match="full photo"):
+    with pytest.raises(ValueError) as error:
         tools.submit_photo_context(PhotoContext.model_validate(context(("b",))))
+    assert tool_validation_diagnostic(error.value)["code"] == "member_not_fully_inspected"
     tools.image_block("b")
     tools.submit_photo_context(PhotoContext.model_validate(context(("b",))))
 
@@ -632,6 +644,123 @@ def test_context_plan_requires_source_observation_and_acquired_candidate_ids(sto
     assert len(store.rows("SELECT * FROM events WHERE kind='context_observation_plan'")) == 1
 
 
+def test_context_choice_schemas_follow_acquisition_full_inspection_and_current_scope(store):
+    tools = ContextTools(store, None, request(), "schema-choices")
+    tools.image_block("a")
+
+    def fields():
+        schemas = {tool["name"]: tool["input_schema"] for tool in tools.schemas()}
+        return (schemas["plan_photo_context"]["$defs"]["ContextInvestigation"]["properties"]["candidate_photo_ids"],
+                schemas["submit_photo_context"]["$defs"]["ContextGroup"]["properties"]["photo_ids"], schemas)
+
+    initial_plan, initial_submit, initial_schemas = fields()
+    assert initial_plan["maxItems"] == initial_submit["maxItems"] == 0
+    assert "enum" not in initial_plan["items"]
+    assert initial_schemas["submit_photo_context"]["properties"]["groups"]["maxItems"] == 0
+    tools.invoke("list_photos", {"offset": 1, "limit": 1})
+    plan, submit, _ = fields()
+    assert plan["items"]["enum"] == ["b"] and submit["maxItems"] == 0
+    tools.image_block("b", Box(x=0, y=0, width=.2, height=.2))
+    assert fields()[1]["maxItems"] == 0  # A crop is never whole-photo context evidence.
+    tools.image_block("b")
+    plan, submit, schemas = fields()
+    assert submit["items"]["enum"] == ["b"]
+    assert schemas["submit_photo_context"]["properties"]["groups"]["maxItems"] == 8
+    assert initial_plan["maxItems"] == 0 and "enum" not in initial_plan["items"]  # No schema object reuse.
+    tools.allowed = lambda: {"a", "c"}
+    assert fields()[0]["maxItems"] == fields()[1]["maxItems"] == 0
+    assert tools.validation_feedback({"code": "unknown_photo"})["allowed_submission_photo_ids"] == []
+
+
+def test_context_schema_hints_do_not_replace_runtime_source_and_acquisition_guards(store):
+    tools = ContextTools(store, None, request(), "schema-enforcement")
+    tools.image_block("a")
+    with pytest.raises(ValueError) as error:
+        tools.invoke("plan_photo_context", observation_plan(("a",)))
+    assert tool_validation_diagnostic(error.value)["code"] == "planned_candidate_is_source"
+    with pytest.raises(ValueError) as error:
+        tools.invoke("plan_photo_context", observation_plan(("b",)))
+    assert tool_validation_diagnostic(error.value)["code"] == "planned_candidate_not_acquired"
+    tools.invoke("plan_photo_context", observation_plan(()))
+    for pid, code in [("a", "member_is_source"), ("b", "member_not_acquired"), ("unknown", "unknown_photo")]:
+        with pytest.raises(ValueError) as error:
+            tools.invoke("submit_photo_context", context((pid,)))
+        assert tool_validation_diagnostic(error.value)["code"] == code
+    tools.invoke("list_photos", {})
+    with pytest.raises(ValueError) as error:
+        tools.invoke("submit_photo_context", context(("b",)))
+    assert tool_validation_diagnostic(error.value)["code"] == "member_not_fully_inspected"
+
+
+def test_known_schema_validator_codes_and_unknown_errors_do_not_include_payloads(store):
+    tools = ContextTools(store, None, request(), "safe-errors")
+    for tool, args, expected in [
+        ("search_time", {"start": "2026-01-01", "end": "2026-01-02"}, "time_timezone_missing"),
+        ("search_time", {"start": "2026-01-02T00:00:00Z", "end": "2026-01-01T00:00:00Z"}, "time_window_reversed"),
+        ("submit_photo_context", {**context(), "summary": " "}, "summary_blank"),
+        ("submit_photo_context", {**context(), "groups": [context()["groups"][0], context()["groups"][0]]}, "duplicate_context_group_ids"),
+        ("submit_photo_context", context(("b", "b")), "duplicate_context_member"),
+    ]:
+        with pytest.raises(ValidationError) as error:
+            tools.invoke(tool, args)
+        detail = tool_validation_diagnostic(error.value)
+        assert detail["code"] == expected and detail["validation_codes"] == [expected]
+        assert "input_value" not in encoded(detail) and "Value error" not in encoded(detail)
+    detail = tool_validation_diagnostic(ValueError("provider secret body must not be logged"))
+    assert detail["code"] == "unclassified_tool_validation" and "secret" not in encoded(detail)
+
+
+@pytest.mark.asyncio
+async def test_source_in_plan_and_missing_plan_receive_distinct_actionable_feedback(store):
+    class PlanRepairGateway(ImageGateway):
+        async def invoke(self, messages, schemas):
+            if schemas[0]["name"] == "submit_context_review":
+                return await super().invoke(messages, schemas)
+            self.turns += 1
+            feedback = [json.loads(message.content) for message in messages if message.type == "tool"
+                        and isinstance(message.content, str) and '"validation_error"' in message.content]
+            if self.turns == 1:
+                calls = [("plan_photo_context", observation_plan(("a", "b", "c"))),
+                         ("inspect_photos", {"photo_ids": ["b", "c"]})]
+            elif self.turns == 2:
+                assert feedback[-1]["code"] == "planned_candidate_is_source"
+                assert feedback[-1]["allowed_plan_candidate_photo_ids"] == ["b", "c"]
+                assert feedback[-1]["observation_plan_recorded"] is False
+                calls = [("submit_photo_context", context())]
+            else:
+                assert self.turns == 3 and feedback[-1]["code"] == "observation_plan_missing"
+                assert feedback[-1]["allowed_submission_photo_ids"] == ["b", "c"]
+                calls = [("plan_photo_context", observation_plan()), ("submit_photo_context", context())]
+            return AIMessage(content="", tool_calls=[{"id": f"{self.turns}-{index}", "type": "tool_call",
+                "name": name, "args": args} for index, (name, args) in enumerate(calls)])
+
+    gateway = PlanRepairGateway()
+    result = await PhotoContextAgent(store, None, gateway).execute("plan-feedback", request())
+    assert result["complete"] and gateway.turns == 3 and gateway.reviews == 1
+    assert result["evidence"]["planned_photo_ids"] == ["b", "c"]
+    diagnostics = [json.loads(row["data"]) for row in store.rows("SELECT data FROM events WHERE kind='context_tool_validation'")]
+    assert [row["code"] for row in diagnostics] == ["planned_candidate_is_source", "observation_plan_missing"]
+
+
+def test_dynamic_context_id_schemas_serialize_in_actual_sdk_without_network(store):
+    from langchain_core.messages import HumanMessage, SystemMessage
+    tools = ContextTools(store, None, request(), "id-schema-sdk")
+    tools.image_block("a")
+    transport = ChatAnthropic(model=CONTEXT_WORDING_MODEL, api_key="test-only-key")
+    for observed in (False, True):
+        if observed:
+            tools.invoke("list_photos", {})
+            tools.image_block("b")
+        bound = transport.bind_tools(tools.schemas())
+        payload = transport._get_request_payload([SystemMessage(content="test"), HumanMessage(content="test")], **bound.kwargs)
+        schemas = {tool["name"]: tool["input_schema"] for tool in payload["tools"]}
+        if observed:
+            assert '"enum": ["b", "c"]' in json.dumps(schemas["plan_photo_context"])
+            assert '"enum": ["b"]' in json.dumps(schemas["submit_photo_context"])
+        else:
+            assert schemas["submit_photo_context"]["properties"]["groups"]["maxItems"] == 0
+
+
 @pytest.mark.asyncio
 async def test_scope_review_can_trigger_agent_chosen_additional_inspection(store):
     class ScopeGateway(ImageGateway):
@@ -696,3 +825,342 @@ async def test_summary_review_cannot_reject_without_own_exact_evidence(store, ex
         await PhotoContextAgent(store, None, gateway).execute("cross-field-summary", request())
     assert gateway.reviews == 2
     assert not store.rows("SELECT * FROM events WHERE kind='context_result'")
+
+
+def test_declared_observations_must_be_completed_or_explicitly_revised(store, monkeypatch):
+    tools = ContextTools(store, None, request(), "plan-obligations")
+    tools.image_block("a")
+    tools.invoke("list_photos", {})
+    read = store.read_image
+    def fail_c(pid, box=None):
+        if pid == "c":
+            raise FileNotFoundError("private file location must not be returned")
+        return read(pid, box)
+    monkeypatch.setattr(store, "read_image", fail_c)
+    returned = tools.invoke("plan_photo_context", observation_plan())
+    assert sum(block["type"] == "image" for block in returned) == 1
+    detail = json.loads(returned[0]["text"])
+    assert detail["status"] == "partial" and detail["unresolved_planned_photo_ids"] == ["c"]
+    assert "private file" not in encoded(detail)
+    with pytest.raises(ValueError, match="every planned candidate"):
+        tools.submit_photo_context(PhotoContext.model_validate(context(("b",))))
+    with pytest.raises(ValueError, match="Explain explicitly"):
+        tools.invoke("plan_photo_context", observation_plan(("b",)))
+    revised = {**observation_plan(("b",)), "revision_reason": "질문을 b의 관찰로 확인할 수 있는 범위로 명시적으로 좁힙니다."}
+    tools.invoke("plan_photo_context", revised)
+    tools.submit_photo_context(PhotoContext.model_validate(context(("b",))))
+    assert tools.planned_ids() == {"b"}
+    # This checks declared work; it does not mechanically label c irrelevant.
+    assert "c" not in tools.full_seen and "c" in tools.acquired
+
+
+def test_plan_returns_only_new_model_selected_full_images_and_preserves_repeated_observations(store, monkeypatch):
+    tools = ContextTools(store, None, request(), "plan-images")
+    tools.image_block("a")
+    tools.invoke("list_photos", {})
+    reads, read = [], store.read_image
+    def track(pid, box=None):
+        reads.append((pid, box))
+        return read(pid, box)
+    monkeypatch.setattr(store, "read_image", track)
+    first = tools.invoke("plan_photo_context", observation_plan(("b",)))
+    metadata = json.loads(first[0]["text"])
+    assert metadata["newly_observed_photo_ids"] == ["b"] and metadata["unresolved_planned_photo_ids"] == []
+    assert json.loads(first[1]["text"])["photo_id"] == "b"
+    with Image.open(io.BytesIO(base64.b64decode(first[2]["source"]["data"]))) as image:
+        assert image.getpixel((20, 20))[0] > 200
+    assert reads == [("b", None)] and tools.full_seen == {"a", "b"}
+    repeated = tools.invoke("plan_photo_context", observation_plan(("b",)))
+    assert repeated["status"] == "already_observed" and repeated["newly_observed_photo_ids"] == []
+    assert reads == [("b", None)]
+    expanded = tools.invoke("plan_photo_context", observation_plan(("b", "c")))
+    assert json.loads(expanded[0]["text"])["newly_observed_photo_ids"] == ["c"]
+    assert reads == [("b", None), ("c", None)] and tools.full_seen == {"a", "b", "c"}
+
+
+@pytest.mark.parametrize("mutation,code", [("revision", "gallery_revision_changed"), ("deadline", "run_deadline_exceeded")])
+def test_plan_does_not_count_an_image_whose_metadata_or_budget_changed_during_read(store, monkeypatch, mutation, code):
+    tools = ContextTools(store, None, request(), "plan-image-mutation")
+    tools.image_block("a")
+    tools.invoke("list_photos", {})
+    read = store.read_image
+    def change_during_read(pid, box=None):
+        value = read(pid, box)
+        if mutation == "revision":
+            store.bump()
+        else:
+            tools.deadline = 0
+        return value
+    monkeypatch.setattr(store, "read_image", change_during_read)
+    result = tools.invoke("plan_photo_context", observation_plan(("b",)))
+    assert isinstance(result, dict) and result["status"] == "partial"
+    assert result["observation_error"]["code"] == code
+    assert result["unresolved_planned_photo_ids"] == ["b"]
+    assert tools.full_seen == tools.seen == {"a"} and tools.planned_ids() == {"b"}
+    with pytest.raises(ValueError):
+        tools.invoke("submit_photo_context", context(("b",)))
+
+
+def test_plan_preflights_entire_image_budget_before_replacing_plan_or_reading(store, monkeypatch):
+    for index in range(23):
+        store.upsert(asset(f"extra-{index:02}"))
+    tools = ContextTools(store, None, request(), "plan-image-budget")
+    tools.image_block("a")
+    tools.invoke("list_photos", {})
+    tools.invoke("plan_photo_context", observation_plan(()))
+    original = tools.plan.copy()
+    candidates = sorted(tools.candidate_ids())
+    assert len(candidates) == 25
+    plan = observation_plan(candidates[:24])
+    plan["investigations"].append({**plan["investigations"][0], "candidate_photo_ids": candidates[24:]})
+    def unexpected_read(*args):
+        raise AssertionError("Over-budget plans must not read an image")
+    monkeypatch.setattr(store, "read_image", unexpected_read)
+    with pytest.raises(ValueError, match="inspection budget"):
+        tools.invoke("plan_photo_context", plan)
+    assert tools.plan == original and tools.full_seen == {"a"}
+    assert len(store.rows("SELECT * FROM events WHERE kind='context_observation_plan'")) == 1
+
+
+@pytest.mark.asyncio
+async def test_model_reads_partial_plan_images_then_retries_only_unresolved_observations(store, monkeypatch):
+    read, failed = store.read_image, False
+    def unavailable_once(pid, box=None):
+        nonlocal failed
+        if pid == "c" and not failed:
+            failed = True
+            raise FileNotFoundError("private path")
+        return read(pid, box)
+    monkeypatch.setattr(store, "read_image", unavailable_once)
+    class RetryingPlanGateway(ImageGateway):
+        async def invoke(self, messages, schemas):
+            if schemas[0]["name"] == "submit_context_review":
+                return await super().invoke(messages, schemas)
+            self.turns += 1
+            if self.turns > 1:
+                outputs = [m.content for m in messages if m.type == "tool" and isinstance(m.content, list)]
+                current = outputs[-1]
+                metadata = json.loads(current[0]["text"])
+                assert metadata["newly_observed_photo_ids"] == (["b"] if self.turns == 2 else ["c"])
+                assert metadata["status"] == ("partial" if self.turns == 2 else "observed")
+                actual_images = [block for block in current if block["type"] == "image"]
+                assert len(actual_images) == 1
+                with Image.open(io.BytesIO(base64.b64decode(actual_images[0]["source"]["data"]))) as image:
+                    assert image.getpixel((20, 20))[0] > 200
+            name, args = ("plan_photo_context", observation_plan()) if self.turns < 3 else ("submit_photo_context", context())
+            assert self.turns <= 3
+            return AIMessage(content="", tool_calls=[{"id": f"retry-plan-{self.turns}", "type": "tool_call",
+                "name": name, "args": args}])
+    gateway = RetryingPlanGateway()
+    result = await PhotoContextAgent(store, None, gateway).execute("plan-image-repair", request())
+    assert gateway.turns == 3 and gateway.reviews == 1
+    assert result["evidence"]["planned_photo_ids"] == ["b", "c"]
+    assert result["evidence"]["inspected_photo_ids"] == ["a", "b", "c"]
+    observations = [json.loads(row["data"]) for row in store.rows("SELECT data FROM events WHERE kind='context_plan_observation'")]
+    assert [row["newly_observed_photo_ids"] for row in observations] == [["b"], ["c"]]
+    assert "private path" not in encoded(observations)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mode,expected", [
+    ("missing", {"code": "path_coverage_mismatch", "missing_path_count": 1, "duplicate_path_count": 0, "foreign_path_count": 0}),
+    ("duplicate", {"code": "path_coverage_mismatch", "missing_path_count": 1, "duplicate_path_count": 1, "foreign_path_count": 0}),
+    ("foreign", {"code": "path_coverage_mismatch", "missing_path_count": 1, "duplicate_path_count": 0, "foreign_path_count": 1}),
+    ("wrong_excerpt", {"code": "excerpt_not_in_field", "excerpt_mismatch_count": 1, "failed_without_excerpt_count": 0}),
+    ("invalid_schema", {"code": "invalid_schema", "schema_issue_count": 1, "issue_types": ["missing"]}),
+    ("no_tool", {"code": "tool_call_count", "actual_tool_call_count": 0}),
+    ("wrong_tool", {"code": "unexpected_tool"}),
+])
+async def test_copy_gate_requires_exactly_every_final_text_path_and_its_own_excerpt(store, mode, expected):
+    wording = WordingGateway(mode)
+    with pytest.raises(RuntimeError, match="exact-field evidence"):
+        await PhotoContextAgent(store, None, ImageGateway(), wording_gateway=wording).execute("copy-contract", request())
+    assert not store.rows("SELECT * FROM events WHERE kind='context_result'")
+    rows = store.rows("SELECT * FROM events WHERE kind='context_wording_invalid'")
+    assert len(rows) == wording.calls == 1
+    detail = json.loads(rows[0]["data"])
+    assert all(detail[key] == value for key, value in expected.items())
+    assert detail["expected_field_count"] == 3
+    for sensitive in ("private/unknown", "private_unknown_tool", "This does not occur", "untrusted provider text"):
+        assert sensitive not in encoded(detail)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mode", ["readability", "claim", "missing_excerpt"])
+async def test_supported_visual_members_do_not_bypass_final_wording_failure(store, mode):
+    wording = WordingGateway(mode)
+    gateway = ImageGateway()
+    with pytest.raises(RuntimeError, match="failed independent review"):
+        await PhotoContextAgent(store, None, gateway, wording_gateway=wording).execute("copy-failed", request())
+    assert wording.calls == gateway.reviews == 2
+    assert not store.rows("SELECT * FROM events WHERE kind='context_result'")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("negative_flag", ["readable", "claims_supported"])
+async def test_missing_excerpt_quotes_exact_whole_field_with_adapter_provenance_and_keeps_negative(store, negative_flag):
+    class NegativeWithoutQuote(WordingGateway):
+        async def invoke(self, messages, schemas):
+            response = await super().invoke(messages, schemas)
+            response.tool_calls[0]["args"]["checks"][0][negative_flag] = False
+            self.original_response = response
+            return response
+    gateway = NegativeWithoutQuote()
+    tools = ContextTools(store, None, request(), "quote-normalization")
+    tools.image_block("a")
+    tools.invoke("list_photos", {})
+    tools.invoke("plan_photo_context", observation_plan())
+    supported, feedback = await PhotoContextAgent(store, None, ImageGateway(), wording_gateway=gateway)._wording_review(tools, context(), 1)
+    assert supported is False and feedback["checks"][0][negative_flag] is False
+    assert feedback["checks"][0]["problematic_excerpts"] == [context()["summary"]]
+    assert gateway.original_response.tool_calls[0]["args"]["checks"][0]["problematic_excerpts"] == []
+    assert feedback["adapter_quote_provenance"] == {"normalization": "full_field_fallback", "paths": ["/summary"], "count": 1}
+    rows = store.rows("SELECT data FROM events WHERE kind='context_wording_normalized'")
+    assert len(rows) == gateway.calls == 1
+    assert json.loads(rows[0]["data"]) == {"attempt": 1, **feedback["adapter_quote_provenance"]}
+    assert not store.rows("SELECT * FROM events WHERE kind IN ('context_wording_invalid','context_result')")
+
+
+@pytest.mark.asyncio
+async def test_wrong_provided_excerpt_still_fails_before_any_missing_excerpt_normalization(store):
+    class MixedInvalid(WordingGateway):
+        async def invoke(self, messages, schemas):
+            response = await super().invoke(messages, schemas)
+            checks = response.tool_calls[0]["args"]["checks"]
+            checks[0]["readable"] = False  # Missing excerpt could otherwise be normalized.
+            checks[1]["problematic_excerpts"] = ["A quote absent from this title"]
+            return response
+    with pytest.raises(RuntimeError, match="exact-field evidence"):
+        await PhotoContextAgent(store, None, ImageGateway(), wording_gateway=MixedInvalid()).execute("mixed-invalid", request())
+    assert not store.rows("SELECT * FROM events WHERE kind IN ('context_wording_normalized','context_result')")
+    detail = json.loads(store.rows("SELECT data FROM events WHERE kind='context_wording_invalid'")[0]["data"])
+    assert detail["code"] == "excerpt_not_in_field" and detail["failed_without_excerpt_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_full_field_adapter_quote_reaches_the_existing_semantic_repair_without_extra_calls(store):
+    class OnceMissingQuote(WordingGateway):
+        async def invoke(self, messages, schemas):
+            self.mode = "missing_excerpt" if self.calls == 0 else "supported"
+            return await super().invoke(messages, schemas)
+    class RevisingPlanner(ImageGateway):
+        async def invoke(self, messages, schemas):
+            if self.turns >= 2 and schemas[0]["name"] != "submit_context_review":
+                reviews = [json.loads(m.content)["independent_context_review"] for m in messages
+                           if m.type == "human" and isinstance(m.content, str) and '"independent_context_review"' in m.content]
+                feedback = reviews[-1]["wording_review"]
+                assert feedback["checks"][0]["readable"] is False
+                assert feedback["checks"][0]["problematic_excerpts"] == [context()["summary"]]
+                assert feedback["adapter_quote_provenance"]["normalization"] == "full_field_fallback"
+                response = await super().invoke(messages, schemas)
+                response.tool_calls[0]["args"]["summary"] = "여러 사진에 반복되는 색을 함께 살펴볼 수 있어요."
+                return response
+            return await super().invoke(messages, schemas)
+    planner, wording = RevisingPlanner(), OnceMissingQuote()
+    result = await PhotoContextAgent(store, None, planner, wording_gateway=wording).execute("quote-repair", request())
+    assert result["complete"] and result["summary"] != context()["summary"]
+    assert planner.turns == 3 and planner.reviews == wording.calls == 2
+    assert len(store.rows("SELECT * FROM events WHERE kind='context_wording_normalized'")) == 1
+
+
+@pytest.mark.asyncio
+async def test_combined_feedback_repairs_wording_within_the_same_two_review_rounds(store):
+    class OnceFailingWording(WordingGateway):
+        async def invoke(self, messages, schemas):
+            self.mode = "readability" if self.calls == 0 else "supported"
+            return await super().invoke(messages, schemas)
+
+    class RepairingPlanner(ImageGateway):
+        async def invoke(self, messages, schemas):
+            if self.turns >= 2 and schemas[0]["name"] != "submit_context_review":
+                feedback = encoded([m.content for m in messages])
+                assert "visual_review" in feedback and "wording_review" in feedback
+            return await super().invoke(messages, schemas)
+
+    wording = OnceFailingWording()
+    planner = RepairingPlanner()
+    result = await PhotoContextAgent(store, None, planner, wording_gateway=wording).execute("copy-repair", request())
+    assert wording.calls == planner.reviews == 2
+    assert result["evidence"]["wording_review_model"] == CONTEXT_WORDING_MODEL
+    assert result["evidence"]["wording_checked_paths"] == ["/summary", "/groups/0/title", "/groups/0/reason"]
+
+
+@pytest.mark.asyncio
+async def test_copy_gate_messages_and_schema_serialize_in_actual_sdk_without_network(store):
+    class SerializingWording(WordingGateway):
+        async def invoke(self, messages, schemas):
+            transport = ChatAnthropic(model=CONTEXT_WORDING_MODEL, api_key="test-only-key")
+            payload = transport._get_request_payload(messages)
+            assert payload.get("system") and payload["messages"]
+            bound = transport.bind_tools(schemas, tool_choice="submit_context_wording_review")
+            payload = transport._get_request_payload(messages, **bound.kwargs)
+            sdk_schema = payload["tools"][0]["input_schema"]
+            assert sdk_schema["properties"]["checks"]["minItems"] == sdk_schema["properties"]["checks"]["maxItems"] == 3
+            assert '"enum": ["/summary", "/groups/0/title", "/groups/0/reason"]' in json.dumps(sdk_schema)
+            return await super().invoke(messages, schemas)
+    wording = SerializingWording()
+    await PhotoContextAgent(store, None, ImageGateway(), wording_gateway=wording).execute("copy-sdk", request())
+    assert wording.checked_images == [3]
+
+
+@pytest.mark.asyncio
+async def test_empty_context_copy_check_also_gets_full_inspected_corpus(store):
+    wording = WordingGateway()
+    result = await PhotoContextAgent(store, None, ImageGateway(empty=True), wording_gateway=wording).execute("empty-copy", request())
+    assert result["groups"] == [] and wording.checked_images == [3]
+    assert result["evidence"]["wording_checked_paths"] == ["/summary"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("tamper", ["plan", "copy_model", "copy_missing", "copy_duplicate", "copy_not_reviewed"])
+async def test_v3_ready_requires_plan_and_copy_review_provenance(store, tamper):
+    service = RunService(store, ContextRunner(store=store))
+    run = service.start(request())
+    await service.tasks[run["id"]]
+    key = service.cache_key(request())
+    cached = store.cache_get(key)
+    if tamper == "plan":
+        cached["evidence"]["planned_photo_ids"] = ["uninspected"]
+    elif tamper == "copy_model":
+        cached["evidence"]["wording_review_model"] = "another-model"
+    elif tamper == "copy_missing":
+        cached["evidence"]["wording_checked_paths"].pop()
+    elif tamper == "copy_duplicate":
+        cached["evidence"]["wording_checked_paths"][-1] = "/summary"
+    else:
+        cached["evidence"]["wording_reviewed"] = False
+    store.cache_put(key, cached)
+    store.write("DELETE FROM runs")
+    assert service.context_ready("a")["state"] == "pending"
+
+
+@pytest.mark.parametrize("previous_spec,previous_policy", [
+    (3, "photo-context-v3-plan-and-wording-review"),
+    (5, "photo-context-v5-source-neighborhood-prior"),
+])
+def test_previous_context_policy_cannot_be_reused_under_the_merged_key(store, previous_spec, previous_policy):
+    """Both merge parents' prepared views require preparation under the new policy."""
+    service = RunService(store, ContextRunner(store=store))
+    raw = context()
+    raw["evidence"] = {
+        "gallery_revision": store.revision,
+        "source_version": store.photo("a").version,
+        "inspected_photo_ids": ["a", "b", "c"],
+        "photo_versions": {pid: store.photo(pid).version for pid in ("a", "b", "c")},
+        "summary_reviewed": True,
+        "reviewed_members": [{"group_id": "g", "photo_id": pid} for pid in ("b", "c")],
+        "planned_photo_ids": ["b", "c"],
+        "wording_review_model": CONTEXT_WORDING_MODEL,
+        "wording_reviewed": True,
+        "wording_checked_paths": [field["path"] for field in context_wording_fields(raw)],
+    }
+    cached = service.contexts.cache_value("a", raw)
+    assert cached["context_spec"] != previous_spec
+    cached.update(context_spec=previous_spec, context_policy=previous_policy)
+    current_key = service.contexts.key("a")
+    store.cache_put(current_key, cached)
+    before = store.db.total_changes
+    assert service.context_ready("a")["state"] == "pending"
+    assert store.db.total_changes == before
+    assert store.cache_get(current_key) == cached
+    assert not service.tasks and not store.rows("SELECT * FROM runs")

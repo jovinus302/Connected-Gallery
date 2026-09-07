@@ -10,6 +10,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from connected_gallery.adapters.store import encoded
 from connected_gallery.agent_specs.versions import AGENT_SPEC_VERSION, RETRIEVAL_POLICY
+from connected_gallery.domain.empty_evidence import EMPTY_EVIDENCE_SPEC, EMPTY_EVIDENCE_POLICY, MAX_EMPTY_CANDIDATES
+from connected_gallery.domain.models import RunRequest
 
 
 RETRY_FEEDBACK_VERSION = 1
@@ -26,16 +28,19 @@ FEEDBACK_INSTRUCTION = (
     "paired reviews describe what was checked. Never automatically reuse, include or exclude a photo. "
     "This history gives no inspection, search, coverage or acceptance credit. A failed attempt or "
     "omitting all prior candidates cannot prove an empty gallery result. Current independent reviews "
-    "remain fresh, and the original execution budgets still apply."
+    "remain fresh, and the original execution budgets still apply. An empty-review candidate_lead marked "
+    "possible_relation or uncertain is only a retrieval question, not a supported result or an inspected "
+    "photo in this attempt. Empty-review insufficient diagnostics contain no semantic conclusion. "
+    "Reconsider these leads with your own selected-crop and candidate inspection before using them."
 )
 
 
-def exploration_cache_key(store, explore):
+def exploration_cache_key(store, explore, *, model=None):
     value = explore.model_dump(mode="json", exclude={"request_revision"})
     value["photo_version"] = store.photo(explore.anchor.photo_id).version
     return hashlib.sha256(encoded([
         f"agent-spec-v{AGENT_SPEC_VERSION}", RETRIEVAL_POLICY,
-        os.getenv("CG_MODEL", "gpt-5.4-mini"), value,
+        model if model is not None else os.getenv("CG_MODEL", "gpt-5.4-mini"), value,
     ]).encode()).hexdigest()
 
 
@@ -146,8 +151,37 @@ class Failure(PrivateData):
                    "submit_result_revision", "submit_group_member_review"]
 
 
+class EmptyDecision(Item):
+    verdict: Literal["unrelated", "possible_relation", "uncertain"]
+
+
+class EmptyInvestigation(PrivateData):
+    spec: int
+    policy: Short
+    status: Literal["needs_investigation"]
+    gallery_revision: Annotated[int, Field(ge=0)]
+    source_photo_id: PhotoId
+    eligible_count: Count
+    inspected_photo_ids: list[PhotoId] = Field(min_length=1, max_length=MAX_EMPTY_CANDIDATES + 1)
+    photo_versions: dict[PhotoId, Short] = Field(max_length=MAX_EMPTY_CANDIDATES + 1)
+    selected_meaning: Short
+    anchor_supported: bool
+    scope_sufficient: bool
+    scope_reason: Short
+    decisions: list[EmptyDecision] = Field(max_length=MAX_EMPTY_CANDIDATES)
+
+
+class EmptyInsufficient(PrivateData):
+    spec: int
+    status: Literal["insufficient"]
+    code: Literal["candidate_budget", "review_unavailable"]
+    eligible_count: Annotated[int, Field(ge=0)]
+    candidate_budget: Annotated[int, Field(ge=0)] | None = None
+
+
 MODELS = {"evidence_review": CandidateEvidence, "group_proposal": Proposal,
-          "group_evidence_review": GroupEvidence, "grouping_failed": Failure}
+          "group_evidence_review": GroupEvidence, "grouping_failed": Failure,
+          "empty_evidence_review": EmptyInvestigation}
 
 
 def _unique(values):
@@ -156,7 +190,7 @@ def _unique(values):
     return set(values)
 
 
-def _validated_events(rows, allowed):
+def _validated_events(rows, allowed, current, photo_versions):
     events, proposals, counts = [], {}, {}
     accepted = None
     for row in rows:
@@ -167,11 +201,42 @@ def _validated_events(rows, allowed):
         raw = json.loads(row["data"])
         if not isinstance(raw, dict):
             raise ValueError("Invalid feedback container")
-        model = MODELS[kind]
+        model = EmptyInsufficient if kind == "empty_evidence_review" and raw.get("status") == "insufficient" else MODELS[kind]
         # Whitelist only structured semantic judgments. Timing, raw errors,
         # provider bodies, tool messages and nested prior attempts never cross.
         value = model.model_validate({key: raw[key] for key in model.model_fields if key in raw})
-        if isinstance(value, CandidateEvidence):
+        hint = None
+        if isinstance(value, EmptyInvestigation):
+            ids = _unique([d.photo_id for d in value.decisions])
+            if (value.spec != EMPTY_EVIDENCE_SPEC or value.policy != EMPTY_EVIDENCE_POLICY
+                    or value.source_photo_id != current["source_photo_id"]
+                    or value.gallery_revision != current["gallery_revision"]
+                    or value.eligible_count != len(allowed) or ids != allowed
+                    or _unique(value.inspected_photo_ids) != set(photo_versions)
+                    or value.photo_versions != photo_versions
+                    or (value.anchor_supported and value.scope_sufficient
+                        and all(d.verdict == "unrelated" for d in value.decisions))):
+                raise ValueError("Empty-review feedback does not match this failed snapshot and complete candidate set")
+            # Validate the old ledger, then deliberately omit it from the model
+            # hint. Neither positive leads nor unrelated verdicts grant credit.
+            hint = {"spec": value.spec, "policy": value.policy, "status": value.status,
+                    "eligible_count": value.eligible_count, "selected_meaning": value.selected_meaning,
+                    "anchor_supported": value.anchor_supported, "scope_sufficient": value.scope_sufficient,
+                    "scope_reason": value.scope_reason,
+                    "candidate_leads": [d.model_dump(mode="json") for d in value.decisions
+                                        if d.verdict in ("possible_relation", "uncertain")]}
+        elif isinstance(value, EmptyInsufficient):
+            ids = set()
+            if (value.spec != EMPTY_EVIDENCE_SPEC or value.eligible_count != len(allowed)
+                    or (value.code == "candidate_budget" and (value.candidate_budget != MAX_EMPTY_CANDIDATES
+                                                              or value.eligible_count <= MAX_EMPTY_CANDIDATES))
+                    or (value.code == "review_unavailable" and (value.candidate_budget is not None
+                                                                or value.eligible_count > MAX_EMPTY_CANDIDATES))):
+                raise ValueError("Invalid empty-review failure diagnostic")
+            # No raw exception, timing, candidate IDs or semantic claims can be
+            # inferred from an unavailable/over-budget whole-gallery review.
+            hint = value.model_dump(mode="json", exclude_none=True)
+        elif isinstance(value, CandidateEvidence):
             ids = _unique([d.photo_id for d in value.decisions])
             accepted = {d.photo_id for d in value.decisions if d.verdict == "supported"} if value.anchor_supported else set()
             if value.candidate_count != len(ids) or value.accepted_count != len(accepted):
@@ -208,7 +273,7 @@ def _validated_events(rows, allowed):
             ids = set()
         if not ids <= allowed:
             raise ValueError("Feedback contains an unavailable photo")
-        events.append({"kind": kind, "data": value.model_dump(mode="json")})
+        events.append({"kind": kind, "data": hint if hint is not None else value.model_dump(mode="json")})
     return events
 
 
@@ -224,29 +289,47 @@ def load_prior_attempt_feedback(toolkit):
             own = store.rows("SELECT data FROM events WHERE run_id=? AND kind=?", (run_id, IDENTITY_EVENT))
             if len(payload) > MAX_IDENTITY_CHARS or len(own) != 1 or own[0]["data"] != payload:
                 return None  # No inference from legacy or foreign execution history.
+            selected = store.rows("SELECT data FROM events WHERE run_id=? AND kind='prior_attempt_feedback_used'", (run_id,))
+            chosen_id = None
+            if selected:
+                if len(selected) != 1:
+                    return None
+                choice = json.loads(selected[0]["data"])
+                if set(choice) != {"version", "prior_run_id"} or type(choice["version"]) is not int or choice["version"] != RETRY_FEEDBACK_VERSION:
+                    return None
+                chosen_id = choice["prior_run_id"]
+                if chosen_id is None:
+                    return None
+                if not isinstance(chosen_id, str):
+                    return None
             previous = store.rows(
-                "SELECT e.run_id,r.status FROM events e JOIN runs r ON r.id=e.run_id "
+                "SELECT e.run_id,r.status,r.request FROM events e JOIN runs r ON r.id=e.run_id "
                 "WHERE e.kind=? AND e.data=? AND e.run_id!=? AND r.status IN ('failed','incomplete') "
+                "AND (? IS NULL OR e.run_id=?) "
                 "ORDER BY (SELECT MAX(t.seq) FROM events t WHERE t.run_id=e.run_id) DESC LIMIT 1",
-                (IDENTITY_EVENT, payload, run_id),
+                (IDENTITY_EVENT, payload, run_id, chosen_id, chosen_id),
             )
             if not previous:
                 return None
             prior = previous[0]
+            prior_request = RunRequest.model_validate_json(prior["request"])
+            if (prior_request.role != "explorer" or encoded(prior_request.explore.model_dump(
+                    mode="json", exclude={"request_revision"})) != encoded(current["explore"])):
+                return None
             identities = store.rows("SELECT data FROM events WHERE run_id=? AND kind=?", (prior["run_id"], IDENTITY_EVENT))
             if len(identities) != 1 or identities[0]["data"] != payload:
                 return None
             rows = store.rows(
                 "SELECT kind, CASE WHEN length(data)<=? THEN data ELSE NULL END AS data FROM events "
-                "WHERE run_id=? AND kind IN ('evidence_review','group_proposal','group_evidence_review','grouping_failed') "
+                "WHERE run_id=? AND kind IN ('evidence_review','group_proposal','group_evidence_review','grouping_failed','empty_evidence_review') "
                 "ORDER BY seq LIMIT 8", (MAX_FEEDBACK_CHARS, prior["run_id"]),
             )
             if not rows or len(rows) > 7:
                 return None
-            allowed = {p.id for p in toolkit.allowed()} - {request.explore.anchor.photo_id}
-            for pid in allowed | {request.explore.anchor.photo_id}:
-                toolkit.authorize(pid, source=pid == request.explore.anchor.photo_id)
-            events = _validated_events(rows, allowed)
+            allowed = set(toolkit.allowed()) - {request.explore.anchor.photo_id}
+            photo_versions = {pid: toolkit.authorize(pid, source=pid == request.explore.anchor.photo_id).version
+                              for pid in allowed | {request.explore.anchor.photo_id}}
+            events = _validated_events(rows, allowed, current, photo_versions)
             bundle = {"version": RETRY_FEEDBACK_VERSION, "prior_run_id": prior["run_id"],
                       "terminal_status": prior["status"], "events": events}
             return bundle if len(encoded(bundle)) <= MAX_FEEDBACK_CHARS else None

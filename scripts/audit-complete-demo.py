@@ -20,7 +20,7 @@ import threading
 sys.dont_write_bytecode = True
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT / "server"))
-from connected_gallery.application.demo_profile import apply_demo_model
+from connected_gallery.application.demo_profile import apply_demo_model, effective_context_model, connection_models
 from connected_gallery.application.service import RunService
 from connected_gallery.domain.context import CONTEXT_POLICY, CONTEXT_SPEC, capture_metadata
 from connected_gallery.domain.models import ExploreInput, PhotoAsset, PhotoAnalysis, RunRequest, SemanticAnchor
@@ -117,16 +117,18 @@ def inspect_connect(service, anchor):
            "confirmed_empty": False, "items": [], "groups": []}
     try:
         query = ExploreInput(anchor=anchor)
-        key = service.cache_key(RunRequest(role="explorer", explore=query))
+        key = service.prepared_cache_key(query) or service.cache_key(RunRequest(role="explorer", explore=query))
         row["cache_diagnosis"] = cache_diagnosis(service.store, key)
         result = service.ready(query)
-        row.update(state=result["state"], revision=result["revision"])
+        row.update(state=result["state"], revision=result["revision"], cache_model=result.get("cache_model"))
         if result["state"] == "ready":
             value = result["result"]
             # Actual ready() has already checked the current canonical anchor and result schema/IDs.
             row.update(prepared=True, confirmed_empty=not value["items"],
                        label=value["label"], items=value["items"], groups=value["groups"],
                        complete=value["complete"], grouping_status=value["grouping_status"])
+            if not value["items"]:
+                row["empty_evidence"] = value["empty_evidence"]
     except (ValueError, KeyError, TypeError) as exc:
         row["error_type"] = type(exc).__name__
     return row
@@ -150,7 +152,11 @@ def inspect_context(service, photo):
                                  "inspected_photo_ids": evidence["inspected_photo_ids"],
                                  "photo_versions": evidence["photo_versions"],
                                  "reviewed_members": evidence["reviewed_members"],
-                                 "summary_reviewed": evidence["summary_reviewed"]})
+                                 "summary_reviewed": evidence["summary_reviewed"],
+                                 "planned_photo_ids": evidence["planned_photo_ids"],
+                                 "wording_review_model": evidence["wording_review_model"],
+                                 "wording_reviewed": evidence["wording_reviewed"],
+                                 "wording_checked_paths": evidence["wording_checked_paths"]})
     except (ValueError, KeyError, TypeError) as exc:
         row["error_type"] = type(exc).__name__
     return row
@@ -239,6 +245,8 @@ def audit(args):
     db_path = root / "gallery.sqlite"
     require(db_path.is_file() and not db_path.is_symlink(), "A regular existing gallery database is required")
     previous_model = os.environ.get("CG_MODEL")
+    previous_context_model = os.environ.get("CG_CONTEXT_MODEL")
+    previous_compatible_models = os.environ.get("CG_COMPATIBLE_CONNECTION_MODELS")
     db = sqlite3.connect(db_path.as_uri() + "?mode=ro", uri=True)
     db.row_factory = sqlite3.Row
     db.execute("PRAGMA query_only=ON")
@@ -317,7 +325,9 @@ def audit(args):
             "evaluation_only": True, "metric_scope": "prepared data contracts and directed retrieval edges only",
             "agent_spec": AGENT_SPEC_VERSION, "retrieval_policy": RETRIEVAL_POLICY,
             "context_spec": CONTEXT_SPEC, "context_policy": CONTEXT_POLICY,
-            "cache_model": os.environ.get("CG_MODEL", "gpt-5.4-mini"), "before": before, "after": after,
+            "cache_model": os.environ.get("CG_MODEL", "gpt-5.4-mini"), "context_model": effective_context_model(),
+            "compatible_connection_models": connection_models()[1:],
+            "before": before, "after": after,
             "delta": {key: after[key] - before[key] for key in before},
             "logical_fingerprints_before": hashes_before, "logical_fingerprints_after": hashes_after,
             "read_only_verified": readonly, "execution_attempts": runner.calls, "scheduled_tasks": len(service.tasks),
@@ -357,6 +367,14 @@ def audit(args):
             os.environ.pop("CG_MODEL", None)
         else:
             os.environ["CG_MODEL"] = previous_model
+        if previous_context_model is None:
+            os.environ.pop("CG_CONTEXT_MODEL", None)
+        else:
+            os.environ["CG_CONTEXT_MODEL"] = previous_context_model
+        if previous_compatible_models is None:
+            os.environ.pop("CG_COMPATIBLE_CONNECTION_MODELS", None)
+        else:
+            os.environ["CG_COMPATIBLE_CONNECTION_MODELS"] = previous_compatible_models
 
 
 def main():

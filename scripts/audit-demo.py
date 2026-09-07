@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "server"))
-from connected_gallery.application.demo_profile import apply_demo_model
+from connected_gallery.application.demo_profile import apply_demo_model, connection_models
 
 
 class NoExecution:
@@ -30,6 +30,8 @@ def main():
     service = RunService(store, NoExecution())
     before = store.rows("SELECT count(*) AS n FROM events")[0]["n"]
     report = {"synthetic": True, "photos": len(store.photos()), "revision": store.revision, "anchors": []}
+    report["connection_model"] = connection_models()[0]
+    report["compatible_connection_models"] = connection_models()[1:]
     try:
         for p in store.photos():
             analysis = store.analysis(p.id) or {}
@@ -44,6 +46,7 @@ def main():
                 report["anchors"].append({"photo_id": p.id, "region_id": region["id"],
                     "label": region["label"], "kind": region["kind"], "box": region["box"],
                     "state": ready["state"], "lookup_ms": times,
+                    "cache_model": ready.get("cache_model"),
                     "result": ready.get("result")})
         after = store.rows("SELECT count(*) AS n FROM events")[0]["n"]
         report["event_delta"] = after - before

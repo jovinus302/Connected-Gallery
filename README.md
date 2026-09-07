@@ -1,6 +1,6 @@
 # Connected Gallery
 
-> 2026-09-08: 사진을 열면 주변 맥락을 자동 준비·표시하고, 대상을 누르면 Connect 결과로 이어지는 서버·Android UX를 통합했습니다. [검증 결과와 한계](docs/context-ux-validation.md)를 확인하세요. 제품 기준은 [Connect와 사진 맥락 UX](docs/connected-gallery-product-ux.md)입니다.
+> PC 데모 완료 (2026-09-08): 합성 사진 20장·선택 대상 47개의 Connect와 사진별 자동 맥락을 준비하고, 두 출발점의 3hop·뒤로 가기 복원을 실제 브라우저에서 검증했다. [데모 실행과 검증 범위](docs/pc-demo-completion.md)를 참고한다. 최신 main의 Android 자동 맥락·Space 제거·서버 복구 개선도 통합했다. [머지 검증과 캐시 버전](docs/demo-main-integration.md), [기존 Android 검증](docs/context-ux-validation.md)을 구분해 확인한다.
 
 실기기 맥락 실패의 이미지 전달·제출·검토 원인과 수정은 [이미지·맥락 진단 기록](docs/image-context-diagnosis-2026-09-08.md)에 정리했습니다.
 
@@ -8,7 +8,20 @@
 
 Android 갤러리에서 사진 속 사람·사물·텍스트·장소를 눌러 내 사진을 탐색합니다. MVP는 Organize + Connect입니다. Organize는 사진 상세의 자동 맥락 표시이며, Space 생성·저장·목록·편집·사용자 쓰기 권한은 MVP에서 제외했습니다. 내부 맥락 캐시는 유지합니다. Time/Timeline은 후속 기능으로 분리했습니다. 의미 판단은 모델이 도구를 선택하는 agentic 실행으로 처리합니다.
 
-## 시작
+## PC 데모
+
+사진을 열면 함께 볼 사진과 이유가 자동으로 나타납니다. 관심 대상을 선택해 Connect 결과를 보고, 결과나 맥락의 사진으로 이동해 다른 관심사를 따라갈 수 있습니다. 별도 Organize 버튼이나 Space 생성은 데모 흐름에 없습니다.
+
+소스와 준비 데이터가 같은 맥락 계약 버전일 때 Python 3.12 이상에서 실행합니다. 검증한 20장 데모는 전달한 소스 ZIP과 준비 데이터 ZIP을 함께 사용합니다. 현재 main은 실기기 이미지·맥락 수정을 합친 Context v9이므로 이전 계약의 맥락을 새 결과로 재사용하지 않으며, 새 소스에서는 맥락을 다시 준비해야 합니다.
+
+```powershell
+python -m pip install -e .
+python scripts/start-demo.py --data-dir .runtime/demo --prepared-only --port 8879
+```
+
+서버가 출력하는 로컬 `demo-launch.html`로 접속합니다. 준비 데이터 조회에는 모델 API 키나 휴대폰이 필요 없습니다. [사용·전달 안내](docs/pc-demo-completion.md)에 데이터 준비, 의미 검수와 속도 측정의 범위를 기록했습니다.
+
+## Android와 PC 서버 시작
 
 Windows / Python 3.12 / JDK 17 / Android SDK 36.
 
@@ -72,7 +85,8 @@ Proxy smoke는 합성 이미지만 전송합니다. 자동 계약 테스트는 f
 - `docs/oss-reference.md`: 참고 출처와 재사용 범위.
 - `docs/issues/`: 작업별 계약과 완료 기준.
 - `docs/validation.md`: 실제 검증 결과와 남은 검증.
-- `docs/context-ux-validation.md`: 현재 자동 맥락·Connect 그룹 통합의 코드·실기기·실제 사진 검증.
+- `docs/demo-main-integration.md`: PC 데모와 최신 main의 통합 검증·캐시 이전 범위.
+- `docs/context-ux-validation.md`: 이전 Android 자동 맥락·Connect 검증과 한계.
 - `docs/final-mvp-validation.md`: 1,000장 준비, 최종 Spaces, 실제 Android 3hop과 속도·품질 한계.
 
 사진, 모델 실행 상태, 분석 결과는 `.runtime/`에 저장되며 Git에서 제외됩니다. Proxy 키는 `.env`에만 두며 APK에 포함하지 않습니다. 서버 원점은 loopback에서 실행하고 HTTPS 터널을 통해 인증된 외부 요청을 받습니다. Android 원본은 수정하지 않습니다.

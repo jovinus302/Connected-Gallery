@@ -39,9 +39,13 @@ class PhotoIdTransport:
                if hasattr(message, "tool_calls") else {}),
         }) for message in messages]
 
-    def outbound_schemas(self, schemas):
+    def schemas(self, schemas):
         """Keep schema ID constraints in the same namespace as message IDs."""
         return self._rewrite(schemas, self.forward, self.out_pattern)
+
+    def outbound_schemas(self, schemas):
+        """Explicit outbound name for the same schema alias transformation."""
+        return self.schemas(schemas)
 
     def inbound(self, response):
         return response.model_copy(update={

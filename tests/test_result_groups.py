@@ -20,6 +20,7 @@ from connected_gallery.domain.models import (
 from connected_gallery.gallery_tools.registry import GalleryTools
 from test_contracts import asset, store
 from test_reviewer import RetrievalGateway
+from empty_proof_fixture import negative_proof
 
 
 def accepted(ids=("b", "c")):
@@ -52,7 +53,8 @@ def test_legacy_flat_results_are_readable_but_cannot_smuggle_groups():
     for status in ("legacy", "failed"):
         with pytest.raises(ValidationError):
             ExplorationResult.model_validate({**prepared(), "grouping_status": status})
-    assert ExplorationResult.model_validate(prepared(())).groups == []
+    with pytest.raises(ValidationError):
+        ExplorationResult.model_validate(prepared(()))
 
 
 class GroupGateway:
@@ -323,8 +325,10 @@ async def test_invalid_partition_is_logged_before_rejection(store):
 async def test_verified_empty_result_requires_no_group_model(store):
     request = RunRequest(role="explorer", explore=ExploreInput(anchor=SemanticAnchor(photo_id="a")))
     gateway = GroupGateway()
-    result = await ResultOrganizer(gateway).organize(GalleryTools(store, None, request, "empty"), request, accepted(()))
-    assert result == prepared(())
+    proof = negative_proof(store, request.explore)
+    result = await ResultOrganizer(gateway).organize(GalleryTools(store, None, request, "empty"), request,
+                                                    {**accepted(()), "empty_evidence": proof})
+    assert result == {**prepared(()), "empty_evidence": proof}
     assert gateway.calls == 0
 
 

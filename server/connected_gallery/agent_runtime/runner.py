@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import json
+import os
 import time
 from typing import Annotated, TypedDict
 from pydantic import ValidationError
@@ -13,6 +14,7 @@ from connected_gallery.agent_specs.prompts import PROMPTS
 from connected_gallery.agent_specs.versions import AGENT_SPEC_VERSION
 from connected_gallery.gallery_tools.registry import GalleryTools
 from connected_gallery.adapters.store import encoded
+from connected_gallery.application.attempt_feedback import RETRY_FEEDBACK_VERSION, load_prior_attempt_feedback, feedback_block
 
 
 class State(TypedDict):
@@ -26,8 +28,15 @@ class State(TypedDict):
     submission_reminded: bool
 
 
+def validate_exploration_responses(value):
+    if isinstance(value, bool) or not isinstance(value, int) or not 6 <= value <= 12:
+        raise ValueError("Exploration responses must be an integer from 6 to 12")
+    return value
+
+
 class GraphAgentRunner:
-    def __init__(self, store, models, gateway, reviewer=None, explorer_gateway=None, space_reviewer=None, result_organizer=None, context_agent=None):
+    def __init__(self, store, models, gateway, reviewer=None, explorer_gateway=None, space_reviewer=None, result_organizer=None, context_agent=None, exploration_responses=6):
+        self.exploration_responses = validate_exploration_responses(exploration_responses)
         self.store = store
         self.models = models
         self.gateway = gateway
@@ -45,13 +54,31 @@ class GraphAgentRunner:
     async def execute(self, run_id, request):
         if request.role == "context":
             from connected_gallery.agent_runtime.context import PhotoContextAgent
-            agent = self.context_agent or PhotoContextAgent(self.store, self.models, self.gateway)
+            from connected_gallery.adapters.proxy import ProxyGateway
+            from connected_gallery.application.demo_profile import effective_context_model
+            agent = self.context_agent
+            if agent is None:
+                gateway = self.gateway
+                # Only the production transport is replaced. Explicit custom
+                # gateways/agents remain injectable and never cause live calls.
+                if type(gateway) is ProxyGateway and "CG_CONTEXT_MODEL" in os.environ:
+                    gateway = ProxyGateway(attempt_timeout=gateway.attempt_timeout,
+                        primary=effective_context_model(), fallback=None, repeat_primary=False)
+                agent = PhotoContextAgent(self.store, self.models, gateway)
             return await agent.execute(run_id, request)
         # Asset versions alone do not cover replacement previews, updated
         # analyses or changes to the candidate corpus. Retain the revision from
         # BEFORE retrieval, rather than adopting a newer one after review.
         exploration_revision = self.store.revision if request.role == "explorer" else None
         toolkit = GalleryTools(self.store, self.models, request, run_id)
+        toolkit.prior_attempt_feedback = load_prior_attempt_feedback(toolkit)
+        if request.role == "explorer" and not self.store.rows(
+            "SELECT 1 FROM events WHERE run_id=? AND kind='prior_attempt_feedback_used'", (run_id,)
+        ):
+            self.store.event(run_id, "prior_attempt_feedback_used", {
+                "version": RETRY_FEEDBACK_VERSION,
+                "prior_run_id": toolkit.prior_attempt_feedback["prior_run_id"] if toolkit.prior_attempt_feedback else None,
+            })
         toolkit.defer_results = request.role == "explorer" and self.reviewer is not None
         toolkit.defer_spaces = request.role == "organizer" and self.space_reviewer is not None
         for row in self.store.rows(
@@ -61,8 +88,8 @@ class GraphAgentRunner:
             toolkit.seen.update(data.get("seen", []))
             toolkit.covered.update(data.get("covered", []))
             toolkit.searched.update(data.get("searched", []))
-        turns = {"analyst": 4, "explorer": 6, "organizer": 30}[request.role]
-        max_calls = {"analyst": 12, "explorer": 12, "organizer": 100}[request.role]
+        turns = {"analyst": 4, "explorer": self.exploration_responses, "organizer": 30}[request.role]
+        max_calls = {"analyst": 12, "explorer": 2 * self.exploration_responses, "organizer": 100}[request.role]
 
         def require_current_corpus():
             if exploration_revision is not None and self.store.revision != exploration_revision:
@@ -218,13 +245,20 @@ class GraphAgentRunner:
             attempts = state.get("review_attempts", 0) + 1
             # One evidence-guided refinement is available within the original
             # model/tool/time budgets. No keyword or semantic fallback is used.
-            if (not reviewed["items"] and getattr(toolkit, "review_anchor_supported", False)
+            if (not reviewed["items"] and not reviewed.get("complete", False)
+                    and getattr(toolkit, "review_anchor_supported", False)
                     and attempts < 2 and state.get("turns", 0) < turns - 1
                     and state.get("calls", 0) < max_calls - 2):
                 toolkit.result = None
                 return {"review_attempts": attempts, "messages": [HumanMessage(content=encoded({
                     "independent_visual_evidence": toolkit.review_feedback,
-                    "instruction": "None of the proposed candidates was visually supported. Keep the original selected meaning. Use this evidence to refine your retrieval and inspect new candidates if the remaining budget permits. Do not repeat unsupported claims or broaden to the surrounding scene. If evidence remains insufficient, submit incomplete.",
+                    "instruction": ("Independent whole-gallery negative review found possible direct relationships or uncertainty. "
+                        "These are investigation leads, not accepted photos. Preserve the original selected meaning, "
+                        "distinguish identical products from related but different objects, inspect the leads yourself, "
+                        "and resubmit only evidence you can support. Do not broaden to surrounding scenery or force "
+                        "an empty result for completion. Submit incomplete if uncertainty remains."
+                        if getattr(toolkit, "empty_review_status", None) == "needs_investigation" else
+                        "None of the proposed candidates was visually supported. Keep the original selected meaning. Use this evidence to refine your retrieval and inspect new candidates if the remaining budget permits. Do not repeat unsupported claims or broaden to the surrounding scene. If evidence remains insufficient, submit incomplete."),
                 }))]}
             if self.result_organizer is not None:
                 reviewed = await self.result_organizer.organize(toolkit, request, reviewed)
@@ -281,6 +315,8 @@ class GraphAgentRunner:
                     page = await asyncio.to_thread(toolkit.invoke, "list_photos", {"offset": offset, "limit": 100})
                     initial_content.append({"type": "text", "text": encoded(page)})
             if not checkpoint.next and request.role == "explorer":
+                if toolkit.prior_attempt_feedback is not None:
+                    initial_content.append(feedback_block(toolkit.prior_attempt_feedback))
                 initial_content.append({"type": "text", "text": encoded({"library_status": {
                     "photo_count": self.store.rows("SELECT count(*) AS n FROM photos")[0]["n"],
                     "analyzed_count": self.store.rows("SELECT count(*) AS n FROM analyses")[0]["n"],

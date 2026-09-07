@@ -12,6 +12,7 @@ from connected_gallery.bootstrap.api import create_app
 from connected_gallery.bootstrap.demo import DemoSession, COOKIE
 from connected_gallery.bootstrap.auth import server_token
 from connected_gallery.domain.models import PhotoAsset, RunRequest, ExploreInput, SemanticAnchor
+from empty_proof_fixture import negative_proof
 
 
 class IdleRunner:
@@ -121,6 +122,9 @@ def test_ready_endpoint_returns_cached_empty_without_run_or_model_call(demo):
     assert client.post("/explorations/ready", json=explore.model_dump(), headers=origin).json()["state"] == "pending"
     result = {"label": "관련 사진", "items": [], "groups": [], "grouping_status": "ready", "complete": True}
     app.state.store.cache_put(app.state.service.cache_key(RunRequest(role="explorer", explore=explore)), result)
+    assert client.post("/explorations/ready", json=explore.model_dump(), headers=origin).json()["state"] == "pending"
+    result["empty_evidence"] = negative_proof(app.state.store, explore)
+    app.state.store.cache_put(app.state.service.empty_cache_key(explore), result)
     response = client.post("/explorations/ready", json=explore.model_dump(), headers=origin)
     assert response.status_code == 200 and response.json()["state"] == "ready"
     assert response.json()["result"]["items"] == []
@@ -174,7 +178,8 @@ def test_prepared_only_lifespan_does_not_take_over_external_runs(tmp_path, monke
     revision = store.revision
     explore = ExploreInput(anchor=SemanticAnchor(photo_id="source"))
     result = {"label": "관련 사진", "items": [], "groups": [], "grouping_status": "ready", "complete": True}
-    store.cache_put(app.state.service.cache_key(RunRequest(role="explorer", explore=explore)), result)
+    result["empty_evidence"] = negative_proof(store, explore)
+    store.cache_put(app.state.service.empty_cache_key(explore), result)
     bearer = {"Authorization": "Bearer " + server_token(tmp_path)}
     with TestClient(app, base_url=session.origin) as client:
         login(client, session, key)

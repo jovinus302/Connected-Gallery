@@ -1,8 +1,8 @@
-from connected_gallery.domain.context import CONTEXT_WORDING_MODEL, context_wording_fields
 """Package a tiny temporary repository and synthetic DB; never the live demo."""
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sqlite3
 import subprocess
@@ -10,6 +10,8 @@ from types import SimpleNamespace
 import zipfile
 
 import pytest
+from connected_gallery.domain.models import ExploreInput, SemanticAnchor
+from empty_proof_fixture import negative_proof
 
 spec = importlib.util.spec_from_file_location("demo_package", Path(__file__).resolve().parents[1] / "scripts" / "package-demo.py")
 packager = importlib.util.module_from_spec(spec)
@@ -21,7 +23,10 @@ def git(root, *args):
 
 
 @pytest.fixture
-def fixture(tmp_path):
+def fixture(tmp_path, monkeypatch):
+    monkeypatch.setenv("CG_MODEL", "gpt-5.4-mini")
+    monkeypatch.delenv("CG_CONTEXT_MODEL", raising=False)
+    monkeypatch.delenv("CG_COMPATIBLE_CONNECTION_MODELS", raising=False)
     project = tmp_path / "source"
     project.mkdir()
     git(project, "init")
@@ -64,12 +69,29 @@ def fixture(tmp_path):
         CREATE TABLE feedback(data TEXT); INSERT INTO feedback VALUES('never-ship-this-secret');
         CREATE TABLE spaces(data TEXT); INSERT INTO spaces VALUES('never-ship-this-secret');
     """)
-    db.execute("INSERT INTO photos VALUES(?,?)", ("opaque", json.dumps({"id": "opaque", "device_id": "synthetic-demo", "local_uri": "original-local-path", "version": "hash"})))
-    db.execute("INSERT INTO analyses VALUES(?,?)", ("opaque", '{"regions":[]}'))
-    db.execute("INSERT INTO cache VALUES(?,?,?)", ("prepared", 4, '{"items":[],"groups":[],"grouping_status":"ready"}'))
+    db.execute("INSERT INTO photos VALUES(?,?)", ("opaque", json.dumps({"id": "opaque", "device_id": "synthetic-demo", "local_uri": "original-local-path", "version": "hash", "width": 100, "height": 100})))
+    db.execute("INSERT INTO analyses VALUES(?,?)", ("opaque", '{"photo_id":"opaque","description":"fixture","regions":[]}'))
     db.commit()
     db.close()
-    return SimpleNamespace(source_dir=project, data_dir=root, output_dir=tmp_path / "deliverables")
+    result = SimpleNamespace(source_dir=project, data_dir=root, output_dir=tmp_path / "deliverables")
+    prepare_fixture_connection(result)
+    return result
+
+
+def prepare_fixture_connection(fixture, model=None):
+    """Fabricate current portable proof only in the isolated packaging fixture."""
+    model = model or json.loads((fixture.data_dir / "synthetic-demo.json").read_text()).get("model", os.environ["CG_MODEL"])
+    with sqlite3.connect(fixture.data_dir / "gallery.sqlite") as db:
+        store = packager.PackagingGallery(db)
+        query = ExploreInput(anchor=SemanticAnchor(photo_id="opaque"))
+        proof = negative_proof(store, query)
+        proof["cache_model"] = model
+        value = {"label": "검토한 빈 결과", "items": [], "groups": [], "grouping_status": "ready", "complete": True,
+                 "empty_evidence": proof}
+        key = packager.RunService(store, None).empty_cache_key(query, model=model)
+        db.execute("DELETE FROM cache WHERE json_extract(data,'$.kind') IS NULL")
+        db.execute("INSERT INTO cache VALUES(?,?,?)", (key, store.revision, json.dumps(value, ensure_ascii=False, indent=2)))
+    return key
 
 
 def test_source_binary_patch_and_sanitized_database_package(fixture, tmp_path):
@@ -131,6 +153,7 @@ def test_active_jobs_refuse_before_writing_outputs(fixture):
 def test_ready_package_keeps_only_validated_public_model_profile(fixture):
     marker = fixture.data_dir / "synthetic-demo.json"
     marker.write_text(json.dumps({"synthetic": True, "model": "claude-sonnet-5", "credentials": "never-ship-this-secret"}))
+    prepare_fixture_connection(fixture)
     report = packager.package(fixture)
     assert report["model"] == "claude-sonnet-5"
     with zipfile.ZipFile(fixture.output_dir / "connected-gallery-ready-data.zip") as archive:
@@ -167,19 +190,25 @@ def context_fixture(fixture, *, groups=None):
                              {"id": "shape", "title": "비슷한 모양", "reason": "두 사진에 둥근 물체가 보여요.", "photo_ids": ["other"]}]}}
     value["evidence"] = {"gallery_revision": 4, "source_version": "hash", "inspected_photo_ids": ["opaque", "other"],
                          "photo_versions": {"opaque": "hash", "other": "fixture"}, "summary_reviewed": True,
+                         "planned_photo_ids": ["other"], "wording_reviewed": True,
+                         "wording_review_model": packager.CONTEXT_WORDING_MODEL,
+                         "wording_checked_paths": [field["path"] for field in packager.context_wording_fields(value["context"])],
                          "reviewed_members": [{"group_id": group["id"], "photo_id": pid}
                                               for group in value["context"]["groups"] for pid in group["photo_ids"]]}
-    value["evidence"].update(planned_photo_ids=["other"], wording_review_model=CONTEXT_WORDING_MODEL,
-                             wording_reviewed=True, wording_checked_paths=[f["path"] for f in context_wording_fields(value["context"])])
     with sqlite3.connect(fixture.data_dir / "gallery.sqlite") as db:
-        db.execute("INSERT INTO photos VALUES(?,?)", ("other", json.dumps({"id": "other", "device_id": "synthetic-demo", "version": "fixture"})))
-        db.execute("INSERT INTO cache VALUES(?,?,?)", ("context-fixture", 4, json.dumps(value)))
+        db.execute("INSERT INTO photos VALUES(?,?)", ("other", json.dumps({"id": "other", "device_id": "synthetic-demo", "version": "fixture", "width": 100, "height": 100})))
+        profile = json.loads((fixture.data_dir / "synthetic-demo.json").read_text())
+        model = profile.get("context_model", profile.get("model", os.environ["CG_MODEL"]))
+        fixture.context_key = hashlib.sha256(packager.encoded(["photo-context", packager.CONTEXT_SPEC, packager.CONTEXT_POLICY,
+            packager.CONTEXT_WORDING_MODEL, model, "opaque", "hash", 4]).encode()).hexdigest()
+        db.execute("INSERT INTO cache VALUES(?,?,?)", (fixture.context_key, 4, json.dumps(value)))
+    prepare_fixture_connection(fixture)
     return value
 
 
 def replace_context(fixture, value, *, revision=4):
     with sqlite3.connect(fixture.data_dir / "gallery.sqlite") as db:
-        db.execute("UPDATE cache SET data=?,revision=? WHERE key='context-fixture'", (json.dumps(value), revision))
+        db.execute("UPDATE cache SET data=?,revision=? WHERE key=?", (json.dumps(value), revision, fixture.context_key))
 
 
 def test_context_package_keeps_prepared_view_and_demo_date_without_execution_history(fixture, tmp_path):
@@ -198,7 +227,7 @@ def test_context_package_keeps_prepared_view_and_demo_date_without_execution_his
         copied = tmp_path / "context-verified.sqlite"
         copied.write_bytes(packed)
     with sqlite3.connect(copied) as db:
-        assert json.loads(db.execute("SELECT data FROM cache WHERE key='context-fixture'").fetchone()[0]) == value
+        assert json.loads(db.execute("SELECT data FROM cache WHERE key=?", (fixture.context_key,)).fetchone()[0]) == value
         photo = json.loads(db.execute("SELECT data FROM photos WHERE id='opaque'").fetchone()[0])
         assert photo["time_source"] == "demo_fixture"
         assert photo["captured_at"] == "2026-09-03T11:20:00+09:00"
@@ -223,6 +252,14 @@ def test_context_package_keeps_prepared_view_and_demo_date_without_execution_his
     (lambda value: value["evidence"].update(reviewed_members=[]), "cover every membership"),
     (lambda value: value["evidence"]["reviewed_members"].append({"group_id": "shape", "photo_id": "other"}), "cover every membership"),
     (lambda value: value["evidence"].update(summary_reviewed=False), "invalid inspection evidence"),
+    (lambda value: value["evidence"].update(planned_photo_ids=["private-photo"]), "observation plan"),
+    (lambda value: value["evidence"].update(planned_photo_ids=["opaque"]), "observation plan"),
+    (lambda value: value["evidence"].update(planned_photo_ids=["other", "other"]), "observation plan"),
+    (lambda value: value["evidence"].update(wording_review_model="another-reviewer"), "wording evidence"),
+    (lambda value: value["evidence"].update(wording_reviewed=False), "invalid inspection evidence"),
+    (lambda value: value["evidence"].update(wording_checked_paths=["/summary"]), "wording evidence"),
+    (lambda value: value["evidence"]["wording_checked_paths"].append("/summary"), "wording evidence"),
+    (lambda value: value["evidence"]["wording_checked_paths"].__setitem__(0, "/unknown"), "wording evidence"),
 ])
 def test_invalid_context_refuses_before_any_deliverable_is_created(fixture, mutate, expected):
     value = context_fixture(fixture)

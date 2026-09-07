@@ -176,10 +176,14 @@ class GalleryTools:
             self.definitions.pop("read_spaces", None)
 
     def schemas(self):
-        return [
+        schemas = [
             {"name": n, "description": d, "input_schema": m.model_json_schema()}
             for n, (m, d) in self.definitions.items()
         ]
+        for schema in schemas:
+            if schema["name"] == "submit_exploration_result":
+                schema["input_schema"]["properties"].pop("empty_evidence", None)
+        return schemas
 
     def allowed(self):
         year = self.request.explore.year if self.request.explore else None
@@ -306,6 +310,7 @@ class GalleryTools:
 
     def catalog_entry(self, photo):
         analysis = self.store.analysis(photo.id)
+        # Bound transport context; full evidence is available via inspection.
         summary = None if analysis is None else {
             "description_excerpt": analysis["description"][:160],
             "ocr_excerpt": analysis.get("ocr", "")[:64],
@@ -577,6 +582,8 @@ class GalleryTools:
         return {"saved": True}
 
     def submit_exploration_result(self, args):
+        if args.empty_evidence is not None:
+            raise ValueError("Independent negative evidence cannot be supplied by the retrieval agent")
         if args.groups or args.grouping_status != "legacy":
             raise ValueError("Submit candidates only; groups are created after independent evidence review")
         ids = [x.photo_id for x in args.items]
@@ -599,7 +606,7 @@ class GalleryTools:
             self.authorize(pid, source=False)
             if pid not in self.seen:
                 raise ValueError("Inspect candidate images before selecting them")
-        self.result = args.model_dump(mode="json", exclude={"groups", "grouping_status"})
+        self.result = args.model_dump(mode="json", exclude={"groups", "grouping_status", "empty_evidence"})
         if not self.defer_results:
             self.store.event(self.run_id, "results", self.result)
         else:

@@ -1,4 +1,3 @@
-from connected_gallery.domain.context import CONTEXT_WORDING_MODEL, context_wording_fields
 """Exercise staging with isolated tiny databases, never the running demo."""
 import hashlib
 import importlib.util
@@ -13,6 +12,8 @@ import pytest
 from connected_gallery.adapters.store import Store
 from connected_gallery.application.service import RunService
 from connected_gallery.domain.models import ExploreInput, PhotoAsset, RunRequest, SemanticAnchor
+from connected_gallery.domain.context import CONTEXT_WORDING_MODEL, context_wording_fields
+from empty_proof_fixture import negative_proof
 
 spec = importlib.util.spec_from_file_location("stage_complete_demo", Path(__file__).resolve().parents[1] / "scripts" / "stage-complete-demo.py")
 stager = importlib.util.module_from_spec(spec)
@@ -26,6 +27,8 @@ def dataset(tmp_path, monkeypatch):
     root.mkdir()
     (root / "synthetic-demo.json").write_text(json.dumps({"synthetic": True, "model": "fixture-model", "credentials": SECRET}))
     monkeypatch.setenv("CG_MODEL", "fixture-model")
+    monkeypatch.delenv("CG_CONTEXT_MODEL", raising=False)
+    monkeypatch.delenv("CG_COMPATIBLE_CONNECTION_MODELS", raising=False)
     store = Store(root)
     for pid in "ab":
         store.upsert(PhotoAsset(id=pid, device_id="synthetic-demo", version="v1", width=40, height=30,
@@ -44,6 +47,10 @@ def dataset(tmp_path, monkeypatch):
         result = {"label": "검토한 관계", "complete": True, "grouping_status": "ready",
                   "items": [{"photo_id": member, "reason": "Visible evidence"}] if pid == "a" else [],
                   "groups": [{"id": "g", "title": "Related", "reason": "Visible relation", "photo_ids": [member]}] if pid == "a" else []}
+        if not result["items"]:
+            query = ExploreInput(anchor=anchor)
+            result["empty_evidence"] = negative_proof(store, query)
+            key = service.empty_cache_key(query)
         # Preserve whitespace and Unicode exactly, not by reserializing kept rows.
         store.write("INSERT INTO cache VALUES(?,?,?)", (key, store.revision, json.dumps(result, ensure_ascii=False, indent=3)))
         connections[pid] = key
@@ -54,9 +61,8 @@ def dataset(tmp_path, monkeypatch):
                                 "inspected_photo_ids": list("ab"), "photo_versions": dict.fromkeys("ab", "v1"),
                                 "reviewed_members": [{"group_id": "cg", "photo_id": value} for value in members],
                                 "summary_reviewed": True}}
-        context["evidence"].update(planned_photo_ids=[other for other in context["evidence"]["inspected_photo_ids"] if other != pid],
-            wording_review_model=CONTEXT_WORDING_MODEL, wording_reviewed=True,
-            wording_checked_paths=[f["path"] for f in context_wording_fields(context)])
+        context["evidence"].update(planned_photo_ids=members, wording_review_model=CONTEXT_WORDING_MODEL,
+                                   wording_reviewed=True, wording_checked_paths=[field["path"] for field in context_wording_fields(context)])
         key = service.contexts.key(pid)
         envelope = service.contexts.cache_value(pid, context)
         store.cache_put(key, envelope)
@@ -120,7 +126,7 @@ def test_current_keys_only_payloads_and_source_preserved_and_final_packager_boun
     package = importlib.util.module_from_spec(package_spec)
     package_spec.loader.exec_module(package)
     with sqlite3.connect(destination / "gallery.sqlite") as db:
-        assert len(package.checked_photos(db)) == 2
+        assert len(package.checked_photos(db, marker)) == 2
 
 
 @pytest.mark.parametrize("kind", ["connect", "context"])
@@ -153,6 +159,18 @@ def test_unreviewed_context_is_not_a_ready_cache_even_with_matching_key(dataset)
     damage(dataset, "UPDATE cache SET data=? WHERE key=?", (json.dumps(payload), key))
     with pytest.raises(stager.StageError):
         stager.stage(dataset.args)
+    assert not dataset.args.stage_dir.exists()
+
+
+@pytest.mark.parametrize("failure", ["missing_plan", "wording_paths", "wording_model"])
+def test_staging_refuses_incomplete_context_v3_evidence(dataset, failure):
+    key = dataset.contexts["a"]
+    value = json.loads(cache_rows(dataset.args.data_dir / "gallery.sqlite")[key][1])
+    if failure == "missing_plan": del value["evidence"]["planned_photo_ids"]
+    elif failure == "wording_paths": value["evidence"]["wording_checked_paths"] = ["/summary"]
+    else: value["evidence"]["wording_review_model"] = "wrong-model"
+    damage(dataset, "UPDATE cache SET data=? WHERE key=?", (json.dumps(value), key))
+    with pytest.raises(stager.StageError): stager.stage(dataset.args)
     assert not dataset.args.stage_dir.exists()
 
 

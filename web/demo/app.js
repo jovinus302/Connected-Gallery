@@ -14,7 +14,9 @@ async function api(path, body, signal) {
   if(body!==undefined){options.method="POST";options.headers={"Content-Type":"application/json"};options.body=JSON.stringify(body);}
   const response=await fetch(path,options);
   if(response.status===401){generation++;active?.abort();stopPhotoRequests();current=null;history=[];show("login");throw new Error("로컬 세션이 필요합니다. 시작 도구에서 다시 연결해주세요.");}
-  if(!response.ok){const error=new Error(response.status===403?"이 데모에서는 허용되지 않는 요청입니다.":"요청을 완료하지 못했어요. 다시 시도해주세요.");error.status=response.status;throw error;}
+  if(!response.ok){const error=new Error(response.status===403?"이 데모에서는 허용되지 않는 요청입니다.":"요청을 완료하지 못했어요. 다시 시도해주세요.");error.status=response.status;
+    if(response.status===400){const body=await response.json().catch(()=>null);if(body?.detail==="Unknown photo ID")error.code="photo_missing";}
+    throw error;}
   return response.json();
 }
 function cancelRun(id){if(id)api(`/runs/${encodeURIComponent(id)}/cancel`,{}).catch(()=>{});}
@@ -61,7 +63,7 @@ async function openPhoto(id,restore=null){
       if(region){current.region=region;highlightRegion();if(restore.result){current.result=restore.result;renderResult(restore.result,restore.prepared===true);}else void selectRegion(region);}
     }
     if(restore)await restorePhotoScroll(restore.scroll||0,id,ticket);
-  }catch(error){if(ticket!==photoGeneration||error.name==="AbortError")return;if(error.status===404)unavailablePhoto(id,ticket);else notify(error.message);}
+  }catch(error){if(ticket!==photoGeneration||error.name==="AbortError")return;if(error.status===404||error.code==="photo_missing")unavailablePhoto(id,ticket);else notify(error.message);}
 }
 function unavailablePhoto(id,ticket){
   if(ticket!==photoGeneration||current?.id!==id)return;
@@ -88,7 +90,7 @@ async function loadContext(id,ticket=photoGeneration){
   contextRequest?.abort();contextRequest=new AbortController();const signal=contextRequest.signal;
   const valid=()=>ticket===photoGeneration&&current?.id===id&&!signal.aborted;
   const accept=data=>{if(!applyContext(data,id,ticket))throw new Error("Unexpected context photo");if(Number.isInteger(data.revision))revision=Math.max(revision,data.revision);};
-  const failed=error=>{if(!valid()||error.name==="AbortError")return;if(error.status===404)unavailablePhoto(id,ticket);else applyContext({photo_id:id,state:"failed",revision,context:null},id,ticket);};
+  const failed=error=>{if(!valid()||error.name==="AbortError")return;if(error.status===404||error.code==="photo_missing")unavailablePhoto(id,ticket);else applyContext({photo_id:id,state:"failed",revision,context:null},id,ticket);};
   async function continuePreparation(data){
     try{
       const key=`${id}:${data.revision}`;

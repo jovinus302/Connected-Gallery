@@ -10,6 +10,9 @@ from connected_gallery.adapters.store import encoded
 from connected_gallery.agent_specs.budgets import run_timeout
 from connected_gallery.agent_specs.versions import AGENT_SPEC_VERSION, RETRIEVAL_POLICY
 from connected_gallery.application.context import ContextService
+from connected_gallery.application.attempt_feedback import exploration_cache_key, record_execution_identity
+from connected_gallery.application.demo_profile import connection_models
+from connected_gallery.domain.empty_evidence import EMPTY_EVIDENCE_SPEC, EMPTY_EVIDENCE_POLICY, validate_empty_evidence
 
 
 class RunService:
@@ -55,19 +58,18 @@ class RunService:
             "error": row["error"],
         }
 
-    def cache_key(self, request):
+    def cache_key(self, request, *, model=None):
         if request.role == "context":
             return self.contexts.key(request.photo_ids[0])
         if request.role == "explorer":
             explore = self._canonical_explore(request.explore)
-            value = explore.model_dump()
-            value.pop("request_revision", None)
-            value["photo_version"] = self.store.photo(explore.anchor.photo_id).version
+            return exploration_cache_key(self.store, explore, model=model)
         else:
             value = {"role": request.role, "ids": request.photo_ids}
         return hashlib.sha256(
             encoded(
-                [f"agent-spec-v{AGENT_SPEC_VERSION}", RETRIEVAL_POLICY, os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
+                [f"agent-spec-v{AGENT_SPEC_VERSION}", RETRIEVAL_POLICY,
+                 model if model is not None else os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
             ).encode()
         ).hexdigest()
 
@@ -103,24 +105,68 @@ class RunService:
         with self.store.lock:
             explore = self._canonical_explore(explore)
             revision = self.store.revision
-            cached = self.store.cache_get(self.cache_key(RunRequest(role="explorer", explore=explore)))
-            pending = {"state": "pending", "revision": revision}
-            if not cached:
-                return pending
-            try:
-                result = ExplorationResult.model_validate(cached)
-            except ValueError:
-                return pending
-            if result.grouping_status != "ready" or not result.complete:
-                return pending
-            allowed = {p.id for p in self.store.photos(explore.year)} - {explore.anchor.photo_id}
-            if any(item.photo_id not in allowed for item in result.items):
-                return pending
-            return {"state": "ready", "revision": revision, "result": result.model_dump(mode="json")}
+            _, result, model = self._prepared_entry(explore)
+            if result is None:
+                return {"state": "pending", "revision": revision}
+            return {"state": "ready", "revision": revision, "cache_model": model,
+                    "result": result.model_dump(mode="json")}
 
-    def start(self, request):
+    def empty_cache_key(self, explore, *, model=None):
+        base = self.cache_key(RunRequest(role="explorer", explore=explore), model=model)
+        return hashlib.sha256(encoded(["empty-evidence", EMPTY_EVIDENCE_SPEC, EMPTY_EVIDENCE_POLICY,
+                                       base, self.store.revision]).encode()).hexdigest()
+
+    def prepared_cache_key(self, explore):
+        """Actual current ready row for read-only audits/staging, including a negative proof row."""
+        with self.store.lock:
+            return self._prepared_entry(self._canonical_explore(explore))[0]
+
+    def _prepared_entry(self, explore):
+        # Capture the explicit ordered profile once. Namespace selection never
+        # changes process environment, copies rows or changes execution models.
+        for model in connection_models():
+            key, result = self._prepared_entry_for_model(explore, model)
+            if result is not None:
+                return key, result, model
+        return None, None, None
+
+    def _prepared_entry_for_model(self, explore, model):
+        base = self.cache_key(RunRequest(role="explorer", explore=explore), model=model)
+        for key in (base, self.empty_cache_key(explore, model=model)):
+            cached = None
+            try:
+                cached = self.store.cache_get(key)
+                if not cached:
+                    continue
+                result = ExplorationResult.model_validate(cached)
+                if result.grouping_status != "ready" or not result.complete:
+                    if key == base and result.items:
+                        return None, None
+                    continue
+                allowed = {p.id for p in self.store.photos(explore.year)} - {explore.anchor.photo_id}
+                if any(item.photo_id not in allowed for item in result.items):
+                    return None, None
+                if not result.items:
+                    validate_empty_evidence(self.store, explore, result.empty_evidence, model=model)
+                elif key != base:
+                    continue
+            except (ValueError, TypeError, KeyError):
+                # A malformed current positive must not be hidden by an older
+                # negative proof. Only recognizable legacy empty rows permit
+                # the separate proof lookup; their stored values stay intact.
+                if key == base and (not isinstance(cached, dict) or cached.get("items") != []):
+                    return None, None
+                continue
+            return key, result
+        return None, None
+
+    def start(self, request, *, refresh_prepared=False):
         if request.role == "organizer":
             raise ValueError("Spaces are no longer part of the MVP")
+        # Internal offline preparation only; the public request schema has no
+        # refresh field. Fresh retrieval still writes the current primary key.
+        if refresh_prepared and request.role != "explorer":
+            raise ValueError("Prepared refresh is only supported for exploration")
         if request.role == "context":
             return self.contexts.start(request.photo_ids[0])
         if request.explore:
@@ -133,6 +179,8 @@ class RunService:
                 raise ValueError("Idempotency key reused with different request")
             previous = self.get(existing[0]["id"])
             reusable = previous["status"] not in ("failed", "cancelled", "incomplete")
+            if refresh_prepared and previous["status"] == "completed":
+                reusable = False
             if reusable:
                 return previous
             self.store.write(
@@ -150,11 +198,11 @@ class RunService:
             if active:
                 return self.get(active[0]["id"])
         rid = new_id()
-        cached = (
-            self.ready(request.explore).get("result")
-            if request.role == "explorer"
-            else None
-        )
+        prepared_key, prepared_result, prepared_model = None, None, None
+        if request.role == "explorer" and not refresh_prepared:
+            with self.store.lock:
+                prepared_key, prepared_result, prepared_model = self._prepared_entry(request.explore)
+        cached = prepared_result.model_dump(mode="json") if prepared_result is not None else None
         status = "completed" if cached else "queued"
         self.store.write(
             "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
@@ -169,10 +217,18 @@ class RunService:
             ),
         )
         if cached:
+            self.store.event(rid, "prepared_cache_hit", {"cache_key": prepared_key, "cache_model": prepared_model})
             self.store.event(rid, "results", cached)
         else:
             self.schedule(rid, request)
         return self.get(rid)
+
+    def start_prepared_revision(self, explore, *, feedback="", feedback_source=None,
+                                expected_cache_sha256=None, expected_revision=None):
+        """Offline-only entry: deliberately bypasses start()'s prepared cache hit."""
+        from connected_gallery.application.prepared_revision import start_prepared_revision
+        return start_prepared_revision(self, explore, feedback=feedback, feedback_source=feedback_source,
+                                       expected_cache_sha256=expected_cache_sha256, expected_revision=expected_revision)
 
     async def _execute(self, rid, request):
         interactive = request.role == "explorer"
@@ -187,7 +243,11 @@ class RunService:
                     self.store.write(
                         "UPDATE runs SET status='running' WHERE id=?", (rid,)
                     )
-                    revision = self.store.revision
+                    with self.store.lock:
+                        revision = self.store.revision
+                        if interactive:
+                            request = request.model_copy(update={"explore": self._canonical_explore(request.explore)})
+                            record_execution_identity(self.store, rid, request)
                     timeout = (
                         self.explore_timeout
                         if interactive
@@ -204,19 +264,28 @@ class RunService:
                             raise ValueError("Gallery changed during exploration; prepare again")
                         if interactive and result.get("grouping_status") == "ready":
                             ExplorationResult.model_validate(result)
+                            if not result["items"]:
+                                validate_empty_evidence(self.store, request.explore, result.get("empty_evidence"))
                         if request.role == "context":
                             self.contexts.validate(request.photo_ids[0], result)
                             context_cached = self.contexts.cache_value(request.photo_ids[0], result) if complete else None
-                        self.store.write(
-                            "UPDATE runs SET status=?,result=? WHERE id=?",
-                            (
-                                "completed" if complete else "incomplete",
-                                encoded(result),
-                                rid,
-                            ),
-                        )
-                        if interactive and complete and result.get("grouping_status") == "ready":
-                            self.store.cache_put(self.cache_key(request), result)
+                        from connected_gallery.application.prepared_revision import SOURCE_EVENT, finish_prepared_revision
+                        revising_prepared = interactive and bool(self.store.rows(
+                            "SELECT 1 FROM events WHERE run_id=? AND kind=?", (rid, SOURCE_EVENT)))
+                        if revising_prepared:
+                            finish_prepared_revision(self, rid, request, result, complete)
+                        else:
+                            self.store.write(
+                                "UPDATE runs SET status=?,result=? WHERE id=?",
+                                (
+                                    "completed" if complete else "incomplete",
+                                    encoded(result),
+                                    rid,
+                                ),
+                            )
+                            if interactive and complete and result.get("grouping_status") == "ready":
+                                key = self.cache_key(request) if result["items"] else self.empty_cache_key(request.explore)
+                                self.store.cache_put(key, result)
                         if request.role == "context" and complete:
                             self.store.cache_put(self.cache_key(request),
                                 context_cached)
@@ -279,6 +348,14 @@ class RunService:
             "SELECT id,request FROM runs WHERE status IN ('queued','running') "
             "ORDER BY CASE status WHEN 'running' THEN 0 ELSE 1 END, started"
         ):
+            from connected_gallery.application.prepared_revision import SOURCE_EVENT
+            if self.store.rows("SELECT 1 FROM events WHERE run_id=? AND kind=?", (row["id"], SOURCE_EVENT)):
+                # An offline revision must never resume as ordinary retrieval.
+                # Its source cache is left intact; the CLI can start a fresh,
+                # explicitly selected revision after rechecking its hash.
+                self.store.write("UPDATE runs SET status='incomplete',error=? WHERE id=?", (
+                    "Interrupted offline prepared revision; rerun explicitly", row["id"]))
+                continue
             req = RunRequest.model_validate_json(row["request"])
             if req.role == "context":
                 pid = req.photo_ids[0]

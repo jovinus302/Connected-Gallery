@@ -21,7 +21,7 @@ import tempfile
 sys.dont_write_bytecode = True
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT / "server"))
-from connected_gallery.application.demo_profile import read_demo_model, validate_demo_model
+from connected_gallery.application.demo_profile import apply_demo_model, public_demo_marker, effective_context_model, connection_models
 from connected_gallery.application.service import RunService
 from connected_gallery.agent_specs.versions import AGENT_SPEC_VERSION, RETRIEVAL_POLICY
 from connected_gallery.domain.context import CONTEXT_SPEC, CONTEXT_POLICY
@@ -124,10 +124,11 @@ def current_inventory(db, expected_photos, expected_regions):
     empty_connect = empty_context = 0
     for anchor in anchors:
         query = ExploreInput(anchor=anchor)
-        key = service.cache_key(RunRequest(role="explorer", explore=query))
+        key = service.prepared_cache_key(query) or service.cache_key(RunRequest(role="explorer", explore=query))
         take(key, "connect")
         value = service.ready(query)
         require(value["state"] == "ready", "A current Connect result is not completely prepared")
+        results[-1]["cache_model"] = value.get("cache_model")
         require(value["revision"] == store.revision and value["result"]["complete"]
                 and value["result"]["grouping_status"] == "ready", "A current Connect result is incomplete")
         empty_connect += not value["result"]["items"]
@@ -160,17 +161,20 @@ def stage(args):
     marker_bytes, marker_metadata = marker.read_bytes(), file_state(marker)
     try:
         require(json.loads(marker_bytes).get("synthetic") is True, "A marked synthetic gallery is required")
-        model = read_demo_model(root) or validate_demo_model(os.getenv("CG_MODEL", "gpt-5.4-mini"))
+        public_marker = public_demo_marker(root, default_model=os.getenv("CG_MODEL", "gpt-5.4-mini"))
+        model = public_marker["model"]
     except (ValueError, TypeError, AttributeError):
         raise StageError("The synthetic marker or public model profile is invalid") from None
-    public_marker = {"synthetic": True, "source": "generated starter gallery", "model": model}
     metadata_before = database_metadata(root)
     previous_model = os.environ.get("CG_MODEL")
+    previous_context_model = os.environ.get("CG_CONTEXT_MODEL")
+    previous_compatible_models = os.environ.get("CG_COMPATIBLE_CONNECTION_MODELS")
     source = sqlite3.connect(database.as_uri() + "?mode=ro", uri=True)
     source.row_factory = sqlite3.Row
     source.execute("PRAGMA query_only=ON")
-    os.environ["CG_MODEL"] = model
     try:
+        apply_demo_model(root)
+        os.environ["CG_MODEL"] = model
         source.execute("BEGIN")
         before = read_source_state(source)
         require(before["active_runs"] == 0, "Preparation is active; stage only after all jobs finish")
@@ -241,7 +245,8 @@ def stage(args):
                     "Original processed images changed during staging")
             report = {"schema_version": 1, "staged_at": datetime.now(timezone.utc).isoformat(),
                 "synthetic": True, "staging_only": True, "requires_package_demo_sanitization": True,
-                "model": model, "revision": staged_revision, "agent_spec": AGENT_SPEC_VERSION,
+                "model": model, "context_model": effective_context_model(), "revision": staged_revision, "agent_spec": AGENT_SPEC_VERSION,
+                "compatible_connection_models": connection_models(model)[1:],
                 "retrieval_policy": RETRIEVAL_POLICY, "context_spec": CONTEXT_SPEC, "context_policy": CONTEXT_POLICY,
                 "source_read_only_verified": True, "source_state_before": before, "source_state_after": after,
                 "source_file_metadata_unchanged": True, "retained_payload_bytes_and_revisions_unchanged": True,
@@ -269,6 +274,14 @@ def stage(args):
             os.environ.pop("CG_MODEL", None)
         else:
             os.environ["CG_MODEL"] = previous_model
+        if previous_context_model is None:
+            os.environ.pop("CG_CONTEXT_MODEL", None)
+        else:
+            os.environ["CG_CONTEXT_MODEL"] = previous_context_model
+        if previous_compatible_models is None:
+            os.environ.pop("CG_COMPATIBLE_CONNECTION_MODELS", None)
+        else:
+            os.environ["CG_COMPATIBLE_CONNECTION_MODELS"] = previous_compatible_models
 
 
 def main():
