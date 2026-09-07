@@ -114,6 +114,17 @@ class ContextTools(GalleryTools):
     def candidate_ids(self):
         return self.allowed() - {self.source_id}
 
+    def schemas(self):
+        schemas = super().schemas()
+        inspected = sorted(self.full_seen - {self.source_id})
+        for schema in schemas:
+            if schema["name"] == "submit_photo_context" and inspected:
+                # Encode structural eligibility in the tool contract itself. The
+                # model still chooses relationships and members; image evidence
+                # and semantic review remain mandatory at submission and caching.
+                schema["input_schema"]["$defs"]["ContextGroup"]["properties"]["photo_ids"]["items"]["enum"] = inspected
+        return schemas
+
     def authorize(self, photo_id, source=True):
         asset = super().authorize(photo_id, source)
         if self.store.revision != self.revision:
@@ -243,6 +254,7 @@ class ContextMemberReview(Model):
 class ContextReview(Model):
     summary_supported: bool
     summary_reason: str = Field(min_length=1, max_length=600)
+    summary_problematic_excerpts: list[str] = Field(default_factory=list, max_length=8)
     members: list[ContextMemberReview] = Field(max_length=MAX_CONTEXT_IMAGES)
     empty_supported: bool = False
     context_scope_supported: bool
@@ -284,6 +296,7 @@ class PhotoContextAgent:
         ])]
         calls = 1  # The explicit initial catalog consumes a tool call.
         review_attempts = 0
+        incomplete_recovery_used = False
         for turn in range(8):
             final_repair = turn == 7
             tools.authorize(tools.source_id)
@@ -301,7 +314,19 @@ class PhotoContextAgent:
                     "fully_inspected_other_photo_ids": sorted(tools.full_seen - {tools.source_id}),
                     "source_photo_id": tools.source_id,
                 })))
-            response = await self._invoke(run_id, [*messages, HumanMessage(content=(
+            progress = {
+                "source_photo_id_not_allowed_as_member": tools.source_id,
+                "fully_inspected_other_photo_ids": sorted(tools.full_seen - {tools.source_id}),
+                "planned_photo_ids_still_needing_full_inspection": sorted(tools.planned_ids() - tools.full_seen),
+                "observation_tools_available": any(s["name"] == "inspect_photos" for s in schemas),
+                "instruction": "This is the authoritative observation progress, not a relevance decision. "
+                    "Only fully inspected other photos can be submitted as members. If planned observations remain, "
+                    "inspect them while observation tools are available, or explicitly revise your plan. "
+                    "A bounded useful context does not require exhausting the catalog; complete=true still requires "
+                    "evidence for every claim and member and independent review.",
+            }
+            response = await self._invoke(run_id, [*messages,
+                HumanMessage(content=encoded({"observation_progress": progress})), HumanMessage(content=(
                 f"Remaining planning responses: {max(0, 7-turn)}; tool calls: {max(0, 18-calls)}. "
                 + ("One submit-only format repair remains. " if final_repair else "") +
                 "Submit your inspected context now if sufficient; preserve time for independent review."
@@ -365,6 +390,27 @@ class PhotoContextAgent:
             if tools.result is None:
                 continue
             if not tools.result["complete"]:
+                # Do not discard the reserved repair merely because a valid-shaped
+                # incomplete proposal arrived. The agent must choose a correction;
+                # code never flips complete or publishes unreviewed partial groups.
+                if not incomplete_recovery_used and not final_repair:
+                    incomplete_recovery_used = True
+                    self.store.event(run_id, "context_incomplete_repair", {
+                        "planning_turn": turn + 1,
+                        "inspected_other_count": len(tools.full_seen - {tools.source_id}),
+                        "uninspected_plan_count": len(tools.planned_ids() - tools.full_seen),
+                    })
+                    messages.append(HumanMessage(content=encoded({
+                        "instruction": "Your incomplete proposal has not been published. One bounded recovery is "
+                            "available within the existing response/tool budget. Reconsider whether the actual "
+                            "observed photos support a useful bounded context. Correct unsupported members or claims "
+                            "yourself and submit complete=true ONLY if evidence is sufficient. Additional library "
+                            "photos alone do not make an inspected bounded result incomplete. If evidence really "
+                            "is insufficient, submit complete=false again; that decision will be respected. "
+                            "A complete proposal must still pass independent image and wording review.",
+                    })))
+                    tools.result = None
+                    continue
                 return tools.result
             review_attempts += 1
             (visual_supported, visual_feedback), (wording_supported, wording_feedback) = await self._review_both(
@@ -398,7 +444,7 @@ class PhotoContextAgent:
         started = time.monotonic()
         try:
             transport = _photo_id_transport.get() or PhotoIdTransport([])
-            response = await (gateway or self.gateway).invoke(transport.outbound(messages), schemas)
+            response = await (gateway or self.gateway).invoke(transport.outbound(messages), transport.outbound_schemas(schemas))
             return transport.inbound(response)
         except asyncio.CancelledError:
             raise
@@ -535,7 +581,15 @@ class PhotoContextAgent:
             "do not repair unsupported spatial or event identity. Such identity requires distinctive "
             "matching spatial geometry/details; otherwise only shared visible features may be claimed. "
             "missing metadata cannot substantiate dates. Review title/reason together, and distinguish "
-            "actual contradiction from uncertainty. summary_supported applies to the summary's own claims. "
+            "actual contradiction from uncertainty. summary_supported applies ONLY to the summary's own claims, "
+            "not claims in group titles/reasons or the observation plan. If summary_supported=false, provide "
+            "summary_problematic_excerpts with exact verbatim phrases from the summary itself and explain the "
+            "unsupported assertion. Quote the complete clause including any negation or qualification; "
+            "read it in its full sentence and preserve that meaning. "
+            "A sentence explicitly declining to assert the same place/event does not assert that identity. "
+            "Do not treat browsing other visible food photos as claiming a complete menu. Different people, "
+            "subjects or actions do not by themselves disprove a shared occasion; evaluate the actual supporting "
+            "and contradictory scene details and trusted metadata rather than demanding identical compositions. "
             "Also judge context_scope_supported: does the observation plan meaningfully consider the WHOLE "
             "source and its available cues, and have needed observations been made? Catalog captions are "
             "retrieval hints only; they may identify an unanswered question but cannot prove a relation. "
@@ -560,6 +614,11 @@ class PhotoContextAgent:
                 actual = [(r.group_id, r.photo_id) for r in review.members]
                 if len(actual) != len(expected) or set(actual) != expected:
                     raise ValueError("Review must cover every declared membership exactly once")
+                if any(not excerpt.strip() or excerpt not in proposal["summary"]
+                       for excerpt in review.summary_problematic_excerpts):
+                    raise ValueError("Summary review excerpts must quote the exact summary field")
+                if not review.summary_supported and not review.summary_problematic_excerpts:
+                    raise ValueError("A rejected summary requires an exact excerpt from that summary")
                 feedback = review.model_dump(mode="json")
                 supported = (review.summary_supported and review.context_scope_supported
                              and all(r.verdict == "supported" for r in review.members)
@@ -570,4 +629,4 @@ class PhotoContextAgent:
             except ValueError:
                 if repair:
                     raise RuntimeError("Context review did not provide complete structured evidence")
-                messages.append(HumanMessage(content="Submit exactly one valid submit_context_review with every declared (group_id,photo_id) exactly once. Do not omit, duplicate or invent members. This is the only format repair."))
+                messages.append(HumanMessage(content="Submit exactly one valid submit_context_review with every declared (group_id,photo_id) exactly once. Do not omit, duplicate or invent members. If rejecting the summary, summary_problematic_excerpts must contain its exact words, never a group title/reason, and your judgment must preserve the sentence's negation and qualification. This is the only format repair."))

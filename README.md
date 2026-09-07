@@ -2,6 +2,8 @@
 
 > 2026-09-08: 사진을 열면 주변 맥락을 자동 준비·표시하고, 대상을 누르면 Connect 결과로 이어지는 서버·Android UX를 통합했습니다. [검증 결과와 한계](docs/context-ux-validation.md)를 확인하세요. 제품 기준은 [Connect와 사진 맥락 UX](docs/connected-gallery-product-ux.md)입니다.
 
+실기기 맥락 실패의 이미지 전달·제출·검토 원인과 수정은 [이미지·맥락 진단 기록](docs/image-context-diagnosis-2026-09-08.md)에 정리했습니다.
+
 **See → Tap → Follow → Tap → Follow**
 
 Android 갤러리에서 사진 속 사람·사물·텍스트·장소를 눌러 내 사진을 탐색합니다. MVP는 Organize + Connect입니다. Organize는 사진 상세의 자동 맥락 표시이며, Space 생성·저장·목록·편집·사용자 쓰기 권한은 MVP에서 제외했습니다. 내부 맥락 캐시는 유지합니다. Time/Timeline은 후속 기능으로 분리했습니다. 의미 판단은 모델이 도구를 선택하는 agentic 실행으로 처리합니다.

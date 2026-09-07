@@ -121,6 +121,7 @@ class ImageGateway:
             if self.invalid_review == "foreign" and members:
                 members[0]["photo_id"] = "foreign"
             args = dict(summary_supported=self.invalid_review != "summary", summary_reason="원본을 확인했습니다.",
+                        summary_problematic_excerpts=[proposal["summary"]] if self.invalid_review == "summary" else [],
                         members=members, empty_supported=self.empty,
                         context_scope_supported=self.invalid_review != "scope", context_scope_reason="계획과 전체 관찰을 확인했습니다.")
             name = "submit_context_review"
@@ -155,6 +156,48 @@ async def test_context_uses_outside_connect_candidates_and_independent_images(st
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("outcome", ["complete", "incomplete", "rejected"])
+async def test_incomplete_seventh_response_uses_reserved_repair_without_bypassing_review(store, outcome):
+    class IncompleteUntilRepair(ImageGateway):
+        planning_calls = 0
+
+        async def invoke(self, messages, schemas):
+            if schemas[0]["name"] == "submit_context_review":
+                return await super().invoke(messages, schemas)
+            self.planning_calls += 1
+            progress = json.loads(messages[-2].content)["observation_progress"]
+            assert progress["source_photo_id_not_allowed_as_member"] == "a"
+            if self.planning_calls == 1:
+                assert progress["fully_inspected_other_photo_ids"] == []
+                return await super().invoke(messages, schemas)
+            assert progress["fully_inspected_other_photo_ids"] == ["b", "c"]
+            assert progress["planned_photo_ids_still_needing_full_inspection"] == []
+            if self.planning_calls < 7:
+                return AIMessage(content="검토 중")
+            assert not progress["observation_tools_available"]
+            if self.planning_calls == 8:
+                assert "incomplete proposal has not been published" in encoded([m.content for m in messages])
+            return AIMessage(content="", tool_calls=[{"id": f"submit-{self.planning_calls}",
+                "type": "tool_call", "name": "submit_photo_context",
+                "args": context(complete=self.planning_calls == 8 and outcome != "incomplete")}])
+
+    gateway = IncompleteUntilRepair(invalid_review="summary" if outcome == "rejected" else None)
+    wording = WordingGateway()
+    agent = PhotoContextAgent(store, None, gateway, wording_gateway=wording)
+    if outcome == "rejected":
+        with pytest.raises(RuntimeError, match="within budget"):
+            await agent.execute("incomplete-repair", request())
+    else:
+        result = await agent.execute("incomplete-repair", request())
+        assert result["complete"] == (outcome == "complete")
+        assert ("evidence" in result) == (outcome == "complete")
+    assert gateway.planning_calls == 8
+    assert gateway.reviews == wording.calls == (0 if outcome == "incomplete" else 1)
+    assert len(store.rows("SELECT * FROM events WHERE kind='context_incomplete_repair'")) == 1
+    assert len(store.rows("SELECT * FROM events WHERE kind='context_result'")) == (outcome == "complete")
+
+
+@pytest.mark.asyncio
 async def test_membership_failure_returns_exact_observed_ids_without_silently_editing_proposal(store):
     class RecoveringGateway(ImageGateway):
         async def invoke(self, messages, schemas):
@@ -176,6 +219,33 @@ async def test_membership_failure_returns_exact_observed_ids_without_silently_ed
     assert gateway.reviews == 1
     proposals = store.rows("SELECT data FROM events WHERE run_id='exact-membership-repair' AND kind='context_proposal'")
     assert len(proposals) == 1 and json.loads(proposals[0]["data"])["groups"] == context()["groups"]
+
+
+@pytest.mark.asyncio
+async def test_progress_exposes_unfinished_observation_plan_before_submission(store):
+    class PlanThenInspect(ImageGateway):
+        planning_calls = 0
+
+        async def invoke(self, messages, schemas):
+            if schemas[0]["name"] == "submit_context_review":
+                return await super().invoke(messages, schemas)
+            self.planning_calls += 1
+            progress = json.loads(messages[-2].content)["observation_progress"]
+            if self.planning_calls == 1:
+                name, args = "plan_photo_context", observation_plan()
+            elif self.planning_calls == 2:
+                assert progress["planned_photo_ids_still_needing_full_inspection"] == ["b", "c"]
+                assert progress["fully_inspected_other_photo_ids"] == []
+                assert progress["observation_tools_available"]
+                name, args = "inspect_photos", {"photo_ids": ["b", "c"]}
+            else:
+                assert progress["planned_photo_ids_still_needing_full_inspection"] == []
+                name, args = "submit_photo_context", context()
+            return AIMessage(content="", tool_calls=[{"id": str(self.planning_calls), "type": "tool_call",
+                "name": name, "args": args}])
+    gateway = PlanThenInspect()
+    result = await PhotoContextAgent(store, None, gateway).execute("progress", request())
+    assert result["complete"] and gateway.planning_calls == 3 and gateway.reviews == 1
 
 
 @pytest.mark.asyncio
@@ -594,3 +664,35 @@ async def test_scope_review_can_trigger_agent_chosen_additional_inspection(store
     assert result["groups"][0]["photo_ids"] == ["b", "c"]
     assert gateway.planning_calls == 4 and gateway.scope_calls == 2
     assert result["evidence"]["inspected_photo_ids"] == ["a", "b", "c"]
+
+
+def test_submit_schema_offers_only_fully_inspected_other_photos(store):
+    tools = ContextTools(store, None, request(), "inspected-enum")
+    tools.initial_catalog()
+    tools.image_block("a")
+    tools.image_block("b")
+    tools.image_block("c", Box(x=0, y=0, width=0.5, height=0.5))
+    def offered():
+        schema = next(s for s in tools.schemas() if s["name"] == "submit_photo_context")
+        return schema["input_schema"]["$defs"]["ContextGroup"]["properties"]["photo_ids"]["items"]["enum"]
+    assert offered() == ["b"]
+    tools.image_block("c")
+    assert offered() == ["b", "c"]
+    assert tools.result is None  # Structural eligibility does not create a semantic group.
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("excerpts", [["빨간 장면"], [], [" "]])
+async def test_summary_review_cannot_reject_without_own_exact_evidence(store, excerpts):
+    class CrossFieldReview(ImageGateway):
+        async def invoke(self, messages, schemas):
+            response = await super().invoke(messages, schemas)
+            if schemas[0]["name"] == "submit_context_review":
+                response.tool_calls[0]["args"].update(summary_supported=False,
+                    summary_problematic_excerpts=excerpts)
+            return response
+    gateway = CrossFieldReview()
+    with pytest.raises(RuntimeError, match="complete structured evidence"):
+        await PhotoContextAgent(store, None, gateway).execute("cross-field-summary", request())
+    assert gateway.reviews == 2
+    assert not store.rows("SELECT * FROM events WHERE kind='context_result'")
