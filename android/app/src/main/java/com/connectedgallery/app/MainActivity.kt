@@ -25,9 +25,14 @@ import com.connectedgallery.library.LibraryScreen
 import com.connectedgallery.spaces.SpacesScreen
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
+import com.connectedgallery.data.ServerConnection
+import com.connectedgallery.data.PcApi
 
 @HiltAndroidApp class GalleryApplication:Application()
 @AndroidEntryPoint class MainActivity:ComponentActivity() {
+ @Inject lateinit var connection:ServerConnection
+ @Inject lateinit var api:PcApi
  private val vm:GalleryViewModel by viewModels()
  override fun onStop() { super.onStop();com.connectedgallery.data.enqueueSync(this) }
  override fun onCreate(savedInstanceState:Bundle?) {
@@ -37,6 +42,8 @@ import dagger.hilt.android.HiltAndroidApp
    MaterialTheme(colorScheme=colors) {
     val photos by vm.photos.collectAsState();val spaces by vm.spaces.collectAsState();val journey by vm.journey.collectAsState();val status by vm.status.collectAsState()
     var showNotice by remember { mutableStateOf(false) }
+    var showServer by remember { mutableStateOf(connection.current()==null) }
+    if(showServer)ServerDialog(connection,api,onDismiss={showServer=false},onSaved={showServer=false;vm.refresh()})
     if(showNotice)AlertDialog(onDismissRequest={showNotice=false},title={Text("오픈소스 안내")},text={Text(remember { assets.open("NOTICE.txt").bufferedReader().use { it.readText() } },Modifier.verticalScroll(rememberScrollState()))},confirmButton={TextButton(onClick={showNotice=false}) { Text("닫기") }})
     var tab by rememberSaveable { mutableIntStateOf(0) }
     LaunchedEffect(tab,journey.current==null) { if(tab==1 && journey.current==null)while(true) { vm.refreshSpaces();kotlinx.coroutines.delay(3000) } }
@@ -56,7 +63,7 @@ import dagger.hilt.android.HiltAndroidApp
        Row(Modifier.padding(horizontal=16.dp)) {
         TextButton(onClick={tab=0}) { Text(if(tab==0)"• 내 사진" else "내 사진") }
         TextButton(onClick={tab=1}) { Text(if(tab==1)"• Spaces" else "Spaces") }
-        Spacer(Modifier.weight(1f));TextButton(onClick={showNotice=true}) { Text("안내") };TextButton(onClick=vm::refresh) { Text("새로고침") }
+        Spacer(Modifier.weight(1f));TextButton(onClick={showServer=true}) { Text("서버") };TextButton(onClick={showNotice=true}) { Text("안내") };TextButton(onClick=vm::refresh) { Text("새로고침") }
        }
       }
       if(status.isNotEmpty())Text(status,Modifier.padding(horizontal=16.dp,vertical=6.dp),style=MaterialTheme.typography.bodySmall)

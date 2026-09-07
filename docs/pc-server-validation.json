@@ -1,0 +1,61 @@
+{
+  "validated_at": "2026-09-07T05:51:59.096901+00:00",
+  "python_tests": 65,
+  "android_build_unit_lint": "passed",
+  "server_settings_ui_save": "passed",
+  "encrypted_token_on_device": true,
+  "provision_file_deleted": true,
+  "startup_reuses_live_connection": true,
+  "public_api": {
+    "/health": 401,
+    "/assets": 401,
+    "/assets/private/preview": 401,
+    "/runs/private/events": 401,
+    "/docs": 401,
+    "wrong_key": 401,
+    "valid_key": 200,
+    "spaces_count": 6,
+    "spaces_seconds": 0.02,
+    "no_store": true
+  },
+  "device": {
+    "transport": "cellular",
+    "usb_forwarding": false,
+    "sync_ready": 1000,
+    "fresh_run_status": "completed",
+    "result_count": 2,
+    "independent_review": {
+      "accepted_count": 2,
+      "anchor_supported": true,
+      "candidate_count": 3,
+      "seconds": 9.719
+    },
+    "server_seconds": 27.72,
+    "android_result_matches_server": true,
+    "android_first_callback_ms": 29519,
+    "screenshot_verified": true,
+    "device_settings_restored": true
+  },
+  "preservation": {
+    "photos": {
+      "count": 1000,
+      "preserved": true
+    },
+    "analyses": {
+      "count": 1000,
+      "preserved": true
+    },
+    "spaces": {
+      "count": 6,
+      "preserved": true
+    },
+    "integrity_check": "ok",
+    "active_runs": 0
+  },
+  "limitations": [
+    "PC must be awake and server/tunnel running",
+    "Quick Tunnel address may change on restart",
+    "Single-owner authentication; future backend needs data migration",
+    "One cellular exploration measurement is not a latency guarantee"
+  ]
+}

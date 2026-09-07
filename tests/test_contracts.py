@@ -8,6 +8,7 @@ from connected_gallery.domain.models import *
 from connected_gallery.adapters.store import Store
 from connected_gallery.gallery_tools.registry import GalleryTools
 from connected_gallery.bootstrap.api import create_app
+from connected_gallery.bootstrap.auth import server_token
 
 
 def asset(pid="a", year=2020, source="media_store"):
@@ -136,7 +137,7 @@ class SubmittedRunner:
 
 def test_api_runs_and_idempotency(tmp_path):
     app = create_app(tmp_path, lambda s: SubmittedRunner())
-    with TestClient(app) as client:
+    with TestClient(app, headers={"Authorization": "Bearer " + server_token(tmp_path)}) as client:
         assert (
             client.post(
                 "/assets/sync", json={"assets": [asset().model_dump(mode="json")]}
@@ -159,7 +160,7 @@ def test_api_runs_and_idempotency(tmp_path):
 
 def test_sync_snapshot_returns_only_requested_current_analysis_and_active_jobs(tmp_path):
     app = create_app(tmp_path, lambda s: SubmittedRunner())
-    with TestClient(app) as client:
+    with TestClient(app, headers={"Authorization": "Bearer " + server_token(tmp_path)}) as client:
         s = app.state.store
         for pid in ("a", "b", "c"):
             s.upsert(asset(pid))

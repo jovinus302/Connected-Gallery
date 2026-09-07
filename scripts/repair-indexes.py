@@ -1,6 +1,7 @@
 """Repair representations of already analyzed photos; no new semantic analysis."""
 import json
 import urllib.request
+from pc_client import urlopen
 import urllib.error
 from pathlib import Path
 
@@ -9,7 +10,7 @@ def api(path, post=False):
     request = urllib.request.Request('http://127.0.0.1:8765' + path,
                                      data=b'{}' if post else None,
                                      headers={'Content-Type': 'application/json'})
-    with urllib.request.urlopen(request, timeout=60) as response:
+    with urlopen(request, timeout=60) as response:
         return json.load(response)
 
 

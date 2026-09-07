@@ -8,6 +8,7 @@ import json
 import sqlite3
 import time
 import urllib.request
+from pc_client import urlopen
 from pathlib import Path
 
 from connected_gallery.adapters.models import LocalModels
@@ -17,7 +18,7 @@ from connected_gallery.domain.models import PhotoAnalysis
 
 def main():
     base = "http://127.0.0.1:8765"
-    with urllib.request.urlopen(base + "/health", timeout=15) as response:
+    with urlopen(base + "/health", timeout=15) as response:
         if json.load(response).get("agent_spec", 0) < 12:
             raise RuntimeError("Start the server with selected-region indexing first")
     db = sqlite3.connect("file:.runtime/gallery.sqlite?mode=ro", uri=True)
@@ -39,7 +40,7 @@ def main():
             try:
                 request = urllib.request.Request(base + f"/assets/{pid}/reindex", data=b"{}",
                                                  headers={"Content-Type": "application/json"})
-                with urllib.request.urlopen(request, timeout=20) as response:
+                with urlopen(request, timeout=20) as response:
                     added += json.load(response)["indexes_added"]
                 consecutive_errors = 0
                 break

@@ -13,7 +13,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -c requirements.lock -e ".[test,vision]"
 # 기존 .env 또는 .env.example을 참고해 Proxy 설정
 .\.venv\Scripts\python.exe scripts\prepare-models.py
-.\scripts\start-server.ps1
+.\scripts\start-pc-server.ps1
 ```
 
 NVIDIA GPU 사용 시에는 기본 환경을 유지하면서 선택적으로 CUDA 패키지를 설치할 수 있습니다.
@@ -25,12 +25,20 @@ NVIDIA GPU 사용 시에는 기본 환경을 유지하면서 선택적으로 CUD
 
 CUDA 빌드 조합은 [PyTorch 공식 설치 안내](https://pytorch.org/get-started/previous-versions/#v291)를 참고했습니다.
 
-별도 터미널에서 USB 디버깅 기기를 연결합니다.
+최초 시작 전 [Cloudflare 공식 다운로드](https://developers.cloudflare.com/tunnel/downloads/)의 Windows 64-bit `cloudflared.exe`를 `.runtime/bin/cloudflared.exe`에 둡니다. 시작 스크립트는 PC의 loopback 서버와 HTTPS 터널을 숨겨진 프로세스로 실행합니다. 동일한 연결이 살아 있으면 재사용합니다.
+
+최초 APK 설치·접속 설정 시 USB 디버깅 기기를 연결합니다. 이후 앱 사용에는 USB나 같은 Wi-Fi가 필요하지 않습니다.
 
 ```powershell
 .\android\gradlew.bat -p android assembleDebug testDebugUnitTest
 .\scripts\connect-device.ps1
 ```
+
+설치 스크립트는 `.runtime/pc-connection.json`의 주소·접속 키를 앱 전용 저장소로 전달하고 USB 포트 전달을 제거합니다. 앱은 키를 Android Keystore로 암호화해 보관합니다. 키는 APK·Git에 포함하지 않습니다. 수동 설정은 앱의 **서버 → 서버 주소 / 접속 키 → 확인 후 저장**에서 가능합니다. HTTPS와 API 호환성·인증을 확인한 뒤 저장합니다.
+
+PC를 다시 켰다면 `scripts/start-pc-server.ps1`을 실행합니다. 현재 MVP의 Quick Tunnel 주소는 터널 재시작 시 바뀔 수 있으므로, 바뀐 경우 앱의 서버 주소도 갱신합니다. 접속 키는 `.runtime/server-token.txt`에 유지됩니다. `CG_SERVER_TOKEN`으로 별도 지정할 수도 있습니다. PC와 서버가 실행 중이어야 새 탐색이 가능합니다. 중지는 `scripts/stop-pc-server.ps1`입니다.
+
+운영 구조와 고정 주소·별도 백엔드 이전은 [PC 서버 연결 안내](docs/pc-server.md)를 참고하세요.
 
 앱의 **사진 연결**에서 접근을 허용한 사진 최대 1,000장을 연결합니다. **새로고침**으로 전송/분석을 재개합니다. 사진을 열고 대상을 누르세요. 길게 누르면 영역을 선택할 수 있습니다. 분석 중에도 수동 영역 탐색이 가능합니다. 사진 분석이 끝나면 Spaces를 자동으로 생성합니다. **맥락 찾아보기**로 다시 정리할 수 있습니다.
 
@@ -60,4 +68,4 @@ Proxy smoke는 합성 이미지만 전송합니다. 자동 계약 테스트는 f
 - `docs/validation.md`: 실제 검증 결과와 남은 검증.
 - `docs/final-mvp-validation.md`: 1,000장 준비, 최종 Spaces, 실제 Android 3hop과 속도·품질 한계.
 
-사진, 모델 실행 상태, 분석 결과는 `.runtime/`에 저장되며 Git에서 제외됩니다. Proxy 키는 `.env`에만 두며 APK에 포함하지 않습니다. 서버는 loopback 전용입니다. Android 원본은 수정하지 않습니다.
+사진, 모델 실행 상태, 분석 결과는 `.runtime/`에 저장되며 Git에서 제외됩니다. Proxy 키는 `.env`에만 두며 APK에 포함하지 않습니다. 서버 원점은 loopback에서 실행하고 HTTPS 터널을 통해 인증된 외부 요청을 받습니다. Android 원본은 수정하지 않습니다.

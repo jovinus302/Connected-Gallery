@@ -4,6 +4,7 @@ import argparse
 import sqlite3
 import time
 import urllib.request
+from pc_client import urlopen
 from pathlib import Path
 from uuid import uuid4
 
@@ -12,7 +13,7 @@ def api(path, payload=None):
     request = urllib.request.Request('http://127.0.0.1:8765' + path,
         data=json.dumps(payload).encode() if payload is not None else None,
         headers={'Content-Type': 'application/json'})
-    with urllib.request.urlopen(request, timeout=15) as response:
+    with urlopen(request, timeout=15) as response:
         return json.load(response)
 
 

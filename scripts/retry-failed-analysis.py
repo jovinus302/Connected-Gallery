@@ -7,10 +7,11 @@ import hashlib
 import json
 import sqlite3
 import urllib.request
+from pc_client import urlopen
 
 
 def main():
-    with urllib.request.urlopen('http://127.0.0.1:8765/health', timeout=10) as response:
+    with urlopen('http://127.0.0.1:8765/health', timeout=10) as response:
         spec = json.load(response).get('agent_spec', 0)
         if spec < 2:
             raise RuntimeError('Start the repaired server first')
@@ -33,7 +34,7 @@ def main():
         body = json.dumps({'role': 'analyst', 'photo_ids': [pid], 'idempotency_key': key}).encode()
         req = urllib.request.Request('http://127.0.0.1:8765/runs', data=body,
                                      headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(req, timeout=10) as response:
+        with urlopen(req, timeout=10) as response:
             json.load(response)
         queued += 1
     db.close()

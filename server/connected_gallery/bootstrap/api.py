@@ -1,6 +1,7 @@
 from __future__ import annotations
 import json
 import os
+import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 from dotenv import load_dotenv
@@ -8,6 +9,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from connected_gallery.domain.models import SyncRequest, RunRequest, Feedback, Box
 from pydantic import BaseModel
+from connected_gallery.bootstrap.auth import server_token
 
 
 class RegionPreview(BaseModel):
@@ -29,6 +31,7 @@ def create_app(root=None, runner_factory=None):
     os.environ["LANGSMITH_TRACING"] = "false"
     os.environ["LANGCHAIN_TRACING_V2"] = "false"
     root = Path(root or os.getenv("CG_DATA_DIR", ".runtime"))
+    token = server_token(root)
     store = Store(root)
     models = LocalModels(root)
     if runner_factory:
@@ -51,6 +54,17 @@ def create_app(root=None, runner_factory=None):
     app = FastAPI(title="Connected Gallery", version="0.1.0", lifespan=lifespan)
     app.state.store = store
     app.state.service = service
+
+    @app.middleware("http")
+    async def authenticate(request: Request, call_next):
+        supplied = request.headers.get("authorization", "").encode("utf-8")
+        expected = ("Bearer " + token).encode("ascii")
+        if not secrets.compare_digest(supplied, expected):
+            return JSONResponse(status_code=401, content={"detail": "Authentication required"},
+                                headers={"WWW-Authenticate": "Bearer", "Cache-Control": "no-store"})
+        response = await call_next(request)
+        response.headers["Cache-Control"] = "no-store"
+        return response
 
     @app.exception_handler(ValueError)
     async def invalid(request, exc):
