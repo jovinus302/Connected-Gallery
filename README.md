@@ -42,7 +42,7 @@ PC를 다시 켰다면 `scripts/start-pc-server.ps1`을 실행합니다. 현재 
 
 운영 구조와 고정 주소·별도 백엔드 이전은 [PC 서버 연결 안내](docs/pc-server.md)를 참고하세요.
 
-앱의 **사진 연결**에서 접근을 허용한 사진 최대 1,000장을 연결합니다. **새로고침**으로 전송/분석을 재개합니다. 사진을 열고 대상을 누르세요. 길게 누르면 영역을 선택할 수 있습니다. 분석 중에도 수동 영역 탐색이 가능합니다. 기존 코드에는 분석 후 Spaces 자동 생성과 **맥락 찾아보기**가 남아 있습니다. 이 경로는 최신 MVP 범위에서 제외했으며, 이번 문서 수정에서 코드 제거까지 완료한 것은 아닙니다.
+앱의 **사진 연결**에서 접근을 허용한 사진 최대 1,000장을 연결합니다. **새로고침**으로 전송/분석을 재개합니다. 사진을 열고 대상을 누르세요. 길게 누르면 영역을 선택할 수 있습니다. 분석 중에도 수동 영역 탐색이 가능합니다. Spaces 탭·모으기·맥락 찾아보기와 분석 후 Space 자동 생성은 제거했습니다. 서버 재시작 시 기존 대기 중 Organizer 작업도 재실행하지 않습니다. 기존 Space 데이터는 보존합니다. 사진 상세의 새로운 자동 맥락 UX는 아직 후속 구현이며, [Space 제거 검증](docs/space-removal-validation.md)과 구분합니다.
 
 ## 검증
 
@@ -62,7 +62,7 @@ Proxy smoke는 합성 이미지만 전송합니다. 자동 계약 테스트는 f
 
 ## 구성
 
-- `android/`: domain, data, core-ui, feature-library, feature-spaces, feature-explore, app.
+- `android/`: domain, data, core-ui, feature-library, feature-explore, app.
 - `server/connected_gallery/`: domain, application, agent_specs, agent_runtime, gallery_tools, adapters, bootstrap.
 - `docs/implementation-plan.md`: 제품·기술·10일 계획.
 - `docs/oss-reference.md`: 참고 출처와 재사용 범위.

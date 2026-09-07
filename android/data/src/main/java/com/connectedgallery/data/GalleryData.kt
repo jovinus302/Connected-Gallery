@@ -101,24 +101,10 @@ import javax.inject.Singleton
   }
  }
  override suspend fun cancelExploration() { activeRun?.let { runCatching { api.call("/runs/$it/cancel","POST") } } }
- override suspend fun spaces(refresh:Boolean):List<Space> {
-  if(refresh) try { cache.put(CacheEntry("spaces",api.call("/spaces")["spaces"].toString())) } catch(e:CancellationException){throw e} catch(_:Exception){}
-  return cache.get("spaces")?.let { json.decodeFromString(it) }?:emptyList()
- }
- override suspend fun organize(progress:(String)->Unit) {
-  val run=api.call("/runs","POST",buildJsonObject { put("role","organizer") })
-  val id=run["id"]!!.jsonPrimitive.content
-  while(currentCoroutineContext().isActive) {
-   val status=api.call("/runs/$id")["status"]!!.jsonPrimitive.content
-   if(status=="completed") { spaces();return }
-   if(status in listOf("failed","incomplete","cancelled"))error("맥락을 정리하지 못했어요. 사진 준비 후 다시 시도해 주세요")
-   progress("사진에서 다시 쓸 맥락을 찾고 있어요");delay(1000)
-  }
- }
  override suspend fun saveJourney(journey:Journey) { cache.put(CacheEntry("journey",json.encodeToString(journey))) }
  override suspend fun loadJourney():Journey=cache.get("journey")?.let { json.decodeFromString(it) }?:Journey()
- override suspend fun feedback(kind:String,photoId:String?,regionId:String?,spaceId:String?,value:String) {
-  api.call("/feedback","POST",buildJsonObject { put("kind",kind);put("value",value);photoId?.let { put("photo_id",it) };regionId?.let { put("region_id",it) };spaceId?.let { put("space_id",it) } })
+ override suspend fun feedback(kind:String,photoId:String?,regionId:String?,value:String) {
+  api.call("/feedback","POST",buildJsonObject { put("kind",kind);put("value",value);photoId?.let { put("photo_id",it) };regionId?.let { put("region_id",it) } })
  }
  override suspend fun metric(name:String,value:String) {
   val data=buildJsonObject { put("name",name);put("value",value);put("at",System.currentTimeMillis()) }

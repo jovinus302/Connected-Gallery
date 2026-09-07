@@ -104,6 +104,8 @@ class SpaceProposal(Model):
 
 
 class RunRequest(Model):
+    # Keep legacy organizer requests readable for durable-run recovery.
+    # RunService rejects new ones and retires queued/running legacy work.
     role: Literal["analyst", "explorer", "organizer"]
     photo_ids: list[str] = Field(default_factory=list, max_length=1000)
     explore: ExploreInput | None = None

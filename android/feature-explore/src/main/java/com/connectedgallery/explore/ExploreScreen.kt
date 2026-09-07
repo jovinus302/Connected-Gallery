@@ -22,8 +22,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
  var reveal by remember(photo.id) { mutableStateOf(false) }
  var choices by remember(photo.id) { mutableStateOf<List<Region>>(emptyList()) }
  var manual by remember(photo.id) { mutableStateOf<RegionBox?>(null) }
- val spaces by vm.spaces.collectAsState()
- var addToSpace by remember { mutableStateOf(false) }
  var naming by remember { mutableStateOf<Region?>(null) };var personName by remember { mutableStateOf("") }
  val regions=analysis?.takeIf { it.photo_id==photo.id }?.regions?:emptyList()
  val query=frame.query
@@ -32,7 +30,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
   Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),horizontalArrangement=Arrangement.SpaceBetween) {
    TextButton(onClick=vm::back) { Text("돌아가기") }
    Text(query?.let { frame.result?.label?.takeIf(String::isNotBlank)?:it.anchor.label }?:"사진 속 의미를 따라가세요",modifier=Modifier.weight(1f).padding(12.dp),style=MaterialTheme.typography.labelLarge)
-   if(spaces.isNotEmpty())TextButton(onClick={addToSpace=true}) { Text("모으기") }
   }
   PhotoCanvas(photo,regions,reveal,manual?:query?.anchor?.takeIf { it.photo_id==photo.id }?.box,onTap={ hits ->
    if(hits.size==1)select(hits.first()) else { reveal=true;choices=hits }
@@ -65,7 +62,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
    if(!busy && frame.result==null)TextButton(onClick=vm::retry) { Text("다시 탐색") }
   }
  }
- if(addToSpace)AlertDialog(onDismissRequest={addToSpace=false},title={Text("어떤 맥락에 모을까요?")},text={Column { spaces.forEach { s -> TextButton(onClick={vm.include(s.id,photo.id);addToSpace=false}) { Text(s.name) } } }},confirmButton={})
  if(choices.isNotEmpty())AlertDialog(onDismissRequest={choices=emptyList()},title={Text("어떤 의미를 따라갈까요?")},text={Column { choices.forEach { r -> Row { TextButton(onClick={select(r)}) { Text(r.label) };if(r.kind=="person")TextButton(onClick={naming=r;choices=emptyList()}) { Text("이름 지정") } } } }},confirmButton={})
  naming?.let { region -> AlertDialog(onDismissRequest={naming=null},title={Text("이 사람의 이름")},text={OutlinedTextField(value=personName,onValueChange={personName=it})},confirmButton={TextButton(onClick={vm.name(region,personName);naming=null}) { Text("저장") }}) }
 }

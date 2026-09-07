@@ -154,6 +154,8 @@ class GalleryTools:
                 "Read existing Spaces and explicit user feedback.",
             ),
         }
+        if request.role != "organizer":
+            self.definitions.pop("read_spaces")
         submit = {
             "analyst": ("submit_photo_analysis", PhotoAnalysis),
             "explorer": ("submit_exploration_result", ExplorationResult),

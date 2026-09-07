@@ -293,7 +293,6 @@ async def test_checkpoint_cleanup_failure_preserves_committed_analysis(store, mo
 
     monkeypatch.setattr(AsyncSqliteSaver, "adelete_thread", fail_cleanup)
     service = RunService(store, GraphAgentRunner(store, None, SubmitGateway()))
-    service.auto_enabled = False
     run = service.start(RunRequest(role="analyst", photo_ids=["a"]))
     await asyncio.wait_for(service.tasks[run["id"]], 5)
     final = service.get(run["id"])

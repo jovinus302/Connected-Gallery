@@ -23,9 +23,16 @@ class RunService:
         self.background = asyncio.Semaphore(concurrency)
         self.interactive = asyncio.Semaphore(1)
         self.exploring = 0
-        self.auto_enabled = True
 
     def schedule(self, rid, request):
+        # Retire durable legacy work without resuming model calls or deleting evidence.
+        if request.role == "organizer":
+            self.store.write(
+                "UPDATE runs SET status='cancelled',error=? WHERE id=? "
+                "AND status IN ('queued','running')",
+                ("Spaces are no longer part of the MVP", rid),
+            )
+            return
         task = asyncio.create_task(self._execute(rid, request))
         self.tasks[rid] = task
         def finished(completed):
@@ -53,11 +60,13 @@ class RunService:
             value = {"role": request.role, "ids": request.photo_ids}
         return hashlib.sha256(
             encoded(
-                ["agent-spec-v15", "retrieval-policy-v10-selected-region-index", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
+                ["agent-spec-v16", "retrieval-policy-v10-selected-region-index", os.getenv("CG_MODEL", "gpt-5.4-mini"), value]
             ).encode()
         ).hexdigest()
 
     def start(self, request):
+        if request.role == "organizer":
+            raise ValueError("Spaces are no longer part of the MVP")
         existing = self.store.rows(
             "SELECT id,request FROM runs WHERE key=?", (request.idempotency_key,)
         )
@@ -118,12 +127,6 @@ class RunService:
         interactive = request.role == "explorer"
         sem = self.interactive if interactive else self.background
         try:
-            if request.role == "organizer":
-                while self.store.rows(
-                    "SELECT id FROM runs WHERE status IN ('queued','running') AND id != ? AND json_extract(request,'$.role')='analyst'",
-                    (rid,),
-                ):
-                    await asyncio.sleep(1)
             async with sem:
                 while not interactive and self.exploring:
                     await asyncio.sleep(0.1)
@@ -197,18 +200,6 @@ class RunService:
             )
         finally:
             self.tasks.pop(rid, None)
-            if request.role == "analyst" and self.auto_enabled:
-                states = self.store.rows("SELECT status FROM runs WHERE id=?", (rid,))
-                active = self.store.rows(
-                    "SELECT id FROM runs WHERE status IN ('queued','running') AND json_extract(request,'$.role') IN ('analyst','organizer')"
-                )
-                if states and states[0]["status"] == "completed" and not active:
-                    self.start(
-                        RunRequest(
-                            role="organizer",
-                            idempotency_key=f"auto-organize-{self.store.revision}",
-                        )
-                    )
 
     def cancel(self, rid):
         run = self.get(rid)
@@ -244,7 +235,6 @@ class RunService:
             self.cancel(row["id"])
 
     async def stop(self, preserve_pending=False):
-        self.auto_enabled = False
         pending = self.store.rows("SELECT id FROM runs WHERE status IN ('queued','running')") if preserve_pending else []
         tasks = list(self.tasks.values())
         for task in tasks:
@@ -254,4 +244,3 @@ class RunService:
         self.tasks = {rid: task for rid, task in self.tasks.items() if not task.done()}
         for row in pending:
             self.store.write("UPDATE runs SET status='queued' WHERE id=? AND status='cancelled'", (row["id"],))
-        self.auto_enabled = True

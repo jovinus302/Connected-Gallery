@@ -225,7 +225,7 @@ class GraphAgentRunner:
                 "recursion_limit": 2 * turns + 5,
             }
             checkpoint = await compiled.aget_state(config)
-            if checkpoint.next and checkpoint.values.get("spec_version") != 15:
+            if checkpoint.next and checkpoint.values.get("spec_version") != 16:
                 # Old prompts/budgets must not resume halfway through the new graph.
                 # Stored model artifacts survive; only this run's conversation resets.
                 await saver.adelete_thread(run_id)
@@ -270,7 +270,7 @@ class GraphAgentRunner:
                     ],
                     "turns": 0,
                     "calls": 0,
-                    "spec_version": 15,
+                    "spec_version": 16,
                     "review_attempts": 0,
                     "submission_reminded": False,
                     "repair_pending": False,

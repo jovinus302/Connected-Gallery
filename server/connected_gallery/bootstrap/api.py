@@ -21,7 +21,7 @@ from connected_gallery.adapters.store import Store, encoded
 from connected_gallery.adapters.models import LocalModels
 from connected_gallery.adapters.proxy import ProxyGateway
 from connected_gallery.agent_runtime.runner import GraphAgentRunner
-from connected_gallery.agent_runtime.reviewer import EvidenceReviewer, SpaceEvidenceReviewer
+from connected_gallery.agent_runtime.reviewer import EvidenceReviewer
 from connected_gallery.application.service import RunService
 from connected_gallery.application.indexing import AnalysisIndexing
 
@@ -40,7 +40,7 @@ def create_app(root=None, runner_factory=None):
         gateway = ProxyGateway()
         interactive_gateway = ProxyGateway(attempt_timeout=15, repeat_primary=False)
         runner = GraphAgentRunner(store, models, gateway, EvidenceReviewer(interactive_gateway),
-                                  explorer_gateway=interactive_gateway, space_reviewer=SpaceEvidenceReviewer(gateway))
+                                  explorer_gateway=interactive_gateway)
     service = RunService(store, runner)
     indexing = AnalysisIndexing(store, models)
 
@@ -76,7 +76,7 @@ def create_app(root=None, runner_factory=None):
             "status": "ok",
             "revision": store.revision,
             "proxy_configured": bool(os.getenv("ANTHROPIC_API_KEY")),
-            "agent_spec": 15,
+            "agent_spec": 16,
             "analysis_concurrency": service.analysis_concurrency,
             "explore_timeout_seconds": service.explore_timeout,
         }
@@ -184,6 +184,8 @@ def create_app(root=None, runner_factory=None):
 
     @app.post("/runs")
     async def start(req: RunRequest):
+        if req.role == "organizer":
+            raise HTTPException(410, "Spaces are no longer part of the MVP")
         return service.start(req)
 
     @app.get("/runs/{rid}")
@@ -206,27 +208,12 @@ def create_app(root=None, runner_factory=None):
             "cursor": rows[-1]["seq"] if rows else after,
         }
 
-    @app.get("/spaces")
-    def spaces():
-        return {"spaces": store.spaces(), "revision": store.revision}
-
     @app.post("/feedback")
     def feedback(value: Feedback):
+        if value.kind in ("space_include", "space_exclude"):
+            raise HTTPException(410, "Spaces are no longer part of the MVP")
         if value.photo_id:
             store.photo(value.photo_id)
-        if value.kind in ("space_include", "space_exclude"):
-            rows = store.rows("SELECT data FROM spaces WHERE id=?", (value.space_id,))
-            if not rows or not value.photo_id:
-                raise ValueError("Valid Space and photo required")
-            s = json.loads(rows[0]["data"])
-            s["items"] = [x for x in s["items"] if x["photo_id"] != value.photo_id]
-            if value.kind == "space_include":
-                s["items"].append(
-                    {"photo_id": value.photo_id, "reason": "사용자가 포함한 사진"}
-                )
-            store.write(
-                "UPDATE spaces SET data=? WHERE id=?", (encoded(s), value.space_id)
-            )
         if value.kind == "person_name":
             a = store.analysis(value.photo_id)
             if not a or value.region_id not in {r["id"] for r in a["regions"]}:

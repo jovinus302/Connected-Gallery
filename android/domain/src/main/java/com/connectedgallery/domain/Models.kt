@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.Flow
 @Serializable data class ExploreInput(val anchor:SemanticAnchor,val direction:String="related",val year:Int?=null,val request_revision:Long=0)
 @Serializable data class ResultItem(val photo_id:String,val reason:String="")
 @Serializable data class ExplorationResult(val label:String="",val items:List<ResultItem> = emptyList(),val complete:Boolean=true)
-@Serializable data class Space(val id:String,val name:String,val meaning:String,val items:List<ResultItem>)
 @Serializable data class RunState(val id:String,val status:String,val result:ExplorationResult?=null,val error:String?=null)
 @Serializable data class Frame(val photoId:String,val query:ExploreInput?=null,val result:ExplorationResult?=null,val scrollIndex:Int=0,val scrollOffset:Int=0)
 @Serializable data class Journey(val current:Frame?=null,val history:List<Frame> = emptyList(),val revision:Long=0) {
@@ -41,10 +40,8 @@ interface GalleryRepository {
  suspend fun analysis(photoId:String):Analysis
  suspend fun explore(input:ExploreInput,onUpdate:(ExplorationResult)->Unit):ExplorationResult
  suspend fun cancelExploration()
- suspend fun spaces(refresh:Boolean=true):List<Space>
- suspend fun organize(progress:(String)->Unit)
  suspend fun saveJourney(journey:Journey)
  suspend fun loadJourney():Journey
- suspend fun feedback(kind:String,photoId:String?=null,regionId:String?=null,spaceId:String?=null,value:String="")
+ suspend fun feedback(kind:String,photoId:String?=null,regionId:String?=null,value:String="")
  suspend fun metric(name:String,value:String="")
 }

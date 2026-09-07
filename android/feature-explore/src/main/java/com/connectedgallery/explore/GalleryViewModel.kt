@@ -14,7 +14,6 @@ import kotlinx.serialization.json.*
  val photos=repo.photos.stateIn(viewModelScope,SharingStarted.Eagerly,emptyList())
  val journey=MutableStateFlow(Journey())
  val analysis=MutableStateFlow<Analysis?>(null)
- val spaces=MutableStateFlow<List<Space>>(emptyList())
  val status=MutableStateFlow("")
  val exploring=MutableStateFlow(false)
  private var currentView=UUID.randomUUID().toString()
@@ -25,7 +24,7 @@ import kotlinx.serialization.json.*
    val initial=repo.photos.first();val saved=repo.loadJourney().withoutTimeFilters()
    journey.value=if(saved.current?.photoId in initial.map { it.id })saved else Journey()
    repo.saveJourney(journey.value)
-   journey.value.current?.let { observeAnalysis(it.photoId) };spaces.value=repo.spaces(false)
+   journey.value.current?.let { observeAnalysis(it.photoId) }
    repo.photos.collect { available ->
     val ids=available.map { it.id }.toSet()
     if(journey.value.current?.photoId?.let { it !in ids }==true) { searchJob?.cancel();analysisJob?.cancel();update(Journey());analysis.value=null }
@@ -35,7 +34,7 @@ import kotlinx.serialization.json.*
  private fun update(j:Journey) { journey.value=j;viewModelScope.launch { repo.saveJourney(j) } }
  fun refresh() {
   if(syncJob?.isActive==true)return
-  syncJob=viewModelScope.launch { try { repo.refreshAndSync { status.value=it };spaces.value=repo.spaces() } catch(e:CancellationException){throw e} catch(_:Exception){status.value="PC 연결을 확인해 주세요. 저장된 사진은 계속 볼 수 있어요"} }
+  syncJob=viewModelScope.launch { try { repo.refreshAndSync { status.value=it } } catch(e:CancellationException){throw e} catch(_:Exception){status.value="PC 연결을 확인해 주세요. 저장된 사진은 계속 볼 수 있어요"} }
  }
  fun open(id:String) {
   searchJob?.cancel();exploring.value=false;update(journey.value.open(id));observeAnalysis(id)
@@ -82,9 +81,5 @@ import kotlinx.serialization.json.*
   searchJob?.cancel();exploring.value=false;viewModelScope.launch { repo.metric("back") };update(journey.value.back());journey.value.current?.let { observeAnalysis(it.photoId) }?:analysisJob?.cancel()
  }
  fun scroll(index:Int,offset:Int) { val j=journey.value;update(j.copy(current=j.current?.copy(scrollIndex=index,scrollOffset=offset))) }
- fun refreshSpaces() { viewModelScope.launch { spaces.value=repo.spaces() } }
- fun organize() { viewModelScope.launch { try { repo.organize { status.value=it };spaces.value=repo.spaces();status.value="" } catch(e:CancellationException){throw e} catch(_:Exception){status.value="사진 준비가 끝나면 맥락을 다시 찾아주세요"} } }
- fun include(spaceId:String,photoId:String) { viewModelScope.launch { try { repo.feedback("space_include",photoId=photoId,spaceId=spaceId);spaces.value=repo.spaces() } catch(e:CancellationException){throw e} catch(_:Exception){status.value="PC 연결 후 다시 시도해 주세요"} } }
- fun exclude(spaceId:String,photoId:String) { viewModelScope.launch { try { repo.feedback("space_exclude",photoId=photoId,spaceId=spaceId);spaces.value=repo.spaces() } catch(_:Exception){status.value="PC에 연결한 뒤 다시 시도해 주세요"} } }
  fun name(region:Region,value:String) { viewModelScope.launch { try { repo.feedback("person_name",photoId=region.photo_id,regionId=region.id,value=value);analysis.value=repo.analysis(region.photo_id) } catch(e:CancellationException){throw e} catch(_:Exception){status.value="PC 연결 후 이름을 저장해 주세요"} } }
 }
