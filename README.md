@@ -63,6 +63,7 @@ python scripts/start-demo.py --data-dir .runtime/demo --prepared-only --port 887
 
 Proxy smoke는 합성 이미지를 사용합니다. 자동 테스트와 실제 사진의 관련성·설명 정확도·기기 대기 시간 검수는 별도로 수행합니다.
 
+- [제품의 핵심 의도](INTENT.md)
 - [제품과 사용자 흐름](docs/connected-gallery-product-ux.md)
 - [구현 구조와 검증 기준](docs/implementation-plan.md)
 - [기능별 작업 목록](docs/issue-breakdown.md)
