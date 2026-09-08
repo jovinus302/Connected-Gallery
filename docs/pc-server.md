@@ -13,6 +13,10 @@
 
 개발용 APK는 `scripts/connect-device.ps1`로 설치와 1회 접속 설정을 할 수 있다. 앱 전용 디버그 입력 파일은 암호화 저장 후 삭제한다. 외부 앱이 호출하는 설정 Intent나 비밀 키가 들어간 APK는 만들지 않는다.
 
+설치는 APK를 base64로 인코딩해 ADB shell의 표준 입력으로 보내고 기기에서 디코딩한다. 로컬과 기기의 SHA-256이 일치한 경우에만 `pm install -r`을 실행하며 임시 APK는 설치 성공·실패 모두에서 삭제를 시도한다. 기존 앱 데이터는 유지한다.
+
+서버 설정 없이 APK만 설치하려면 Python 3.12와 ADB가 있는 환경에서 `python scripts/install-device.py`를 실행한다. `--apk`로 APK 경로를, `--serial emulator-5554`로 대상 기기를 지정할 수 있다. 설치 후 `adb shell monkey -p com.connectedgallery.app 1`로 실행한다. 샘플 사진은 APK에 포함되지 않으므로 기기 사진 저장소에 준비하고 앱에서 사진 접근을 허용해야 한다.
+
 ## 인증과 데이터
 
 전체 API(health, 미리보기, 이벤트, 조회·수정, 문서 포함)는 독립적인 Bearer 키를 요구한다. 키가 없거나 틀리면 데이터를 읽거나 작업을 실행하기 전에 401로 거절한다. 응답은 `Cache-Control: no-store`로 중계 캐시에 보관하지 않도록 한다. 인증 키는 모델 Proxy 키와 다르다.
