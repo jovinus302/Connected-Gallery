@@ -1,22 +1,24 @@
-# 작업 단위
+# 기능별 이슈
 
-2026-09-07 Space 제외 결정: 최신 범위는 [제품·UX 문서](connected-gallery-product-ux.md)를 따른다. CG-11은 사진 상세의 자동 맥락 구성으로 개정하며 Space 생성·저장·목록·편집·쓰기 권한과 사용자 영구 묶음 관리는 MVP 완료 조건에서 제외한다. 내부 맥락 캐시는 유지한다. 이 표는 레포 문서 기준이며 외부 GitHub 이슈의 제목·본문·상태를 이번 수정에서 변경한 것은 아니다.
+Connect와 자동 맥락의 기능·완료 기준·검증을 정리한다. 아래 목록은 완료 상태를 나타내지 않는다.
 
-| 작업 | 선행 | 완료 기준 |
-|---|---|---|
-| [CG-01: 모듈·데이터·API·탐색 상태 계약](https://github.com/jovinus302/Connected-Gallery/issues/1) | 없음 | 연도 변경은 anchor 유지, 새 탭은 전체 기간·Related로 초기화 |
-| [CG-02: 실제 사진과 평가 시나리오 구성](https://github.com/jovinus302/Connected-Gallery/issues/2) | 없음 | 실제 사진과 합성 fixture를 분리하고 정답·무정답 과제 기록 |
-| [CG-03: Android 갤러리·뷰어·좌표 변환](https://github.com/jovinus302/Connected-Gallery/issues/3) | CG-01 | 권한 범위에서 최대 1,000장 표시, 확대 후 영역 탭 |
-| [CG-04: 사진 동기화·근거·artifact·인덱스](https://github.com/jovinus302/Connected-Gallery/issues/4) | CG-01 | 버전 변경·삭제 시 파생 데이터 무효화 |
-| [CG-05: VLM·OCR·영역·얼굴·임베딩 도구](https://github.com/jovinus302/Connected-Gallery/issues/5) | CG-01 | 실제 관찰 근거와 영역·모델 버전 반환, 오류 명시 |
-| [CG-06: AgentRunner·상태 저장·실행 예산](https://github.com/jovinus302/Connected-Gallery/issues/6) | CG-01 | 도구 선택은 모델 결정, 취소·예산·복구 제공 |
-| [CG-07: Photo Analyst와 사전 분석](https://github.com/jovinus302/Connected-Gallery/issues/7) | CG-04, CG-05, CG-06 | 실제 이미지 관찰 후에만 분석 완료 |
-| [CG-08: Explorer와 후보의 시각 확인](https://github.com/jovinus302/Connected-Gallery/issues/8) | CG-07 | 실제 ID·확인한 이미지·연도 범위만 제출 |
-| [CG-09: 사진 속 탭·결과 표시·연속 hop](https://github.com/jovinus302/Connected-Gallery/issues/9) | CG-03, CG-08 | See→Tap→Follow 3회 이상, 대기 중 사진 유지 |
-| [CG-10: Related·Same moment·Time·기록](https://github.com/jovinus302/Connected-Gallery/issues/10) | CG-09 | anchor 보존, Same moment는 사건 맥락, 뒤로 가기 복원 |
-| [CG-11: 사진 상세의 Organize 맥락](issues/CG-11.md) | CG-07, CG-09 | 별도 요청 없이 근거 있는 맥락 표시, Space 없이 다음 탐색과 복원 |
-| [CG-12: 캐시·취소·삭제·재개·오프라인](https://github.com/jovinus302/Connected-Gallery/issues/12) | CG-04, CG-06, CG-09 | 오래된 응답 차단, 삭제 후 재등장 방지 |
-| [CG-13: 지표 수집과 사용자·성능 평가](https://github.com/jovinus302/Connected-Gallery/issues/13) | CG-02, CG-10, CG-11 | 실측·목표·미검증 구분, 실제 n과 실패 보고 |
-| [CG-14: 통합 QA·APK·문서](https://github.com/jovinus302/Connected-Gallery/issues/14) | CG-12, CG-13 | 빌드·계약 테스트 통과, 실제 기기 검증 상태 보고 |
+| 이슈 | 기능 |
+|---|---|
+| [CG-01](issues/CG-01.md) · [GitHub #1](https://github.com/jovinus302/Connected-Gallery/issues/1) | 모듈·데이터·API·탐색 상태 계약 |
+| [CG-02](issues/CG-02.md) · [GitHub #2](https://github.com/jovinus302/Connected-Gallery/issues/2) | 실제 사진과 평가 시나리오 구성 |
+| [CG-03](issues/CG-03.md) · [GitHub #3](https://github.com/jovinus302/Connected-Gallery/issues/3) | Android 갤러리·뷰어·좌표 변환 |
+| [CG-04](issues/CG-04.md) · [GitHub #4](https://github.com/jovinus302/Connected-Gallery/issues/4) | 사진 동기화·근거·artifact·인덱스 |
+| [CG-05](issues/CG-05.md) · [GitHub #5](https://github.com/jovinus302/Connected-Gallery/issues/5) | VLM·OCR·영역·얼굴·임베딩 도구 |
+| [CG-06](issues/CG-06.md) · [GitHub #6](https://github.com/jovinus302/Connected-Gallery/issues/6) | AgentRunner·상태 저장·실행 예산 |
+| [CG-07](issues/CG-07.md) · [GitHub #7](https://github.com/jovinus302/Connected-Gallery/issues/7) | Photo Analyst와 사전 분석 |
+| [CG-08](issues/CG-08.md) · [GitHub #8](https://github.com/jovinus302/Connected-Gallery/issues/8) | Explorer와 후보의 시각 확인 |
+| [CG-09](issues/CG-09.md) · [GitHub #9](https://github.com/jovinus302/Connected-Gallery/issues/9) | 사진 속 탭·결과 표시·연속 hop |
+| [CG-10](issues/CG-10.md) · [GitHub #10](https://github.com/jovinus302/Connected-Gallery/issues/10) | 탐색 방향·기록·뒤로 가기 |
+| [CG-11](issues/CG-11.md) · [GitHub #11](https://github.com/jovinus302/Connected-Gallery/issues/11) | 사진 상세의 자동 맥락 |
+| [CG-12](issues/CG-12.md) · [GitHub #12](https://github.com/jovinus302/Connected-Gallery/issues/12) | 캐시·취소·삭제·재개·오프라인 |
+| [CG-13](issues/CG-13.md) · [GitHub #13](https://github.com/jovinus302/Connected-Gallery/issues/13) | 지표 수집과 사용자·성능 평가 |
+| [CG-14](issues/CG-14.md) · [GitHub #14](https://github.com/jovinus302/Connected-Gallery/issues/14) | 통합 QA·APK·문서 |
 
-실제 기기 검증이 필요한 항목은 코드 구현만으로 이슈를 닫지 않는다.
+[CG-15: Time / Timeline](issues/CG-15.md)은 보류 항목이며 MVP 범위에 포함하지 않는다.
+
+제품 범위는 [제품과 사용자 흐름](connected-gallery-product-ux.md), 공통 검증 기준은 [구현 기준](implementation-plan.md)을 따른다. 실제 사진 품질과 기기 사용성은 코드 테스트와 별도로 검증한다.
