@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Agents at work · Connected Gallery</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="masthead">
+    <span class="brand"><span class="brand-symbol" aria-hidden="true">✳</span> CONNECTED GALLERY</span>
+    <span class="edition">AN EXPLORATION OF AGENTIC MOTION · 01</span>
+    <button class="quiet-button" id="fullscreen" type="button">전체화면 ↗</button>
+  </header>
+  <main>
+    <div class="intro">
+      <div><p class="eyebrow">A SMALL TEAM. A CONTINUOUS LOOP.</p><h1>Agents <em>at work.</em></h1></div>
+      <p class="intro-copy">찾고, 살펴보고, 다시 시도하는.<br>사진을 연결하는 세 존재의 작업대.</p>
+    </div>
+    <div class="workbench">
+      <section class="stage" aria-label="추상 agent가 사진을 탐색하고 검토하고 정리하는 입체 시연">
+        <div class="stage-top"><span class="demo-label"><i></i> 고정 시나리오 시연</span><span id="scene-count">EXPLORER · LOOP 01</span></div>
+        <div id="viewport" role="img" aria-label="파란 탐색 agent, 호박색 검토 agent, 검은 정리 agent와 사진 작업대"></div>
+        <div id="fallback" class="fallback" hidden><img src="assets/concept.png" alt="파란 유기체, 호박색 렌즈, 검은 모듈이 사진을 다루는 콘셉트"><span>이 환경에서는 3D 대신 콘셉트 이미지를 표시합니다. 단계 설명과 재생은 사용할 수 있습니다.</span></div>
+        <div id="scene-labels" aria-hidden="true">
+          <div class="agent-label" data-marker="explorer"><span class="agent-dot blue"></span><b>Explorer</b><small>탐색하는 존재</small></div>
+          <div class="agent-label" data-marker="reviewer"><span class="agent-dot amber"></span><b>Reviewer</b><small>근거를 확인하는 존재</small></div>
+          <div class="agent-label" data-marker="organizer"><span class="agent-dot ink"></span><b>Organizer</b><small>관계를 정리하는 존재</small></div>
+          <span class="orbit-label" data-marker="decide">01 행동 선택</span>
+          <span class="orbit-label" data-marker="tool">02 도구 실행</span>
+          <span class="orbit-label" data-marker="observe">03 결과 관찰</span>
+          <span class="feedback-label" data-marker="feedback">근거 부족 · 한 번 더 탐색</span>
+        </div>
+        <div class="stage-bottom"><span id="loop-indicator">↻ AGENT LOOP</span><p id="motion-caption">관찰한 결과가 다음 행동을 바꿉니다.</p></div>
+      </section>
+      <aside class="inspector">
+        <div class="anchor-heading"><span class="eyebrow">THE ANCHOR</span><span class="anchor-lock">선택 대상 유지</span></div>
+        <div class="anchor"><div class="photo photo-0" role="img" aria-label="빨간 원 라벨의 와인병을 선택한 가상 사진"><span class="selection-box"></span></div><div><span class="small-label">선택한 대상</span><h2>이 와인과<br>관련된 사진</h2></div></div>
+        <div class="action-panel" aria-live="polite" aria-atomic="true">
+          <div class="action-eyebrow"><span id="active-agent">EXPLORER</span><span id="step-count">01 / 19</span></div>
+          <h2 id="action-title">어디서부터 찾을까.</h2><p id="action-description">선택한 와인 사진을 출발점으로 시각 검색 도구를 선택합니다.</p>
+          <div class="tool-evidence"><span id="evidence-label">선택한 도구</span><code id="evidence-value">search_visual</code></div>
+          <div id="photo-evidence" class="photo-evidence"></div>
+        </div>
+        <div class="loop-note"><span id="note-symbol" aria-hidden="true">↻</span><p id="loop-note">도구가 돌려준 관찰 결과를 받아<br>다음 행동을 선택합니다.</p></div>
+      </aside>
+    </div>
+    <section class="playback" aria-label="시연 재생 조작">
+      <div class="chapter-nav" id="chapters" aria-label="시연 장면 선택"></div>
+      <div class="transport">
+        <div class="transport-buttons"><button id="restart" class="icon-button" type="button" aria-label="처음으로">↺</button><button id="previous" class="icon-button" type="button" aria-label="이전 단계">←</button><button id="play" class="play-button" type="button">재생 <span aria-hidden="true">▶</span></button><button id="next" class="icon-button" type="button" aria-label="다음 단계">→</button></div>
+        <label class="scrubber"><span class="sr-only">시연 단계</span><input id="scrubber" type="range" min="0" max="18" step="1" value="0"><span id="progress-label">01 / 19</span></label>
+        <label class="speed"><span class="sr-only">재생 속도</span><select id="speed"><option value="0.65">0.65×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label>
+        <button id="notes-toggle" type="button" class="quiet-button" aria-expanded="false" aria-controls="presenter-notes">구조 설명 ＋</button>
+      </div>
+    </section>
+    <section id="presenter-notes" class="presenter-notes" hidden>
+      <div><span class="eyebrow">INNER LOOP</span><h3>도구의 응답이 다시 agent에게.</h3><p>Explorer는 행동을 선택하고 도구를 실행합니다. 도구의 출력은 다음 모델 입력으로 돌아옵니다. 검색 결과를 받으면 사진을 직접 확인하고, 확인한 결과를 바탕으로 후보를 제출합니다.</p></div>
+      <div><span class="eyebrow">REVIEW FEEDBACK</span><h3>검토의 피드백은 조건부로.</h3><p>이 시연에서는 첫 후보가 모두 검토를 통과하지 못합니다. 선택 대상은 유효하고 결과는 불완전하며 실행 예산이 남아 있어, 검토 피드백으로 한 번 재탐색합니다. 항상 돌아가는 무한 loop는 아닙니다.</p></div>
+      <div><span class="eyebrow">EXIT CONDITION</span><h3>확인된 사진으로 결과를 구성.</h3><p>결과 정리기가 연결된 구성을 시연합니다. 확인된 후보의 관계를 묶고 종료합니다. 실제 실행에서는 빈 결과나 불완전한 결과로 끝날 수도 있습니다. 이 화면의 사진·판정·시간은 설명을 위한 예시입니다.</p></div>
+    </section>
+    <p id="load-notice" class="load-notice">화면이 시작되지 않으면 이 폴더의 <strong>start.ps1</strong>로 열어주세요.</p>
+    <footer><span>생성 사진 · 고정된 도구·검토 예시 · 실제 모델 호출 없음</span><span class="keyboard-hint">SPACE 재생/정지 &nbsp; ← → 단계 이동</span></footer>
+  </main>
+</body>
+</html>

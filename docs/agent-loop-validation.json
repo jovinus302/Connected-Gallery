@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "date": "2026-09-08T07:31:58.415Z",
+  "checks": [
+    "WebGL scene renders; reduced motion does not autoplay",
+    "Previous/next and keyboard seek synchronize the displayed step",
+    "Four tool-observation returns, one conditional review feedback, two accepted non-source photos, terminal stop",
+    "Replay starts at zero; 2× playback advances; pause holds state",
+    "Automatic playback stops at completion",
+    "Notes toggle, no horizontal overflow or clipped scene labels at 1440/1024/760/390/360/320",
+    "3D load failure shows concept fallback and preserves step controls",
+    "Animated canvas changes during playback and freezes exactly on pause",
+    "Continuous 2× playback traverses all 19 steps in order and stops",
+    "Simulated hide/show pauses and does not silently resume",
+    "No uncaught browser errors; no external runtime requests"
+  ],
+  "browser": "152.0.4191.66",
+  "screenshots": "work/agent-loop-validation (local capture evidence; opening image retained as agent-loop/preview.png)"
+}
