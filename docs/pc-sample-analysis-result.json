@@ -1,0 +1,101 @@
+{
+  "synthetic_only": true,
+  "photos": 24,
+  "analyses": 24,
+  "explorations": [
+    {
+      "id": "6079ec4c-bec9-4d11-b778-528e61d1deb3",
+      "status": "completed",
+      "result": {
+        "complete": true,
+        "grouping_status": "ready",
+        "groups": [
+          {
+            "id": "group1",
+            "photo_ids": [
+              "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_26"
+            ],
+            "reason": "사진에서 ORBIT M2라고 적힌 빨간 무선 헤드폰과 사용 안내서가 함께 보여, 선택된 ORBIT M2 제품과 직접 관련됩니다.",
+            "title": "ORBIT M2 무선 헤드폰"
+          }
+        ],
+        "items": [
+          {
+            "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_26",
+            "reason": "사진에 ORBIT M2라고 적힌 빨간 무선 헤드폰과 사용 안내서가 함께 보여 선택된 제품과 직접 일치합니다."
+          }
+        ],
+        "label": "related"
+      },
+      "error": null
+    },
+    {
+      "id": "280c1f17-755b-47d0-b910-c1072e3cf103",
+      "status": "completed",
+      "result": {
+        "complete": true,
+        "grouping_status": "ready",
+        "groups": [
+          {
+            "id": "g1",
+            "photo_ids": [
+              "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_39",
+              "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_40"
+            ],
+            "reason": "원본에서 선택된 텍스트는 BA217이며, 이 그룹의 사진들은 화면 또는 탑승권에 바람항공 BA217이 직접 표시되어 있어 선택된 참조 대상과 직접 관련된다.",
+            "title": "선택 편명과 직접 일치"
+          }
+        ],
+        "items": [
+          {
+            "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_39",
+            "reason": "화면에 바람항공 BA217 일정이 직접 보이며, 선택된 편명 텍스트와 정확히 일치한다."
+          },
+          {
+            "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_40",
+            "reason": "탑승권에 BA217이 명확히 적혀 있어 선택된 편명과 직접 대응한다."
+          }
+        ],
+        "label": "BA217"
+      },
+      "error": null
+    },
+    {
+      "id": "29af7379-39a6-4ffc-b025-a87ed4dfb7af",
+      "status": "completed",
+      "result": {
+        "complete": true,
+        "grouping_status": "ready",
+        "groups": [
+          {
+            "id": "g1",
+            "photo_ids": [
+              "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_25",
+              "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_32",
+              "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_20"
+            ],
+            "reason": "원본의 선택된 텍스트 ‘소라식탁’이 사진 안에서 직접 확인되는 후보들이다. 간판, 앱 화면, 저장된 맛집 화면처럼 형태는 다르지만 모두 같은 선택 문자열과 직접 관련된다.",
+            "title": "같은 문구가 보이는 사진"
+          }
+        ],
+        "items": [
+          {
+            "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_25",
+            "reason": "간판 형태로 ‘소라식탁’이 크게 또렷하게 보이며, 원본의 선택된 텍스트와 직접 일치합니다."
+          },
+          {
+            "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_32",
+            "reason": "화면 상단과 본문에 ‘소라식탁’이 동일하게 표시되어 있어 선택된 텍스트와 직접 관련됩니다."
+          },
+          {
+            "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_20",
+            "reason": "‘소라식탁’과 함께 제주 바람항점이라는 부가 정보가 보이지만, 핵심 텍스트는 원본의 선택된 문자열과 직접 일치합니다."
+          }
+        ],
+        "label": "related"
+      },
+      "error": null
+    }
+  ],
+  "context_limitation": "Two receipt context attempts failed exact-field wording review; not validated as successful."
+}
