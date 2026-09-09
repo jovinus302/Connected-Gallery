@@ -29,6 +29,7 @@ export function storyFor(step) {
     story.station=24;story.camera=step.phase==='done'?'PULL BACK':'TRACK RIGHT';story.photos=[1,2];story.verdict='supported';
     story.payload={direction:'none',title:'확인된 사진만 정리',detail:'함께한 식사 / 와인을 발견한 곳'};story.observation='최종 결과 · 관련 사진 2장 · 검토 후 재탐색 1회';
   }
+  story.camera={decide:later?'CLUE → ACTION':'DOLLY IN',search:'HIGH ANGLE',inspect:'OVER SHOULDER',return:'FOLLOW HANDS',submit:'LOW TRACK',review:'LENS CLOSE-UP',feedback:'FOLLOW CLUE',organize:'ARRANGE',done:'CRANE OUT'}[story.shot];
   return story;
 }
 export const photoNames=['선택한 와인','와인과 함께한 식사','와인을 발견한 곳','야외 인물','커피와 디저트','해변 인물'];

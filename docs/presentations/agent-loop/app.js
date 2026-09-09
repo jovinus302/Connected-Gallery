@@ -1,5 +1,5 @@
-import {steps,chapters,currentChapter,Playback} from './scenario.js';
-import {storyFor} from './storyboard.js';
+import {steps,chapters,currentChapter,Playback} from './scenario.js?v=embodied3';
+import {storyFor} from './storyboard.js?v=embodied3';
 const $=id=>document.getElementById(id),reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
 let scene=null,failed=false,lastFrame=0,lastRender=0;
 const names={explorer:'EXPLORER',reviewer:'REVIEWER',organizer:'ORGANIZER'};
@@ -23,12 +23,12 @@ function update(player){
   $('payload-title').textContent=story.payload.title;$('payload-detail').textContent=story.payload.detail;
   document.querySelectorAll('[data-cast]').forEach(el=>el.classList.toggle('active',el.dataset.cast===step.agent));
   $('loop-indicator').textContent=step.phase==='feedback'?'↶ REVIEW FEEDBACK':step.phase==='done'?'✓ LOOP COMPLETE':step.agent==='organizer'?'↗ ORGANIZE & FINISH':step.agent==='reviewer'?'◎ INDEPENDENT REVIEW':step.phase==='observe'?'↶ OBSERVATION → AGENT':'↻ AGENT LOOP';
-  $('play').replaceChildren(document.createTextNode(player.playing?'일시정지':player.index===18?'다시 재생':'재생'));
+  $('play').replaceChildren(document.createTextNode(player.playing?'일시정지':player.finished?'다시 재생':'재생'));
   const icon=document.createElement('span');icon.setAttribute('aria-hidden','true');icon.textContent=player.playing?'Ⅱ':'▶';$('play').append(icon);
-  $('play').setAttribute('aria-label',player.playing?'시연 일시정지':player.index===18?'시연 다시 재생':'시연 재생');
+  $('play').setAttribute('aria-label',player.playing?'시연 일시정지':player.finished?'시연 다시 재생':'시연 재생');
   $('previous').disabled=player.index===0;$('next').disabled=player.index===18;
   chapterButtons.forEach((button,i)=>{if(i===currentChapter(player.index))button.setAttribute('aria-current','step');else button.removeAttribute('aria-current');});
-  if(scene&&scene.sceneState!==step)scene.setState(step,story,!player.playing||reducedMotion.matches);
+  if(scene&&(scene.sceneState!==step||(!player.playing&&(player.elapsed===0||player.elapsed>=step.duration))||(scene.instant&&player.playing&&!reducedMotion.matches)))scene.setState(step,story,!player.playing||reducedMotion.matches);
   document.body.dataset.step=String(player.index);document.body.dataset.phase=step.phase;document.body.dataset.playing=String(player.playing);
 }
 const player=new Playback(update,reducedMotion.matches);
@@ -45,7 +45,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&player.pla
 reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches){player.playing=false;player.emit();scene?.setState(steps[player.index],storyFor(steps[player.index]),true);}});
 update(player);$('load-notice').hidden=true;
 async function start(){
-  try{const {AgentScene}=await import('./scene.js');scene=new AgentScene($('viewport'),$('scene-labels'),fallback);scene.setState(steps[0],storyFor(steps[0]),reducedMotion.matches);}
+  try{const {AgentScene}=await import('./scene.js?v=embodied3');scene=new AgentScene($('viewport'),$('scene-labels'),fallback);scene.setState(steps[0],storyFor(steps[0]),reducedMotion.matches);}
   catch(error){console.warn('3D unavailable; using the concept fallback.',error);fallback();}
   document.body.dataset.ready='true';if(!reducedMotion.matches&&!document.hidden){player.playing=true;player.emit();}requestAnimationFrame(frame);
 }

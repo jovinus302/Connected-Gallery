@@ -32,22 +32,21 @@ export function currentChapter(index) {
 
 export class Playback {
   constructor(onChange, reducedMotion = false) {
-    this.index = 0; this.elapsed = 0; this.speed = 1; this.playing = false;
+    this.index = 0; this.elapsed = 0; this.speed = 1; this.playing = false; this.finished = false;
     this.reducedMotion = reducedMotion; this.onChange = onChange;
   }
   emit() { this.onChange(this); }
-  seek(index) { this.index = Math.max(0, Math.min(steps.length - 1, Math.round(index))); this.elapsed = 0; this.playing = false; this.emit(); }
+  seek(index) { this.index = Math.max(0, Math.min(steps.length - 1, Math.round(index))); this.elapsed = 0; this.playing = false; this.finished = this.index === steps.length - 1; this.emit(); }
   toggle() {
-    if (this.index === steps.length - 1 && !this.playing) { this.index = 0; this.elapsed = 0; }
+    if (this.finished && !this.playing) { this.index = 0; this.elapsed = 0; this.finished = false; }
     this.playing = !this.playing; this.emit();
   }
   tick(delta) {
     if (!this.playing) return;
     this.elapsed += Math.min(delta, 250) * this.speed;
     if (this.elapsed >= steps[this.index].duration) {
-      this.elapsed = 0;
-      if (this.index < steps.length - 1) this.index++;
-      if (this.index === steps.length - 1) this.playing = false;
+      if (this.index < steps.length - 1) { this.elapsed = 0; this.index++; }
+      else { this.elapsed = steps[this.index].duration; this.playing = false; this.finished = true; }
       this.emit();
     }
   }
