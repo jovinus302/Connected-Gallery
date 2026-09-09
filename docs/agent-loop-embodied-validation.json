@@ -1,0 +1,6394 @@
+{
+  "status": "PASS",
+  "date": "2026-09-09T02:38:00.617Z",
+  "checks": [
+    "WebGL renders; reduced-motion opening remains paused",
+    "Previous/next, arrow keys and Home seek the matching state",
+    "All 19 shots label the focused agent and name the action and directed payload; fixture badge stays visible",
+    "Four tool-result returns differ from one reviewer feedback; observations persist and next request changes",
+    "New candidates appear after the revised search request, never before its tool execution",
+    "Rejected candidates stay excluded; final photos are exactly supported IDs 1 and 2, excluding source 0",
+    "Replay resets to zero; manual/reduced-motion seeks give stable rendered geometry and captions",
+    "Notes work; active mesh bounds and captions fit at six widths including 600px; desktop comparison meshes are >=190px and captions >=12px",
+    "Unavailable 3D module displays fallback with readable action and working step controls",
+    "Canvas and visible overlay positions change while playing; rendered camera, cards, agents, grips and token freeze exactly on pause",
+    "Rendered gripper tips remain within 0.04 world units of card contacts; cards move while coupled and detach before their reading hold",
+    "Tool return, submission and organization each include coupling; rendered camera changes position and height across the sequence",
+    "Final shot plays its camera pullback and reaches progress 1 hold before playback stops",
+    "Pause/resume during the final shot continues step 18 and only offers restart after completion",
+    "Continuous 2x playback visits all 19 steps in order, stops, and holds final result",
+    "Simulated hide/show and live reduced-motion change pause without silent restart",
+    "No uncaught browser errors or external runtime requests"
+  ],
+  "states": [
+    {
+      "step": 0,
+      "shot": "decide",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "outbound",
+      "payloadTitle": "검색 요청",
+      "payloadDetail": "선택한 와인과 비슷한 사진",
+      "photos": [
+        {
+          "id": 0,
+          "role": "original",
+          "verdict": "source",
+          "text": "선택 원본\n원본 유지"
+        }
+      ],
+      "camera": {
+        "position": [
+          -0.3599999999999999,
+          5.46,
+          10.920000000000002
+        ],
+        "look": [
+          -2.7,
+          1.05,
+          0.3
+        ]
+      },
+      "cards": [
+        {
+          "id": 0,
+          "active": true,
+          "position": [
+            -2,
+            1.95,
+            1.1
+          ],
+          "bounds": {
+            "left": 594.7821319779921,
+            "top": 138.4613522167347,
+            "right": 844.422191275267,
+            "bottom": 344.15953791194386,
+            "width": 249.6400592972749,
+            "height": 205.69818569520916
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.049666501864173,
+            0.05016566686754689,
+            0.002489603494842496,
+            0.9975021034237216
+          ]
+        }
+      ]
+    },
+    {
+      "step": 1,
+      "shot": "search",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "outbound",
+      "payloadTitle": "검색 도구 실행",
+      "payloadDetail": "사진 인덱스에서 후보 찾기",
+      "photos": [
+        {
+          "id": 3,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "야외 인물\n검색 후보"
+        },
+        {
+          "id": 4,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "커피 · 디저트\n검색 후보"
+        }
+      ],
+      "camera": {
+        "position": [
+          1.06,
+          5.92,
+          10.84
+        ],
+        "look": [
+          -2,
+          1.15,
+          -0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            1.35,
+            1.9,
+            -2.05
+          ],
+          "bounds": {
+            "left": 814.7631828304814,
+            "top": 147.9509908104081,
+            "right": 1001.908232527491,
+            "bottom": 296.8988805706748,
+            "width": 187.14504969700965,
+            "height": 148.94788976026672
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.045580941614395756,
+            -0.023840135132613394,
+            0.026088438768011608,
+            0.998335323967379
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -1.2,
+            1.9,
+            -1.4
+          ],
+          "bounds": {
+            "left": 658.5452261381703,
+            "top": 137.45910881450163,
+            "right": 827.8318985853814,
+            "bottom": 307.9753523329192,
+            "width": 169.28667244721112,
+            "height": 170.51624351841758
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.041506491501269914,
+            -0.1256253315906538,
+            -0.01917053262239661,
+            0.9910237019894969
+          ]
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "shot": "return",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "return",
+      "payloadTitle": "후보 ID 2개 + 검색 점수",
+      "payloadDetail": "다음 행동 · 사진을 직접 확인",
+      "photos": [
+        {
+          "id": 3,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "야외 인물\n검색 후보"
+        },
+        {
+          "id": 4,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "커피 · 디저트\n검색 후보"
+        }
+      ],
+      "camera": {
+        "position": [
+          -0.18999999999999995,
+          4.33,
+          10.18
+        ],
+        "look": [
+          -2.35,
+          1,
+          0.1
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            0.8999999999999999,
+            1.6,
+            0.25
+          ],
+          "bounds": {
+            "left": 817.9122757038451,
+            "top": 157.71797216941027,
+            "right": 1063.676854701934,
+            "bottom": 347.88398356912575,
+            "width": 245.76457899808884,
+            "height": 190.16601139971547
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.044174639837792753,
+            0.05059686069033724,
+            0.012717476017893761,
+            0.9976606761255143
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -2.1,
+            1.6,
+            0.6999999999999997
+          ],
+          "bounds": {
+            "left": 577.0710973440112,
+            "top": 148.24284947933515,
+            "right": 804.3507618740338,
+            "bottom": 352.21700648724703,
+            "width": 227.27966453002261,
+            "height": 203.97415700791188
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04474993784506817,
+            -0.015657238440891497,
+            -0.014307896442315629,
+            0.9987730363033754
+          ]
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "shot": "decide",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "outbound",
+      "payloadTitle": "이미지 확인 요청",
+      "payloadDetail": "후보 사진 2장 직접 확인",
+      "photos": [
+        {
+          "id": 3,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "야외 인물\n검색 후보"
+        },
+        {
+          "id": 4,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "커피 · 디저트\n검색 후보"
+        }
+      ],
+      "camera": {
+        "position": [
+          -5.16,
+          4.2,
+          10.549999999999999
+        ],
+        "look": [
+          -2.1,
+          1.05,
+          0.2
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            0.8999999999999999,
+            1.8800000000000001,
+            0.24999999999999994
+          ],
+          "bounds": {
+            "left": 781.1599656153451,
+            "top": 127.39644643293246,
+            "right": 973.7464592561099,
+            "bottom": 289.45766061013643,
+            "width": 192.58649364076484,
+            "height": 162.06121417720396
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04381922774960292,
+            -0.10508850572046574,
+            -0.003978339387362296,
+            0.9934890306694819
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -2.1,
+            1.8800000000000001,
+            0.7
+          ],
+          "bounds": {
+            "left": 579.7215530997768,
+            "top": 133.27706899434546,
+            "right": 784.465658047477,
+            "bottom": 328.7351488410505,
+            "width": 204.74410494770018,
+            "height": 195.45807984670503
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.0445975623051082,
+            0.040340619788068396,
+            0.0069351947899073145,
+            0.9981661158869211
+          ]
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "shot": "inspect",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "outbound",
+      "payloadTitle": "사진 확인 도구 실행",
+      "payloadDetail": "후보의 실제 이미지 가져오기",
+      "photos": [
+        {
+          "id": 3,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "야외 인물\n직접 확인"
+        },
+        {
+          "id": 4,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "커피 · 디저트\n직접 확인"
+        }
+      ],
+      "camera": {
+        "position": [
+          -4.609999999999999,
+          4.21,
+          9.04
+        ],
+        "look": [
+          -2,
+          1.15,
+          -0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            1.35,
+            1.9,
+            -2.05
+          ],
+          "bounds": {
+            "left": 773.1154542262802,
+            "top": 102.79111166955938,
+            "right": 944.6182383553567,
+            "bottom": 270.7742484840889,
+            "width": 171.50278412907642,
+            "height": 167.98313681452953
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.045580941614395756,
+            -0.023840135132613394,
+            0.026088438768011608,
+            0.998335323967379
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -1.2,
+            1.9,
+            -1.4
+          ],
+          "bounds": {
+            "left": 613.7584537695728,
+            "top": 116.06832585968324,
+            "right": 820.4336338835574,
+            "bottom": 288.65793537211886,
+            "width": 206.67518011398454,
+            "height": 172.58960951243563
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.041506491501269914,
+            -0.1256253315906538,
+            -0.01917053262239661,
+            0.9910237019894969
+          ]
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "shot": "return",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "return",
+      "payloadTitle": "후보 이미지 2장",
+      "payloadDetail": "다음 행동 · 관찰한 후보를 제출",
+      "photos": [
+        {
+          "id": 3,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "야외 인물\n검색 후보"
+        },
+        {
+          "id": 4,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "커피 · 디저트\n검색 후보"
+        }
+      ],
+      "camera": {
+        "position": [
+          -0.18999999999999995,
+          4.33,
+          10.18
+        ],
+        "look": [
+          -2.35,
+          1,
+          0.1
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            0.8999999999999999,
+            1.6,
+            0.25
+          ],
+          "bounds": {
+            "left": 817.9122757038451,
+            "top": 157.71797216941027,
+            "right": 1063.676854701934,
+            "bottom": 347.88398356912575,
+            "width": 245.76457899808884,
+            "height": 190.16601139971547
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.044174639837792753,
+            0.05059686069033724,
+            0.012717476017893761,
+            0.9976606761255143
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -2.1,
+            1.6,
+            0.6999999999999997
+          ],
+          "bounds": {
+            "left": 577.0710973440112,
+            "top": 148.24284947933515,
+            "right": 804.3507618740338,
+            "bottom": 352.21700648724703,
+            "width": 227.27966453002261,
+            "height": 203.97415700791188
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04474993784506817,
+            -0.015657238440891497,
+            -0.014307896442315629,
+            0.9987730363033754
+          ]
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "shot": "submit",
+      "agent": "reviewer",
+      "labels": [
+        "explorer",
+        "reviewer"
+      ],
+      "direction": "handoff",
+      "payloadTitle": "검토할 후보 2장",
+      "payloadDetail": "아직 최종 결과가 아닙니다",
+      "photos": [
+        {
+          "id": 3,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "야외 인물\n검색 후보"
+        },
+        {
+          "id": 4,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "커피 · 디저트\n검색 후보"
+        }
+      ],
+      "camera": {
+        "position": [
+          1.2599999999999998,
+          2.6,
+          10.59
+        ],
+        "look": [
+          4.5,
+          1.25,
+          0.15
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            6.550000000000001,
+            1.65,
+            0.30000000000000004
+          ],
+          "bounds": {
+            "left": 720.90136459652,
+            "top": 160.96240245344157,
+            "right": 913.3518457015028,
+            "bottom": 335.90071765789264,
+            "width": 192.45048110498283,
+            "height": 174.93831520445107
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.040683924616913565,
+            -0.049334505309068355,
+            0.01696711801964613,
+            0.9978091209092961
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            3.9999999999999996,
+            1.65,
+            0.9
+          ],
+          "bounds": {
+            "left": 544.1642658670429,
+            "top": 159.34105645106519,
+            "right": 763.8385957649122,
+            "bottom": 350.4907332778482,
+            "width": 219.67432989786926,
+            "height": 191.14967682678304
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.039185805059889035,
+            -0.050532641115753826,
+            -0.01297030029912646,
+            0.9978690776719286
+          ]
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "shot": "review",
+      "agent": "reviewer",
+      "labels": [
+        "reviewer"
+      ],
+      "direction": "none",
+      "payloadTitle": "원본과 후보를 독립 비교",
+      "payloadDetail": "원본 와인과의 직접적인 근거 부족",
+      "photos": [
+        {
+          "id": 0,
+          "role": "original",
+          "verdict": "source",
+          "text": "선택 원본\n원본 유지"
+        },
+        {
+          "id": 3,
+          "role": "candidate",
+          "verdict": "rejected",
+          "text": "야외 인물\n× 근거 부족"
+        },
+        {
+          "id": 4,
+          "role": "candidate",
+          "verdict": "rejected",
+          "text": "커피 · 디저트\n× 근거 부족"
+        }
+      ],
+      "camera": {
+        "position": [
+          6.125,
+          4.16,
+          10.07
+        ],
+        "look": [
+          5,
+          1.1,
+          0.35
+        ]
+      },
+      "cards": [
+        {
+          "id": 0,
+          "active": true,
+          "position": [
+            2,
+            1.9,
+            0.45
+          ],
+          "bounds": {
+            "left": 323.58768787822413,
+            "top": 124.46873454586184,
+            "right": 545.8394396617997,
+            "bottom": 298.18754691381656,
+            "width": 222.25175178357557,
+            "height": 173.71881236795474
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.019962679891269264,
+            0.05995201407790342,
+            -0.0011992001791792776,
+            0.9980009064817986
+          ]
+        },
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            8,
+            1.9,
+            0.1
+          ],
+          "bounds": {
+            "left": 808.3047870094497,
+            "top": 126.91420998527063,
+            "right": 1053.9307635372127,
+            "bottom": 311.81704876763274,
+            "width": 245.625976527763,
+            "height": 184.9028387823621
+          },
+          "depth": 0.14,
+          "quaternion": [
+            0.05985610364445968,
+            -0.05985610364445968,
+            -0.0035956820730668735,
+            0.9964043179269332
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            5,
+            1.9,
+            0.6
+          ],
+          "bounds": {
+            "left": 559.1233366813467,
+            "top": 131.71615770683943,
+            "right": 787.3596465846247,
+            "bottom": 310.36528633465497,
+            "width": 228.23630990327797,
+            "height": 178.64912862781554
+          },
+          "depth": 0.14,
+          "quaternion": [
+            0.059964006479444595,
+            0,
+            0,
+            0.9982005399352042
+          ]
+        }
+      ]
+    },
+    {
+      "step": 8,
+      "shot": "feedback",
+      "agent": "explorer",
+      "labels": [
+        "explorer",
+        "reviewer"
+      ],
+      "direction": "feedback",
+      "payloadTitle": "와인병 자체의 근거 부족",
+      "payloadDetail": "원본 대상 유지 · 검색 단서를 구체화",
+      "photos": [],
+      "camera": {
+        "position": [
+          -4.57,
+          4.880000000000001,
+          11.33
+        ],
+        "look": [
+          -3.3999999999999995,
+          1.1,
+          0.8
+        ]
+      },
+      "cards": []
+    },
+    {
+      "step": 9,
+      "shot": "decide",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "outbound",
+      "payloadTitle": "검색 요청",
+      "payloadDetail": "빨간 원 라벨의 와인병",
+      "photos": [
+        {
+          "id": 0,
+          "role": "original",
+          "verdict": "source",
+          "text": "선택 원본\n원본 유지"
+        }
+      ],
+      "camera": {
+        "position": [
+          -4.680000000000001,
+          4.47,
+          9.93
+        ],
+        "look": [
+          -2.7,
+          1.05,
+          0.3
+        ]
+      },
+      "cards": [
+        {
+          "id": 0,
+          "active": true,
+          "position": [
+            -2,
+            1.95,
+            1.1
+          ],
+          "bounds": {
+            "left": 615.1789846905543,
+            "top": 106.20336863510332,
+            "right": 872.3877381619864,
+            "bottom": 348.41584449318475,
+            "width": 257.20875347143203,
+            "height": 242.21247585808143
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.049666501864173,
+            0.05016566686754689,
+            0.002489603494842496,
+            0.9975021034237216
+          ]
+        }
+      ]
+    },
+    {
+      "step": 10,
+      "shot": "search",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "outbound",
+      "payloadTitle": "검색 도구 실행",
+      "payloadDetail": "사진 인덱스에서 후보 찾기",
+      "photos": [
+        {
+          "id": 1,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "함께한 식사\n검색 후보"
+        },
+        {
+          "id": 2,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "발견한 곳\n검색 후보"
+        }
+      ],
+      "camera": {
+        "position": [
+          1.06,
+          5.92,
+          10.84
+        ],
+        "look": [
+          -2,
+          1.15,
+          -0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            -1.2,
+            1.9,
+            -1.4
+          ],
+          "bounds": {
+            "left": 658.5452261381703,
+            "top": 137.45910881450163,
+            "right": 827.8318985853814,
+            "bottom": 307.9753523329192,
+            "width": 169.28667244721112,
+            "height": 170.51624351841758
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.041506491501269914,
+            -0.1256253315906538,
+            -0.01917053262239661,
+            0.9910237019894969
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            1.35,
+            1.9,
+            -2.05
+          ],
+          "bounds": {
+            "left": 814.7631828304814,
+            "top": 147.9509908104081,
+            "right": 1001.908232527491,
+            "bottom": 296.8988805706748,
+            "width": 187.14504969700965,
+            "height": 148.94788976026672
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.045580941614395756,
+            -0.023840135132613394,
+            0.026088438768011608,
+            0.998335323967379
+          ]
+        }
+      ]
+    },
+    {
+      "step": 11,
+      "shot": "return",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "return",
+      "payloadTitle": "후보 ID 2개 + 검색 점수",
+      "payloadDetail": "다음 행동 · 사진을 직접 확인",
+      "photos": [
+        {
+          "id": 1,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "함께한 식사\n검색 후보"
+        },
+        {
+          "id": 2,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "발견한 곳\n검색 후보"
+        }
+      ],
+      "camera": {
+        "position": [
+          -0.18999999999999995,
+          4.33,
+          10.18
+        ],
+        "look": [
+          -2.35,
+          1,
+          0.1
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            -2.1,
+            1.6,
+            0.6999999999999997
+          ],
+          "bounds": {
+            "left": 577.0710973440112,
+            "top": 148.24284947933515,
+            "right": 804.3507618740338,
+            "bottom": 352.21700648724703,
+            "width": 227.27966453002261,
+            "height": 203.97415700791188
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04474993784506817,
+            -0.015657238440891497,
+            -0.014307896442315629,
+            0.9987730363033754
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            0.8999999999999999,
+            1.6,
+            0.25
+          ],
+          "bounds": {
+            "left": 817.9122757038451,
+            "top": 157.71797216941027,
+            "right": 1063.676854701934,
+            "bottom": 347.88398356912575,
+            "width": 245.76457899808884,
+            "height": 190.16601139971547
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.044174639837792753,
+            0.05059686069033724,
+            0.012717476017893761,
+            0.9976606761255143
+          ]
+        }
+      ]
+    },
+    {
+      "step": 12,
+      "shot": "decide",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "outbound",
+      "payloadTitle": "이미지 확인 요청",
+      "payloadDetail": "후보 사진 2장 직접 확인",
+      "photos": [
+        {
+          "id": 1,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "함께한 식사\n검색 후보"
+        },
+        {
+          "id": 2,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "발견한 곳\n검색 후보"
+        }
+      ],
+      "camera": {
+        "position": [
+          -5.16,
+          4.2,
+          10.549999999999999
+        ],
+        "look": [
+          -2.1,
+          1.05,
+          0.2
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            -2.1,
+            1.8800000000000001,
+            0.7
+          ],
+          "bounds": {
+            "left": 579.7215530997768,
+            "top": 133.27706899434546,
+            "right": 784.465658047477,
+            "bottom": 328.7351488410505,
+            "width": 204.74410494770018,
+            "height": 195.45807984670503
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.0445975623051082,
+            0.040340619788068396,
+            0.0069351947899073145,
+            0.9981661158869211
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            0.8999999999999999,
+            1.8800000000000001,
+            0.24999999999999994
+          ],
+          "bounds": {
+            "left": 781.1599656153451,
+            "top": 127.39644643293246,
+            "right": 973.7464592561099,
+            "bottom": 289.45766061013643,
+            "width": 192.58649364076484,
+            "height": 162.06121417720396
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04381922774960292,
+            -0.10508850572046574,
+            -0.003978339387362296,
+            0.9934890306694819
+          ]
+        }
+      ]
+    },
+    {
+      "step": 13,
+      "shot": "inspect",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "outbound",
+      "payloadTitle": "사진 확인 도구 실행",
+      "payloadDetail": "후보의 실제 이미지 가져오기",
+      "photos": [
+        {
+          "id": 1,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "함께한 식사\n직접 확인"
+        },
+        {
+          "id": 2,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "발견한 곳\n직접 확인"
+        }
+      ],
+      "camera": {
+        "position": [
+          -4.609999999999999,
+          4.21,
+          9.04
+        ],
+        "look": [
+          -2,
+          1.15,
+          -0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            -1.2,
+            1.9,
+            -1.4
+          ],
+          "bounds": {
+            "left": 613.7584537695728,
+            "top": 116.06832585968324,
+            "right": 820.4336338835574,
+            "bottom": 288.65793537211886,
+            "width": 206.67518011398454,
+            "height": 172.58960951243563
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.041506491501269914,
+            -0.1256253315906538,
+            -0.01917053262239661,
+            0.9910237019894969
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            1.35,
+            1.9,
+            -2.05
+          ],
+          "bounds": {
+            "left": 773.1154542262802,
+            "top": 102.79111166955938,
+            "right": 944.6182383553567,
+            "bottom": 270.7742484840889,
+            "width": 171.50278412907642,
+            "height": 167.98313681452953
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.045580941614395756,
+            -0.023840135132613394,
+            0.026088438768011608,
+            0.998335323967379
+          ]
+        }
+      ]
+    },
+    {
+      "step": 14,
+      "shot": "return",
+      "agent": "explorer",
+      "labels": [
+        "explorer"
+      ],
+      "direction": "return",
+      "payloadTitle": "후보 이미지 2장",
+      "payloadDetail": "다음 행동 · 관찰한 후보를 제출",
+      "photos": [
+        {
+          "id": 1,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "함께한 식사\n검색 후보"
+        },
+        {
+          "id": 2,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "발견한 곳\n검색 후보"
+        }
+      ],
+      "camera": {
+        "position": [
+          -0.18999999999999995,
+          4.33,
+          10.18
+        ],
+        "look": [
+          -2.35,
+          1,
+          0.1
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            -2.1,
+            1.6,
+            0.6999999999999997
+          ],
+          "bounds": {
+            "left": 577.0710973440112,
+            "top": 148.24284947933515,
+            "right": 804.3507618740338,
+            "bottom": 352.21700648724703,
+            "width": 227.27966453002261,
+            "height": 203.97415700791188
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04474993784506817,
+            -0.015657238440891497,
+            -0.014307896442315629,
+            0.9987730363033754
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            0.8999999999999999,
+            1.6,
+            0.25
+          ],
+          "bounds": {
+            "left": 817.9122757038451,
+            "top": 157.71797216941027,
+            "right": 1063.676854701934,
+            "bottom": 347.88398356912575,
+            "width": 245.76457899808884,
+            "height": 190.16601139971547
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.044174639837792753,
+            0.05059686069033724,
+            0.012717476017893761,
+            0.9976606761255143
+          ]
+        }
+      ]
+    },
+    {
+      "step": 15,
+      "shot": "submit",
+      "agent": "reviewer",
+      "labels": [
+        "explorer",
+        "reviewer"
+      ],
+      "direction": "handoff",
+      "payloadTitle": "검토할 후보 2장",
+      "payloadDetail": "아직 최종 결과가 아닙니다",
+      "photos": [
+        {
+          "id": 1,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "함께한 식사\n검색 후보"
+        },
+        {
+          "id": 2,
+          "role": "candidate",
+          "verdict": "candidate",
+          "text": "발견한 곳\n검색 후보"
+        }
+      ],
+      "camera": {
+        "position": [
+          1.2599999999999998,
+          2.6,
+          10.59
+        ],
+        "look": [
+          4.5,
+          1.25,
+          0.15
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            3.9999999999999996,
+            1.65,
+            0.9
+          ],
+          "bounds": {
+            "left": 544.1642658670429,
+            "top": 159.34105645106519,
+            "right": 763.8385957649122,
+            "bottom": 350.4907332778482,
+            "width": 219.67432989786926,
+            "height": 191.14967682678304
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.039185805059889035,
+            -0.050532641115753826,
+            -0.01297030029912646,
+            0.9978690776719286
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            6.550000000000001,
+            1.65,
+            0.30000000000000004
+          ],
+          "bounds": {
+            "left": 720.90136459652,
+            "top": 160.96240245344157,
+            "right": 913.3518457015028,
+            "bottom": 335.90071765789264,
+            "width": 192.45048110498283,
+            "height": 174.93831520445107
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.040683924616913565,
+            -0.049334505309068355,
+            0.01696711801964613,
+            0.9978091209092961
+          ]
+        }
+      ]
+    },
+    {
+      "step": 16,
+      "shot": "review",
+      "agent": "reviewer",
+      "labels": [
+        "reviewer"
+      ],
+      "direction": "none",
+      "payloadTitle": "원본과 후보를 독립 비교",
+      "payloadDetail": "라벨과 병의 형태 확인",
+      "photos": [
+        {
+          "id": 0,
+          "role": "original",
+          "verdict": "source",
+          "text": "선택 원본\n원본 유지"
+        },
+        {
+          "id": 1,
+          "role": "candidate",
+          "verdict": "supported",
+          "text": "함께한 식사\n✓ 근거 확인"
+        },
+        {
+          "id": 2,
+          "role": "candidate",
+          "verdict": "supported",
+          "text": "발견한 곳\n✓ 근거 확인"
+        }
+      ],
+      "camera": {
+        "position": [
+          6.125,
+          4.16,
+          10.07
+        ],
+        "look": [
+          5,
+          1.1,
+          0.35
+        ]
+      },
+      "cards": [
+        {
+          "id": 0,
+          "active": true,
+          "position": [
+            2,
+            1.9,
+            0.45
+          ],
+          "bounds": {
+            "left": 323.58768787822413,
+            "top": 124.46873454586184,
+            "right": 545.8394396617997,
+            "bottom": 298.18754691381656,
+            "width": 222.25175178357557,
+            "height": 173.71881236795474
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.019962679891269264,
+            0.05995201407790342,
+            -0.0011992001791792776,
+            0.9980009064817986
+          ]
+        },
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            5,
+            1.9,
+            0.6
+          ],
+          "bounds": {
+            "left": 562.7947710933217,
+            "top": 128.3222375061404,
+            "right": 787.1900179045842,
+            "bottom": 314.87742145690794,
+            "width": 224.3952468112625,
+            "height": 186.55518395076754
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.01999866669333308,
+            0,
+            0,
+            0.9998000066665778
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            8,
+            1.9,
+            0.1
+          ],
+          "bounds": {
+            "left": 808.7667276620404,
+            "top": 125.7820510163123,
+            "right": 1049.4729479920848,
+            "bottom": 314.4422214859075,
+            "width": 240.7062203300444,
+            "height": 188.66017046959522
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.019962679891269264,
+            -0.05995201407790342,
+            0.0011992001791792776,
+            0.9980009064817986
+          ]
+        }
+      ]
+    },
+    {
+      "step": 17,
+      "shot": "organize",
+      "agent": "organizer",
+      "labels": [
+        "organizer"
+      ],
+      "direction": "none",
+      "payloadTitle": "확인된 사진만 정리",
+      "payloadDetail": "함께한 식사 / 와인을 발견한 곳",
+      "photos": [
+        {
+          "id": 1,
+          "role": "candidate",
+          "verdict": "supported",
+          "text": "함께한 식사\n✓ 근거 확인"
+        },
+        {
+          "id": 2,
+          "role": "candidate",
+          "verdict": "supported",
+          "text": "발견한 곳\n✓ 근거 확인"
+        }
+      ],
+      "camera": {
+        "position": [
+          9.84,
+          5.28,
+          11.03
+        ],
+        "look": [
+          12,
+          1.05,
+          0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            10.5,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 454.7377694991859,
+            "top": 171.04507351201585,
+            "right": 677.2624673842383,
+            "bottom": 353.75493671135274,
+            "width": 222.52469788505243,
+            "height": 182.7098631993369
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            -0.01998266989305576,
+            0.0007997333656868065,
+            0.9990002733008909
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            13.6,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 701.7263922089918,
+            "top": 158.73894925691002,
+            "right": 895.091057997896,
+            "bottom": 336.2127561773411,
+            "width": 193.36466578890418,
+            "height": 177.47380692043106
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            0.01998266989305576,
+            -0.0007997333656868065,
+            0.9990002733008909
+          ]
+        }
+      ]
+    },
+    {
+      "step": 18,
+      "shot": "done",
+      "agent": "organizer",
+      "labels": [
+        "organizer"
+      ],
+      "direction": "none",
+      "payloadTitle": "확인된 사진만 정리",
+      "payloadDetail": "함께한 식사 / 와인을 발견한 곳",
+      "photos": [
+        {
+          "id": 1,
+          "role": "candidate",
+          "verdict": "supported",
+          "text": "함께한 식사\n✓ 근거 확인"
+        },
+        {
+          "id": 2,
+          "role": "candidate",
+          "verdict": "supported",
+          "text": "발견한 곳\n✓ 근거 확인"
+        }
+      ],
+      "camera": {
+        "position": [
+          15.42,
+          7.4399999999999995,
+          15.53
+        ],
+        "look": [
+          12,
+          1.05,
+          0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            10.5,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 531.3873355369047,
+            "top": 196.4456088787317,
+            "right": 663.2326825566557,
+            "bottom": 318.7948952616182,
+            "width": 131.845347019751,
+            "height": 122.3492863828865
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            -0.01998266989305576,
+            0.0007997333656868065,
+            0.9990002733008909
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            13.6,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 679.2274690599766,
+            "top": 208.01890516793952,
+            "right": 827.2191684695007,
+            "bottom": 332.03012948132374,
+            "width": 147.99169940952413,
+            "height": 124.01122431338422
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            0.01998266989305576,
+            -0.0007997333656868065,
+            0.9990002733008909
+          ]
+        }
+      ]
+    }
+  ],
+  "layouts": [
+    {
+      "width": 1440,
+      "step": 4,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 63.03125,
+          "height": 33,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "3",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 306.515625,
+        "height": 38.296875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 773.1154542262802,
+          "top": 102.79111166955938,
+          "right": 944.6182383553567,
+          "bottom": 270.7742484840889,
+          "width": 171.50278412907642,
+          "height": 167.98313681452953,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 613.7584537695728,
+          "top": 116.06832585968324,
+          "right": 820.4336338835574,
+          "bottom": 288.65793537211886,
+          "width": 206.67518011398454,
+          "height": 172.58960951243563,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "야외 인물직접 확인",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트직접 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "step": 7,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 66.40625,
+          "height": 33,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "3",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 306.515625,
+        "height": 38.296875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 323.58768787822413,
+          "top": 124.46873454586184,
+          "right": 545.8394396617997,
+          "bottom": 298.18754691381656,
+          "width": 222.25175178357557,
+          "height": 173.71881236795474,
+          "fits": true
+        },
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 808.3047870094497,
+          "top": 126.91420998527063,
+          "right": 1053.9307635372127,
+          "bottom": 311.81704876763274,
+          "width": 245.625976527763,
+          "height": 184.9028387823621,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 559.1233366813467,
+          "top": 131.71615770683943,
+          "right": 787.3596465846247,
+          "bottom": 310.36528633465497,
+          "width": 228.23630990327797,
+          "height": 178.64912862781554,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "야외 인물× 근거 부족",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트× 근거 부족",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "step": 8,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 63.03125,
+          "height": 33,
+          "fits": true
+        },
+        {
+          "name": "reviewer",
+          "width": 66.40625,
+          "height": 33,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [],
+      "title": {
+        "name": "action-title",
+        "width": 365.296875,
+        "height": 38.296875,
+        "fits": true
+      },
+      "cards": [],
+      "captions": []
+    },
+    {
+      "width": 1440,
+      "step": 16,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 66.40625,
+          "height": 33,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "1",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 312.875,
+        "height": 38.296875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 323.58768787822413,
+          "top": 124.46873454586184,
+          "right": 545.8394396617997,
+          "bottom": 298.18754691381656,
+          "width": 222.25175178357557,
+          "height": 173.71881236795474,
+          "fits": true
+        },
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 562.7947710933217,
+          "top": 128.3222375061404,
+          "right": 787.1900179045842,
+          "bottom": 314.87742145690794,
+          "width": 224.3952468112625,
+          "height": 186.55518395076754,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 808.7667276620404,
+          "top": 125.7820510163123,
+          "right": 1049.4729479920848,
+          "bottom": 314.4422214859075,
+          "width": 240.7062203300444,
+          "height": 188.66017046959522,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "step": 18,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "organizer",
+          "width": 70.578125,
+          "height": 33,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "1",
+          "width": 141.84375,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 157.984375,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 339.09375,
+        "height": 38.296875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 531.3873355369047,
+          "top": 196.4456088787317,
+          "right": 663.2326825566557,
+          "bottom": 318.7948952616182,
+          "width": 131.845347019751,
+          "height": 122.3492863828865,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 679.2274690599766,
+          "top": 208.01890516793952,
+          "right": 827.2191684695007,
+          "bottom": 332.03012948132374,
+          "width": 147.99169940952413,
+          "height": 124.01122431338422,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 1024,
+      "step": 4,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 63.03125,
+          "height": 33,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "3",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 278.6875,
+        "height": 35,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 577.6154542262802,
+          "top": 102.79111166955938,
+          "right": 749.1182383553565,
+          "bottom": 270.7742484840889,
+          "width": 171.5027841290763,
+          "height": 167.98313681452953,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 418.25845376957284,
+          "top": 116.06832585968324,
+          "right": 624.9336338835574,
+          "bottom": 288.65793537211886,
+          "width": 206.67518011398454,
+          "height": 172.58960951243563,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "야외 인물직접 확인",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트직접 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 1024,
+      "step": 7,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 66.40625,
+          "height": 33,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "3",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 278.6875,
+        "height": 35,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 128.08768787822413,
+          "top": 124.46873454586184,
+          "right": 350.33943966179976,
+          "bottom": 298.18754691381656,
+          "width": 222.25175178357563,
+          "height": 173.71881236795474,
+          "fits": true
+        },
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 612.8047870094497,
+          "top": 126.91420998527063,
+          "right": 858.4307635372127,
+          "bottom": 311.81704876763274,
+          "width": 245.625976527763,
+          "height": 184.9028387823621,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 363.62333668134664,
+          "top": 131.71615770683943,
+          "right": 591.8596465846247,
+          "bottom": 310.36528633465497,
+          "width": 228.23630990327803,
+          "height": 178.64912862781554,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "야외 인물× 근거 부족",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트× 근거 부족",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 1024,
+      "step": 8,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 63.03125,
+          "height": 33,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [],
+      "title": {
+        "name": "action-title",
+        "width": 332.109375,
+        "height": 35,
+        "fits": true
+      },
+      "cards": [],
+      "captions": []
+    },
+    {
+      "width": 1024,
+      "step": 16,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 66.40625,
+          "height": 33,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "1",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 170,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 284.40625,
+        "height": 35,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 128.08768787822413,
+          "top": 124.46873454586184,
+          "right": 350.33943966179976,
+          "bottom": 298.18754691381656,
+          "width": 222.25175178357563,
+          "height": 173.71881236795474,
+          "fits": true
+        },
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 367.2947710933217,
+          "top": 128.3222375061404,
+          "right": 591.6900179045842,
+          "bottom": 314.87742145690794,
+          "width": 224.39524681126255,
+          "height": 186.55518395076754,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 613.2667276620402,
+          "top": 125.7820510163123,
+          "right": 853.9729479920848,
+          "bottom": 314.4422214859075,
+          "width": 240.70622033004452,
+          "height": 188.66017046959522,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 1024,
+      "step": 18,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "organizer",
+          "width": 70.578125,
+          "height": 33,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "1",
+          "width": 141.84375,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 157.984375,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 308.25,
+        "height": 35,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 335.88733553690463,
+          "top": 196.4456088787317,
+          "right": 467.7326825566558,
+          "bottom": 318.7948952616182,
+          "width": 131.84534701975116,
+          "height": 122.3492863828865,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 483.72746905997656,
+          "top": 208.01890516793952,
+          "right": 631.7191684695008,
+          "bottom": 332.03012948132374,
+          "width": 147.99169940952424,
+          "height": 124.01122431338422,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 760,
+      "step": 4,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 55.28125,
+          "height": 31,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "3",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 245.40625,
+        "height": 30.796875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 452.78845945573835,
+          "top": 115.55354543302978,
+          "right": 612.7536892727061,
+          "bottom": 271.3710314379161,
+          "width": 159.96522981696774,
+          "height": 155.8174860048863,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 305.64903354080593,
+          "top": 129.39770877117746,
+          "right": 495.67569786217604,
+          "bottom": 287.9026570791857,
+          "width": 190.0266643213701,
+          "height": 158.50494830800824,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "야외 인물직접 확인",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트직접 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 760,
+      "step": 7,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 58.328125,
+          "height": 31,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "3",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 245.40625,
+        "height": 30.796875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 41.61965921013518,
+          "top": 138.07611894904844,
+          "right": 243.71072311097691,
+          "bottom": 296.584962685134,
+          "width": 202.09106390084173,
+          "height": 158.50884373608554,
+          "fits": true
+        },
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 484.37046015302116,
+          "top": 140.54808247391114,
+          "right": 705.1309676699929,
+          "bottom": 308.9638234917353,
+          "width": 220.7605075169717,
+          "height": 168.41574101782416,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 256.8916736136274,
+          "top": 145.2860355033126,
+          "right": 463.80594521393,
+          "bottom": 307.63707943745806,
+          "width": 206.91427160030258,
+          "height": 162.35104393414545,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "야외 인물× 근거 부족",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트× 근거 부족",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 760,
+      "step": 8,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 55.28125,
+          "height": 31,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [],
+      "title": {
+        "name": "action-title",
+        "width": 292.453125,
+        "height": 30.796875,
+        "fits": true
+      },
+      "cards": [],
+      "captions": []
+    },
+    {
+      "width": 760,
+      "step": 16,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 58.328125,
+          "height": 31,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "1",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 250.453125,
+        "height": 30.796875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 41.61965921013518,
+          "top": 138.07611894904844,
+          "right": 243.71072311097691,
+          "bottom": 296.584962685134,
+          "width": 202.09106390084173,
+          "height": 158.50884373608554,
+          "fits": true
+        },
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 260.0654499766124,
+          "top": 141.99265651746475,
+          "right": 463.81796641151817,
+          "bottom": 311.7081473465037,
+          "width": 203.75251643490577,
+          "height": 169.71549082903897,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 484.64029478976056,
+          "top": 139.3024943193105,
+          "right": 701.6223648924029,
+          "bottom": 311.31035320545556,
+          "width": 216.9820701026423,
+          "height": 172.00785888614504,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 760,
+      "step": 18,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "organizer",
+          "width": 62.125,
+          "height": 31,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "1",
+          "width": 130.375,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 144.109375,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 271.453125,
+        "height": 30.796875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 231.01343577046333,
+          "top": 203.6534147848562,
+          "right": 351.39065788421703,
+          "bottom": 315.3298098823172,
+          "width": 120.3772221137537,
+          "height": 111.67639509746098,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 365.9452753335305,
+          "top": 214.48461299405415,
+          "right": 500.0620784526024,
+          "bottom": 327.27000748919346,
+          "width": 134.1168031190719,
+          "height": 112.78539449513931,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 600,
+      "step": 4,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 55.28125,
+          "height": 31,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "3",
+          "width": 140.984375,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 245.40625,
+        "height": 30.796875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 354.80905633235517,
+          "top": 147.22671801736723,
+          "right": 485.8058742418946,
+          "bottom": 272.851415728891,
+          "width": 130.99681790953946,
+          "height": 125.6246977115238,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 237.51074408121244,
+          "top": 161.34149348159352,
+          "right": 387.4558822935517,
+          "bottom": 286.06825869591415,
+          "width": 149.9451382123393,
+          "height": 124.72676521432064,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "야외 인물직접 확인",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트직접 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 600,
+      "step": 7,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 58.328125,
+          "height": 31,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "3",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 245.40625,
+        "height": 30.796875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 34.29684496475353,
+          "top": 169.9447486705487,
+          "right": 189.59938764849673,
+          "bottom": 292.7685995405761,
+          "width": 155.30254268374318,
+          "height": 122.82385087002737,
+          "fits": true
+        },
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 378.2472070460393,
+          "top": 172.2934400730024,
+          "right": 543.3023938276579,
+          "bottom": 302.25422029100565,
+          "width": 165.05518678161854,
+          "height": 129.96078021800326,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 201.73820447749648,
+          "top": 176.59675596175848,
+          "right": 359.68704608038087,
+          "bottom": 301.22237062270176,
+          "width": 157.9488416028844,
+          "height": 124.62561466094328,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "야외 인물× 근거 부족",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트× 근거 부족",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 600,
+      "step": 8,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 55.28125,
+          "height": 31,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [],
+      "title": {
+        "name": "action-title",
+        "width": 292.453125,
+        "height": 30.796875,
+        "fits": true
+      },
+      "cards": [],
+      "captions": []
+    },
+    {
+      "width": 600,
+      "step": 16,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 58.328125,
+          "height": 31,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "1",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 145,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 250.453125,
+        "height": 30.796875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 34.29684496475353,
+          "top": 169.9447486705487,
+          "right": 189.59938764849673,
+          "bottom": 292.7685995405761,
+          "width": 155.30254268374318,
+          "height": 122.82385087002737,
+          "fits": true
+        },
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 203.8856937899485,
+          "top": 173.69773829253432,
+          "right": 359.98561214190937,
+          "bottom": 304.29329503570176,
+          "width": 156.09991835196087,
+          "height": 130.59555674316744,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 378.17159713674215,
+          "top": 170.9457778630198,
+          "right": 541.5540401120638,
+          "bottom": 303.98380189749054,
+          "width": 163.38244297532168,
+          "height": 133.03802403447074,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 600,
+      "step": 18,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "organizer",
+          "width": 62.125,
+          "height": 31,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "1",
+          "width": 103.40625,
+          "height": 47.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 112.28125,
+          "height": 47.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 271.453125,
+        "height": 30.796875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 180.6648943559569,
+          "top": 220.5804115902267,
+          "right": 274.0765613817974,
+          "bottom": 307.18525932218466,
+          "width": 93.41166702584047,
+          "height": 86.60484773195796,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 285.28286865000877,
+          "top": 229.46026065994326,
+          "right": 387.572552690796,
+          "bottom": 316.191178663199,
+          "width": 102.28968404078722,
+          "height": 86.73091800325577,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "step": 4,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 49.546875,
+          "height": 29,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "3",
+          "width": 109.421875,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 114.21875,
+          "height": 45.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 221.828125,
+        "height": 29,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 199.8726687897603,
+          "top": 254.23718264188548,
+          "right": 299.29792847500386,
+          "bottom": 347.0092301856761,
+          "width": 99.42525968524356,
+          "height": 92.77204754379059,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 157.8241573288478,
+          "top": 143.56488442631016,
+          "right": 262.05175844794456,
+          "bottom": 230.73043672104748,
+          "width": 104.22760111909676,
+          "height": 87.16555229473732,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "야외 인물직접 확인",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트직접 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "step": 7,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 52.25,
+          "height": 29,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 118,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "3",
+          "width": 118,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 118,
+          "height": 45.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 221.828125,
+        "height": 29,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 12.501065957272163,
+          "top": 121.13851286425357,
+          "right": 144.9777878129684,
+          "bottom": 227.80334207857092,
+          "width": 132.4767218556962,
+          "height": 106.66482921431735,
+          "fits": true
+        },
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 88.86864152171306,
+          "top": 275.49921361211545,
+          "right": 221.39740973901334,
+          "bottom": 381.7881310678094,
+          "width": 132.5287682173003,
+          "height": 106.28891745569393,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 172.2373862048291,
+          "top": 123.85011747792382,
+          "right": 305.72005615353606,
+          "bottom": 227.95559985343516,
+          "width": 133.48266994870696,
+          "height": 104.10548237551134,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "야외 인물× 근거 부족",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트× 근거 부족",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "step": 8,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 49.546875,
+          "height": 29,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [],
+      "title": {
+        "name": "action-title",
+        "width": 225,
+        "height": 58,
+        "fits": true
+      },
+      "cards": [],
+      "captions": []
+    },
+    {
+      "width": 390,
+      "step": 16,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 52.25,
+          "height": 29,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 118,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "1",
+          "width": 118,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 118,
+          "height": 45.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 225,
+        "height": 58,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 12.501065957272163,
+          "top": 121.13851286425357,
+          "right": 144.9777878129684,
+          "bottom": 227.80334207857092,
+          "width": 132.4767218556962,
+          "height": 106.66482921431735,
+          "fits": true
+        },
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 172.84182840985525,
+          "top": 121.48981683740412,
+          "right": 305.0120120609102,
+          "bottom": 230.29052123271433,
+          "width": 132.17018365105494,
+          "height": 108.8007043953102,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 90.5216467582588,
+          "top": 272.67428708003115,
+          "right": 221.61572432745348,
+          "bottom": 384.80841473616755,
+          "width": 131.09407756919467,
+          "height": 112.1341276561364,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "step": 18,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "organizer",
+          "width": 55.671875,
+          "height": 29,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "1",
+          "width": 95,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 95,
+          "height": 45.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 225,
+        "height": 58,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 102.05795176606384,
+          "top": 217.7464885430112,
+          "right": 164.56188947589138,
+          "bottom": 275.80998035997374,
+          "width": 62.50393770982754,
+          "height": 58.06349181696254,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 186.3363093211678,
+          "top": 225.07509599401752,
+          "right": 254.38139127292,
+          "bottom": 282.9960082425354,
+          "width": 68.04508195175222,
+          "height": 57.92091224851791,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "step": 4,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 49.546875,
+          "height": 29,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "3",
+          "width": 95,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 96.234375,
+          "height": 45.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 185,
+        "height": 52.1875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 165.09472055118687,
+          "top": 255.0423177089699,
+          "right": 248.2028892094678,
+          "bottom": 332.11821752922754,
+          "width": 83.10816865828093,
+          "height": 77.07589982025763,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 130.25828160500282,
+          "top": 163.6046478441293,
+          "right": 216.495039285455,
+          "bottom": 235.5309285433292,
+          "width": 86.23675768045217,
+          "height": 71.9262806991999,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "야외 인물직접 확인",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트직접 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "step": 7,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 52.25,
+          "height": 29,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 100,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "3",
+          "width": 100,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "4",
+          "width": 100,
+          "height": 45.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 185,
+        "height": 52.1875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 11.463354276487403,
+          "top": 145.93691799494047,
+          "right": 119.71425167756439,
+          "bottom": 233.25651092562748,
+          "width": 108.25089740107698,
+          "height": 87.31959293068701,
+          "fits": true
+        },
+        {
+          "id": 3,
+          "depth": 0.14,
+          "left": 74.24814009212982,
+          "top": 272.4671848134241,
+          "right": 182.214012432436,
+          "bottom": 359.85432518742317,
+          "width": 107.96587234030618,
+          "height": 87.38714037399905,
+          "fits": true
+        },
+        {
+          "id": 4,
+          "depth": 0.14,
+          "left": 142.28745034743707,
+          "top": 148.47714447616372,
+          "right": 251.21291132552935,
+          "bottom": 233.3751143500316,
+          "width": 108.92546097809227,
+          "height": 84.89796987386788,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "야외 인물× 근거 부족",
+          "size": 16
+        },
+        {
+          "text": "커피 · 디저트× 근거 부족",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "step": 8,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "explorer",
+          "width": 49.546875,
+          "height": 29,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [],
+      "title": {
+        "name": "action-title",
+        "width": 185,
+        "height": 52.1875,
+        "fits": true
+      },
+      "cards": [],
+      "captions": []
+    },
+    {
+      "width": 320,
+      "step": 16,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "reviewer",
+          "width": 52.25,
+          "height": 29,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "0",
+          "width": 100,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "1",
+          "width": 100,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 100,
+          "height": 45.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 185,
+        "height": 52.1875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 0,
+          "depth": 0.14,
+          "left": 11.463354276487403,
+          "top": 145.93691799494047,
+          "right": 119.71425167756439,
+          "bottom": 233.25651092562748,
+          "width": 108.25089740107698,
+          "height": 87.31959293068701,
+          "fits": true
+        },
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 142.74159983243163,
+          "top": 146.33132217132243,
+          "right": 250.83834606738637,
+          "bottom": 235.34666844353816,
+          "width": 108.09674623495474,
+          "height": 89.01534627221574,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 75.4496713590279,
+          "top": 270.18447819660577,
+          "right": 182.46009138378116,
+          "bottom": 362.12053993385695,
+          "width": 107.01042002475326,
+          "height": 91.93606173725118,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "선택 원본원본 유지",
+          "size": 16
+        },
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "step": 18,
+      "noOverflow": true,
+      "labels": [
+        {
+          "name": "organizer",
+          "width": 55.671875,
+          "height": 29,
+          "fits": true
+        }
+      ],
+      "captionBoxes": [
+        {
+          "name": "1",
+          "width": 95,
+          "height": 45.375,
+          "fits": true
+        },
+        {
+          "name": "2",
+          "width": 95,
+          "height": 45.375,
+          "fits": true
+        }
+      ],
+      "title": {
+        "name": "action-title",
+        "width": 185,
+        "height": 52.1875,
+        "fits": true
+      },
+      "cards": [
+        {
+          "id": 1,
+          "depth": 0.14,
+          "left": 84.46007596567549,
+          "top": 225.02683845553307,
+          "right": 135.97498950751864,
+          "bottom": 272.84708837936773,
+          "width": 51.51491354184316,
+          "height": 47.820249923834666,
+          "fits": true
+        },
+        {
+          "id": 2,
+          "depth": 0.14,
+          "left": 153.85935804632643,
+          "top": 231.1991888904326,
+          "right": 209.42264113559023,
+          "bottom": 278.6930452635705,
+          "width": 55.56328308926379,
+          "height": 47.49385637313793,
+          "fits": true
+        }
+      ],
+      "captions": [
+        {
+          "text": "함께한 식사✓ 근거 확인",
+          "size": 16
+        },
+        {
+          "text": "발견한 곳✓ 근거 확인",
+          "size": 16
+        }
+      ]
+    }
+  ],
+  "motionMetrics": {
+    "maximumGripContactGap": 4.440892098500626E-16,
+    "coupledSteps": [
+      2,
+      3,
+      5,
+      6,
+      7,
+      9,
+      11,
+      12,
+      14,
+      15,
+      16,
+      17
+    ],
+    "cardTravelWhileAttached": [
+      {
+        "step": 2,
+        "agent": "explorer",
+        "card": 4,
+        "travel": 2.1407528390954704
+      },
+      {
+        "step": 2,
+        "agent": "explorer",
+        "card": 3,
+        "travel": 2.1952957241032838
+      },
+      {
+        "step": 3,
+        "agent": "explorer",
+        "card": 4,
+        "travel": 0.24647485306675976
+      },
+      {
+        "step": 5,
+        "agent": "explorer",
+        "card": 4,
+        "travel": 2.1810487606401345
+      },
+      {
+        "step": 5,
+        "agent": "explorer",
+        "card": 3,
+        "travel": 2.2365561919311503
+      },
+      {
+        "step": 6,
+        "agent": "explorer",
+        "card": 4,
+        "travel": 5.805587310900002
+      },
+      {
+        "step": 6,
+        "agent": "explorer",
+        "card": 3,
+        "travel": 5.374676517042227
+      },
+      {
+        "step": 7,
+        "agent": "reviewer",
+        "card": 4,
+        "travel": 0.19135987228962192
+      },
+      {
+        "step": 7,
+        "agent": "reviewer",
+        "card": 4,
+        "travel": 0.19135987228962192
+      },
+      {
+        "step": 9,
+        "agent": "explorer",
+        "card": 0,
+        "travel": 0.844354018204748
+      },
+      {
+        "step": 9,
+        "agent": "explorer",
+        "card": 0,
+        "travel": 0.844354018204748
+      },
+      {
+        "step": 11,
+        "agent": "explorer",
+        "card": 1,
+        "travel": 1.9815384152500382
+      },
+      {
+        "step": 11,
+        "agent": "explorer",
+        "card": 2,
+        "travel": 2.032148733374948
+      },
+      {
+        "step": 12,
+        "agent": "explorer",
+        "card": 1,
+        "travel": 0.2489437849413012
+      },
+      {
+        "step": 14,
+        "agent": "explorer",
+        "card": 1,
+        "travel": 1.9399722112679303
+      },
+      {
+        "step": 14,
+        "agent": "explorer",
+        "card": 2,
+        "travel": 1.989651186090994
+      },
+      {
+        "step": 15,
+        "agent": "explorer",
+        "card": 1,
+        "travel": 5.363420692545229
+      },
+      {
+        "step": 15,
+        "agent": "explorer",
+        "card": 2,
+        "travel": 4.965370627359955
+      },
+      {
+        "step": 16,
+        "agent": "reviewer",
+        "card": 1,
+        "travel": 0.30496012631048053
+      },
+      {
+        "step": 16,
+        "agent": "reviewer",
+        "card": 1,
+        "travel": 0.30496012631048053
+      },
+      {
+        "step": 17,
+        "agent": "organizer",
+        "card": 1,
+        "travel": 3.2971680123301277
+      },
+      {
+        "step": 17,
+        "agent": "organizer",
+        "card": 2,
+        "travel": 4.905363818806673
+      }
+    ],
+    "cameraHeightRange": 5.031269370084887,
+    "maximumCameraTravelFromFirst": 16.575376075642023,
+    "finalShotPullback": 5.128648974155071,
+    "finalShotCameraTravel": 7.482118428358896
+  },
+  "motionSamples": [
+    {
+      "step": 2,
+      "phase": "observe",
+      "round": 1,
+      "progress": 0,
+      "actionPhase": "anticipate",
+      "camera": {
+        "position": [
+          1.06,
+          5.941977930684766,
+          10.84
+        ],
+        "look": [
+          -2,
+          1.15,
+          -0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            1.3499999999999999,
+            1.9,
+            -2.05
+          ],
+          "bounds": {
+            "left": 814.102129390919,
+            "top": 145.50935877655238,
+            "right": 1003.0092638904738,
+            "bottom": 300.19567759667325,
+            "width": 188.9071344995548,
+            "height": 154.68631882012087
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04579732992339381,
+            -0.05922303144557764,
+            0.017654455794132745,
+            0.9970373901258152
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -1.2,
+            1.9,
+            -1.4
+          ],
+          "bounds": {
+            "left": 659.6244932408493,
+            "top": 138.97093020841433,
+            "right": 826.4933968216988,
+            "bottom": 306.6309440834326,
+            "width": 166.8689035808494,
+            "height": 167.66001387501828
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04276064857244512,
+            -0.12520399237911928,
+            -0.009259502253649365,
+            0.9911658533484736
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [
+        {
+          "agent": "explorer",
+          "card": 4,
+          "tip": [
+            -5.2,
+            0.9,
+            1
+          ],
+          "contact": [
+            -2.584549163125494,
+            1.2762259231519164,
+            -1.6986783653712056
+          ],
+          "attached": false
+        },
+        {
+          "agent": "explorer",
+          "card": 3,
+          "tip": [
+            -3.5,
+            0.9,
+            1
+          ],
+          "contact": [
+            -0.030756740397828386,
+            1.2087622133886486,
+            -2.154787385722735
+          ],
+          "attached": false
+        }
+      ],
+      "token": {
+        "position": [
+          -0.25,
+          1.3,
+          -2.8
+        ],
+        "direction": "return"
+      }
+    },
+    {
+      "step": 2,
+      "phase": "observe",
+      "round": 1,
+      "progress": 0.3643255813953493,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          0.36388748989108155,
+          4.698764381143384,
+          10.18
+        ],
+        "look": [
+          -2.35,
+          1,
+          0.09999999999999998
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            1.3412300882219108,
+            1.9278064017013516,
+            -2.005176006467545
+          ],
+          "bounds": {
+            "left": 858.6082238926725,
+            "top": 112.55825474097767,
+            "right": 1072.7124940039134,
+            "bottom": 280.19432269718817,
+            "width": 214.1042701112409,
+            "height": 167.6360679562105
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04577094199278161,
+            -0.05708531842342194,
+            0.0175600893865329,
+            0.9971649465110207
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -1.217539823556178,
+            1.9278064017013516,
+            -1.3590737450355845
+          ],
+          "bounds": {
+            "left": 687.5889306156538,
+            "top": 106.26624325657234,
+            "right": 877.7046859778943,
+            "bottom": 286.9124063914454,
+            "width": 190.11575536224052,
+            "height": 180.64616313487306
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04280444407532592,
+            -0.12307924903361284,
+            -0.00935915905605845,
+            0.9914291120228856
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.457168896932022,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [
+        {
+          "agent": "explorer",
+          "card": 4,
+          "tip": [
+            -2.6035920351686235,
+            1.3045661587665798,
+            -1.6518366461532916
+          ],
+          "contact": [
+            -2.6035920351686235,
+            1.3045661587665798,
+            -1.6518366461532916
+          ],
+          "attached": true
+        },
+        {
+          "agent": "explorer",
+          "card": 3,
+          "tip": [
+            -0.04022779003118693,
+            1.2371008330599782,
+            -2.104065834358213
+          ],
+          "contact": [
+            -0.04022779003118715,
+            1.2371008330599782,
+            -2.104065834358213
+          ],
+          "attached": true
+        }
+      ],
+      "token": {
+        "position": [
+          -0.3172359902986824,
+          1.3097443464200988,
+          -2.7259429672072484
+        ],
+        "direction": "return"
+      }
+    },
+    {
+      "step": 2,
+      "phase": "observe",
+      "round": 1,
+      "progress": 0.6899069767441866,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          -0.050717909388672044,
+          4.6650341451590345,
+          10.18
+        ],
+        "look": [
+          -2.35,
+          1,
+          0.09999999999999998
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            0.9220068172381823,
+            1.6988392895309143,
+            0.1375207118937345
+          ],
+          "bounds": {
+            "left": 817.7725176372356,
+            "top": 152.76744996234964,
+            "right": 1062.5174261834297,
+            "bottom": 340.49501235083983,
+            "width": 244.7449085461941,
+            "height": 187.72756238849018
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04426659970008291,
+            0.04522965735206869,
+            0.012962983169368565,
+            0.9979111720559891
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -2.0559863655236352,
+            1.6988392895309143,
+            0.5973015195551485
+          ],
+          "bounds": {
+            "left": 583.9600068070008,
+            "top": 141.8327332606323,
+            "right": 806.8818429507008,
+            "bottom": 343.7701483952022,
+            "width": 222.92183614370003,
+            "height": 201.93741513456993
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04466506351587907,
+            -0.021029720922729866,
+            -0.014064542679432869,
+            0.9986816167218926
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.392876991586991,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [
+        {
+          "agent": "explorer",
+          "card": 4,
+          "tip": [
+            -3.483772019398492,
+            1.1016069090644196,
+            0.5927342105582556
+          ],
+          "contact": [
+            -3.483772019398492,
+            1.1016069090644196,
+            0.5927342105582556
+          ],
+          "attached": true
+        },
+        {
+          "agent": "explorer",
+          "card": 3,
+          "tip": [
+            -0.4632170637077815,
+            1.0337057268566574,
+            0.32199670887234855
+          ],
+          "contact": [
+            -0.46321706370778126,
+            1.0337057268566574,
+            0.3219967088723485
+          ],
+          "attached": true
+        }
+      ],
+      "token": {
+        "position": [
+          -3.531281067840602,
+          1.775547980846464,
+          0.8141646544331262
+        ],
+        "direction": "return"
+      }
+    },
+    {
+      "step": 2,
+      "phase": "observe",
+      "round": 1,
+      "progress": 0.9534418604651161,
+      "actionPhase": "hold",
+      "camera": {
+        "position": [
+          -0.18999999999999995,
+          4.389027020494204,
+          10.18
+        ],
+        "look": [
+          -2.35,
+          1,
+          0.09999999999999998
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            0.8999999999999999,
+            1.6,
+            0.25
+          ],
+          "bounds": {
+            "left": 817.6003050629042,
+            "top": 158.50721092270717,
+            "right": 1063.2216463812654,
+            "bottom": 348.1236732131842,
+            "width": 245.62134131836115,
+            "height": 189.61646229047702
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.044174639837792753,
+            0.05059686069033724,
+            0.012717476017893761,
+            0.9976606761255143
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -2.1,
+            1.6,
+            0.6999999999999997
+          ],
+          "bounds": {
+            "left": 577.2726462270795,
+            "top": 148.71809647361468,
+            "right": 804.195788651619,
+            "bottom": 352.4270856981107,
+            "width": 226.9231424245395,
+            "height": 203.70898922449604
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.04474993784506817,
+            -0.015657238440891497,
+            -0.014307896442315629,
+            0.9987730363033754
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [
+        {
+          "agent": "explorer",
+          "card": 4,
+          "tip": [
+            -5.2,
+            0.9,
+            1
+          ],
+          "contact": [
+            -3.528329466853006,
+            1.004148554922625,
+            0.710734967098783
+          ],
+          "attached": false
+        },
+        {
+          "agent": "explorer",
+          "card": 3,
+          "tip": [
+            -3.5,
+            0.9,
+            1
+          ],
+          "contact": [
+            -0.4838101909236112,
+            0.9362052689140682,
+            0.44931171686209137
+          ],
+          "attached": false
+        }
+      ],
+      "token": {
+        "position": [
+          -3.7,
+          1.8,
+          1
+        ],
+        "direction": "return"
+      }
+    },
+    {
+      "step": 6,
+      "phase": "submit",
+      "round": 2,
+      "progress": 0,
+      "actionPhase": "anticipate",
+      "camera": {
+        "position": [
+          -0.1899999999999995,
+          4.340056550752758,
+          10.18
+        ],
+        "look": [
+          -2.35,
+          1,
+          0.10000000000000003
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            0.8999999999999999,
+            1.6,
+            0.24999999999999994
+          ],
+          "bounds": {
+            "left": 817.6228741926834,
+            "top": 156.80943874059403,
+            "right": 1068.3338387073952,
+            "bottom": 354.7051311412556,
+            "width": 250.7109645147118,
+            "height": 197.89569240066157
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.040683924616913565,
+            -0.04933450530906838,
+            0.01696711801964613,
+            0.9978091209092961
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -2.1,
+            1.6,
+            0.7
+          ],
+          "bounds": {
+            "left": 579.9159686755497,
+            "top": 147.88134937029045,
+            "right": 802.7579327369878,
+            "bottom": 354.3434485096971,
+            "width": 222.84196406143803,
+            "height": 206.46209913940666
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.039185805059889035,
+            -0.050532641115753854,
+            -0.01297030029912646,
+            0.9978690776719286
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          7.8,
+          2,
+          -0.5
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [
+        {
+          "agent": "explorer",
+          "card": 4,
+          "tip": [
+            -5.3,
+            0.9,
+            1.05
+          ],
+          "contact": [
+            -3.51911759208301,
+            1.0867857122911508,
+            0.5983014025071227
+          ],
+          "attached": false
+        },
+        {
+          "agent": "explorer",
+          "card": 3,
+          "tip": [
+            -3.6,
+            0.9,
+            1.05
+          ],
+          "contact": [
+            -0.4865261448589495,
+            1.0027003624350377,
+            0.15832316220907255
+          ],
+          "attached": false
+        }
+      ],
+      "token": {
+        "position": [
+          -2.1,
+          0.25,
+          1.0499999999999998
+        ],
+        "direction": "handoff"
+      }
+    },
+    {
+      "step": 6,
+      "phase": "submit",
+      "round": 2,
+      "progress": 0.3643255813953485,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          -3.917438819016722,
+          2.9687643811433837,
+          10.59
+        ],
+        "look": [
+          -1.873323496538719,
+          1.25,
+          0.15
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            1.0101111145471136,
+            1.6254493506808534,
+            0.2509744346420098
+          ],
+          "bounds": {
+            "left": 784.007202941739,
+            "top": 158.53687137148836,
+            "right": 980.866162333237,
+            "bottom": 336.6077191067399,
+            "width": 196.85895939149793,
+            "height": 178.07084773525156
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.040480768193108994,
+            -0.03406510255848517,
+            0.016365738037649527,
+            0.9984653418184621
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            -1.9811189736747978,
+            1.6254493506808534,
+            0.7038977385680394
+          ],
+          "bounds": {
+            "left": 565.0261749143685,
+            "top": 161.1917896740913,
+            "right": 786.7485110814008,
+            "bottom": 349.13974818906274,
+            "width": 221.72233616703227,
+            "height": 187.94795851497145
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.039440753422915954,
+            -0.035264015302530156,
+            -0.013591093354840905,
+            0.9985069646104605
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.373323496538719,
+          1.5265598459016894,
+          0.5077954771360789
+        ],
+        "reviewer": [
+          7.8,
+          2,
+          -0.5
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [
+        {
+          "agent": "explorer",
+          "card": 4,
+          "tip": [
+            -3.403927939620055,
+            1.1157094212007914,
+            0.6455359298276528
+          ],
+          "contact": [
+            -3.403927939620055,
+            1.1157094212007914,
+            0.6455359298276528
+          ],
+          "attached": true
+        },
+        {
+          "agent": "explorer",
+          "card": 3,
+          "tip": [
+            -0.38002162810120055,
+            1.031544279251703,
+            0.2016391131389328
+          ],
+          "contact": [
+            -0.38002162810120055,
+            1.031544279251703,
+            0.20163911313893274
+          ],
+          "attached": true
+        }
+      ],
+      "token": {
+        "position": [
+          -1.9811189736747978,
+          0.2754493506808533,
+          1.0538977385680393
+        ],
+        "direction": "handoff"
+      }
+    },
+    {
+      "step": 6,
+      "phase": "submit",
+      "round": 2,
+      "progress": 0.6511162790697681,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          1.4442388221717564,
+          2.9602106255216842,
+          10.59
+        ],
+        "look": [
+          3.694064264456809,
+          1.25,
+          0.15
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            5.849455860643227,
+            1.7957006391619121,
+            0.29380049434197547
+          ],
+          "bounds": {
+            "left": 737.6236969386822,
+            "top": 147.80908236061376,
+            "right": 924.7156997746042,
+            "bottom": 328.97059963521986,
+            "width": 187.09200283592202,
+            "height": 181.1615172746061
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.039271197066610274,
+            0.04548069680751433,
+            0.013176091904373678,
+            0.9981060414109244
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            3.243660309721004,
+            1.7957006391619121,
+            0.8752019773679018
+          ],
+          "bounds": {
+            "left": 540.8074004458323,
+            "top": 145.8381864810832,
+            "right": 760.2496589698809,
+            "bottom": 343.1513735640424,
+            "width": 219.4422585240486,
+            "height": 197.3131870829592
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.040617742603592875,
+            0.04428227282931466,
+            -0.01676852685955705,
+            0.9980521508447435
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          1.1940642644568085,
+          1.6270871685804535,
+          0.8504039547358035
+        ],
+        "reviewer": [
+          7.8,
+          2,
+          -0.5
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [
+        {
+          "agent": "explorer",
+          "card": 4,
+          "tip": [
+            1.8231738403655149,
+            1.3040951276826698,
+            1.043036602702514
+          ],
+          "contact": [
+            1.8231738403655149,
+            1.3040951276826698,
+            1.043036602702514
+          ],
+          "attached": true
+        },
+        {
+          "agent": "explorer",
+          "card": 3,
+          "tip": [
+            4.461592276140104,
+            1.2195135107842812,
+            0.46546678078775117
+          ],
+          "contact": [
+            4.461592276140104,
+            1.2195135107842812,
+            0.46546678078775117
+          ],
+          "attached": true
+        }
+      ],
+      "token": {
+        "position": [
+          3.243660309721004,
+          0.44570063916191205,
+          1.225201977367902
+        ],
+        "direction": "handoff"
+      }
+    },
+    {
+      "step": 6,
+      "phase": "submit",
+      "round": 2,
+      "progress": 0.9612093023255808,
+      "actionPhase": "hold",
+      "camera": {
+        "position": [
+          1.2599999999999998,
+          2.6492330798618986,
+          10.59
+        ],
+        "look": [
+          4.5,
+          1.25,
+          0.15
+        ]
+      },
+      "cards": [
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            6.550000000000001,
+            1.65,
+            0.30000000000000004
+          ],
+          "bounds": {
+            "left": 720.9036718567771,
+            "top": 160.779231748134,
+            "right": 913.1722713665808,
+            "bottom": 335.80875679310424,
+            "width": 192.26859950980372,
+            "height": 175.02952504497023
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.040683924616913565,
+            -0.049334505309068355,
+            0.01696711801964613,
+            0.9978091209092961
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            3.9999999999999996,
+            1.65,
+            0.9
+          ],
+          "bounds": {
+            "left": 544.1614651479445,
+            "top": 159.81960411832398,
+            "right": 763.8406636965302,
+            "bottom": 350.85804175060775,
+            "width": 219.67919854858576,
+            "height": 191.03843763228377
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.039185805059889035,
+            -0.050532641115753826,
+            -0.01297030029912646,
+            0.9978690776719286
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          2,
+          1.45,
+          0.9
+        ],
+        "reviewer": [
+          7.8,
+          2,
+          -0.5
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [
+        {
+          "agent": "explorer",
+          "card": 4,
+          "tip": [
+            1.2,
+            0.85,
+            1.4500000000000002
+          ],
+          "contact": [
+            2.58088240791699,
+            1.1367857122911507,
+            0.7983014025071228
+          ],
+          "attached": false
+        },
+        {
+          "agent": "explorer",
+          "card": 3,
+          "tip": [
+            2.9,
+            0.85,
+            1.4500000000000002
+          ],
+          "contact": [
+            5.163473855141051,
+            1.0527003624350375,
+            0.20832316220907274
+          ],
+          "attached": false
+        }
+      ],
+      "token": {
+        "position": [
+          3.9999999999999996,
+          0.2999999999999998,
+          1.25
+        ],
+        "direction": "handoff"
+      }
+    },
+    {
+      "step": 7,
+      "phase": "review",
+      "round": 2,
+      "progress": 0,
+      "actionPhase": "anticipate",
+      "camera": {
+        "position": [
+          1.2599999999999998,
+          2.609822723894232,
+          10.59
+        ],
+        "look": [
+          4.5,
+          1.25,
+          0.15
+        ]
+      },
+      "cards": [
+        {
+          "id": 0,
+          "active": true,
+          "position": [
+            2,
+            1.9,
+            0.45
+          ],
+          "bounds": {
+            "left": 370.1171983569489,
+            "top": 142.89545406056328,
+            "right": 594.1803939927279,
+            "bottom": 334.38136915168207,
+            "width": 224.06319563577898,
+            "height": 191.48591509111878
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.019962679891269264,
+            0.05995201407790342,
+            -0.0011992001791792776,
+            0.9980009064817986
+          ]
+        },
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            8,
+            1.9,
+            0.1
+          ],
+          "bounds": {
+            "left": 817.4920414667762,
+            "top": 151.047372739513,
+            "right": 985.7669997779717,
+            "bottom": 303.6158363614225,
+            "width": 168.27495831119552,
+            "height": 152.5684636219095
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.019962679891269264,
+            -0.05995201407790342,
+            0.0011992001791792776,
+            0.9980009064817986
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            5,
+            1.9,
+            0.6
+          ],
+          "bounds": {
+            "left": 625.0076153232399,
+            "top": 146.49014113625574,
+            "right": 815.4760654172993,
+            "bottom": 321.46721620363695,
+            "width": 190.46845009405945,
+            "height": 174.9770750673812
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.01999866669333308,
+            0,
+            0,
+            0.9998000066665778
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          2,
+          2.02,
+          1.45
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [
+        {
+          "agent": "reviewer",
+          "card": 0,
+          "tip": [
+            1.05,
+            1.47,
+            1.3
+          ],
+          "contact": [
+            0.6611975545510613,
+            1.4283383036212465,
+            0.6304376796266744
+          ],
+          "attached": false
+        },
+        {
+          "agent": "reviewer",
+          "card": 0,
+          "tip": [
+            2.95,
+            1.47,
+            1.3
+          ],
+          "contact": [
+            3.3388024454489384,
+            1.4154271943041974,
+            0.3078321131899345
+          ],
+          "attached": false
+        }
+      ],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 7,
+      "phase": "review",
+      "round": 2,
+      "progress": 0.3594509803921563,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          5.658334841908564,
+          4.526156986435108,
+          10.07
+        ],
+        "look": [
+          5,
+          1.1,
+          0.35
+        ]
+      },
+      "cards": [
+        {
+          "id": 0,
+          "active": true,
+          "position": [
+            2,
+            1.9,
+            0.45
+          ],
+          "bounds": {
+            "left": 316.4556477772797,
+            "top": 127.65168440047972,
+            "right": 545.5749338260536,
+            "bottom": 302.51854214800863,
+            "width": 229.11928604877386,
+            "height": 174.8668577475289
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.019962679891269264,
+            0.05995201407790342,
+            -0.0011992001791792776,
+            0.9980009064817986
+          ]
+        },
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            8,
+            1.9,
+            0.1
+          ],
+          "bounds": {
+            "left": 806.249111460121,
+            "top": 126.1171008399052,
+            "right": 1042.5823936898873,
+            "bottom": 309.16534577697416,
+            "width": 236.33328222976638,
+            "height": 183.04824493706894
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.019962679891269264,
+            -0.05995201407790342,
+            0.0011992001791792776,
+            0.9980009064817986
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            5,
+            2.07,
+            1.1
+          ],
+          "bounds": {
+            "left": 554.5869187506332,
+            "top": 121.68637064865372,
+            "right": 789.8154247370989,
+            "bottom": 316.4443065210088,
+            "width": 235.22850598646562,
+            "height": 194.75793587235506
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.08479158280584226,
+            0.049798728201506055,
+            -0.004243115659470307,
+            0.9951444468640183
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.983505137869142,
+          2.189065291145918,
+          2.0964261132049806
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 7,
+      "phase": "review",
+      "round": 2,
+      "progress": 0.6666274509803928,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          5.9650307608521835,
+          4.5107652338124975,
+          10.07
+        ],
+        "look": [
+          5,
+          1.1,
+          0.35
+        ]
+      },
+      "cards": [
+        {
+          "id": 0,
+          "active": true,
+          "position": [
+            2,
+            1.9,
+            0.45
+          ],
+          "bounds": {
+            "left": 322.13779265489524,
+            "top": 126.90710841624231,
+            "right": 546.6226517909352,
+            "bottom": 298.75692062068225,
+            "width": 224.48485913603992,
+            "height": 171.84981220443996
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.019962679891269264,
+            0.05995201407790342,
+            -0.0011992001791792776,
+            0.9980009064817986
+          ]
+        },
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            8,
+            2.0639177105694846,
+            0.5821109134396609
+          ],
+          "bounds": {
+            "left": 810.9104057181406,
+            "top": 119.41390574798068,
+            "right": 1055.8076921626382,
+            "bottom": 313.78688737275354,
+            "width": 244.89728644449758,
+            "height": 194.37298162477288
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.08257453179728758,
+            -0.011748370520138754,
+            0.0009735087119746279,
+            0.9965151653484096
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            5,
+            1.9,
+            0.6
+          ],
+          "bounds": {
+            "left": 559.7702859005183,
+            "top": 135.08138249232817,
+            "right": 787.4688630453857,
+            "bottom": 310.01492046597656,
+            "width": 227.6985771448674,
+            "height": 174.93353797364838
+          },
+          "depth": 0.14,
+          "quaternion": [
+            0.059964006479444595,
+            0,
+            0,
+            0.9982005399352042
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          7.432628568453456,
+          2.1529169685356044,
+          1.5854941656565942
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 7,
+      "phase": "review",
+      "round": 2,
+      "progress": 0.9869019607843131,
+      "actionPhase": "hold",
+      "camera": {
+        "position": [
+          6.125,
+          4.176660522457146,
+          10.07
+        ],
+        "look": [
+          5,
+          1.1,
+          0.35
+        ]
+      },
+      "cards": [
+        {
+          "id": 0,
+          "active": true,
+          "position": [
+            2,
+            1.9,
+            0.45
+          ],
+          "bounds": {
+            "left": 323.66119402619023,
+            "top": 124.5476227821701,
+            "right": 545.90612443042,
+            "bottom": 298.1510077808706,
+            "width": 222.24493040422982,
+            "height": 173.6033849987005
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.019962679891269264,
+            0.05995201407790342,
+            -0.0011992001791792776,
+            0.9980009064817986
+          ]
+        },
+        {
+          "id": 3,
+          "active": true,
+          "position": [
+            8,
+            1.9,
+            0.1
+          ],
+          "bounds": {
+            "left": 808.2389424152456,
+            "top": 127.02065220195315,
+            "right": 1053.827075123696,
+            "bottom": 311.82708016401125,
+            "width": 245.58813270845042,
+            "height": 184.80642796205808
+          },
+          "depth": 0.14,
+          "quaternion": [
+            0.05985610364445968,
+            -0.05985610364445968,
+            -0.0035956820730668735,
+            0.9964043179269332
+          ]
+        },
+        {
+          "id": 4,
+          "active": true,
+          "position": [
+            5,
+            1.9,
+            0.6
+          ],
+          "bounds": {
+            "left": 559.1523472299981,
+            "top": 131.86579765688518,
+            "right": 787.3294212951596,
+            "bottom": 310.37683185619966,
+            "width": 228.1770740651615,
+            "height": 178.51103419931448
+          },
+          "depth": 0.14,
+          "quaternion": [
+            0.059964006479444595,
+            0,
+            0,
+            0.9982005399352042
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          8,
+          2.02,
+          1.1
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [
+        {
+          "agent": "reviewer",
+          "card": 3,
+          "tip": [
+            7.05,
+            1.47,
+            0.9500000000000001
+          ],
+          "contact": [
+            6.6611975545510616,
+            1.4154271943041974,
+            -0.04216788681006553
+          ],
+          "attached": false
+        },
+        {
+          "agent": "reviewer",
+          "card": 3,
+          "tip": [
+            8.95,
+            1.47,
+            0.9500000000000001
+          ],
+          "contact": [
+            9.33880244544894,
+            1.4283383036212465,
+            0.28043767962667443
+          ],
+          "attached": false
+        }
+      ],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 8,
+      "phase": "feedback",
+      "round": 2,
+      "progress": 0,
+      "actionPhase": "anticipate",
+      "camera": {
+        "position": [
+          6.125,
+          4.176660522457146,
+          10.07
+        ],
+        "look": [
+          5,
+          1.1,
+          0.35
+        ]
+      },
+      "cards": [],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [],
+      "token": {
+        "position": [
+          4.1,
+          1.55,
+          1
+        ],
+        "direction": "feedback"
+      }
+    },
+    {
+      "step": 8,
+      "phase": "feedback",
+      "round": 2,
+      "progress": 0.38689285714285687,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          0.43078055711982444,
+          5.2596994262571,
+          10.924056785825552
+        ],
+        "look": [
+          2.4455822841120276,
+          1.1,
+          0.39405678582555365
+        ]
+      },
+      "cards": [],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [],
+      "token": {
+        "position": [
+          2.764393641277138,
+          2.1722948062223373,
+          1.0564340714953322
+        ],
+        "direction": "feedback"
+      }
+    },
+    {
+      "step": 8,
+      "phase": "feedback",
+      "round": 2,
+      "progress": 0.6963928571428564,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          -4.303534591164812,
+          5.210328445190276,
+          11.298864634242465
+        ],
+        "look": [
+          -2.951650733091496,
+          1.1,
+          0.768864634242465
+        ]
+      },
+      "cards": [],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [],
+      "token": {
+        "position": [
+          -2.5578778062430034,
+          1.810708690763222,
+          1.281318780545479
+        ],
+        "direction": "feedback"
+      }
+    },
+    {
+      "step": 8,
+      "phase": "feedback",
+      "round": 2,
+      "progress": 0.9582857142857145,
+      "actionPhase": "hold",
+      "camera": {
+        "position": [
+          -4.57,
+          4.93292317677815,
+          11.33
+        ],
+        "look": [
+          -3.3999999999999986,
+          1.1,
+          0.8
+        ]
+      },
+      "cards": [],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          11.8,
+          1.2,
+          0.4
+        ]
+      },
+      "grips": [],
+      "token": {
+        "position": [
+          -3,
+          1.6000000000000003,
+          1.3
+        ],
+        "direction": "feedback"
+      }
+    },
+    {
+      "step": 17,
+      "phase": "organize",
+      "round": 4,
+      "progress": 0,
+      "actionPhase": "anticipate",
+      "camera": {
+        "position": [
+          6.125,
+          4.176942690025961,
+          10.07
+        ],
+        "look": [
+          5,
+          1.1,
+          0.35
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            7.2,
+            2.5,
+            -0.5
+          ],
+          "bounds": {
+            "left": 741.8899362371214,
+            "top": 55.65685428187432,
+            "right": 984.1164752613965,
+            "bottom": 273.1806743925526,
+            "width": 242.2265390242751,
+            "height": 217.5238201106783
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.026572705496027943,
+            -0.19575093052744544,
+            -0.055940001292442205,
+            0.9786961636665703
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            8.5,
+            2.5,
+            -1
+          ],
+          "bounds": {
+            "left": 832.294967353306,
+            "top": 54.36758176649416,
+            "right": 1086.3993429547154,
+            "bottom": 263.936118776443,
+            "width": 254.1043756014094,
+            "height": 209.5685370099488
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.029406867157056947,
+            -0.1564971962954456,
+            -0.05796368302345493,
+            0.9855374549787687
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          12,
+          1.2,
+          1.1
+        ]
+      },
+      "grips": [
+        {
+          "agent": "organizer",
+          "card": 1,
+          "tip": [
+            10.8,
+            0.5499999999999999,
+            1.1
+          ],
+          "contact": [
+            7.05597636867748,
+            1.3080141467545576,
+            -0.4638287505965058
+          ],
+          "attached": false
+        },
+        {
+          "agent": "organizer",
+          "card": 2,
+          "tip": [
+            12.8,
+            0.5499999999999999,
+            1.1
+          ],
+          "contact": [
+            8.35170591908091,
+            1.3089490646512527,
+            -0.9521672186755054
+          ],
+          "attached": false
+        }
+      ],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 17,
+      "phase": "organize",
+      "round": 4,
+      "progress": 0.39103846153846045,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          10.437011880988392,
+          5.6615022508678585,
+          11.03
+        ],
+        "look": [
+          12,
+          1.05,
+          0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            7.365952723373543,
+            2.533405278625473,
+            -0.4245669439211167
+          ],
+          "bounds": {
+            "left": 238.21297532427198,
+            "top": 76.59697804181428,
+            "right": 423.3756517506474,
+            "bottom": 270.7701481748705,
+            "width": 185.16267642637544,
+            "height": 194.1731701330562
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.02781163309388743,
+            -0.18704937138056502,
+            -0.053188247064695195,
+            0.9805151993237899
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            8.756472390668204,
+            2.533405278625473,
+            -0.8994225918948222
+          ],
+          "bounds": {
+            "left": 349.15400046650933,
+            "top": 69.23068698754201,
+            "right": 535.8041439637472,
+            "bottom": 251.1227505022228,
+            "width": 186.65014349723782,
+            "height": 181.89206351468079
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03050730698779789,
+            -0.14772612880854438,
+            -0.055170557628401895,
+            0.9870169728320608
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          12,
+          1.1497112959474112,
+          1.1
+        ]
+      },
+      "grips": [
+        {
+          "agent": "organizer",
+          "card": 1,
+          "tip": [
+            7.228165394110918,
+            1.3408598683160136,
+            -0.3829552118673343
+          ],
+          "contact": [
+            7.228165394110918,
+            1.3408598683160136,
+            -0.3829552118673343
+          ],
+          "attached": true
+        },
+        {
+          "agent": "organizer",
+          "card": 2,
+          "tip": [
+            8.614824476721008,
+            1.3417535842931976,
+            -0.8466632527270019
+          ],
+          "contact": [
+            8.614824476721008,
+            1.3417535842931976,
+            -0.8466632527270018
+          ],
+          "attached": true
+        }
+      ],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 17,
+      "phase": "organize",
+      "round": 4,
+      "progress": 0.6794615384615379,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          9.99969788060368,
+          5.622319420071427,
+          11.03
+        ],
+        "look": [
+          12,
+          1.05,
+          0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            10.28405039081008,
+            1.7609645747175586,
+            0.9018410867318549
+          ],
+          "bounds": {
+            "left": 438.05571426905306,
+            "top": 162.2452478173672,
+            "right": 659.2571484510494,
+            "bottom": 338.9710648469716,
+            "width": 221.20143418199632,
+            "height": 176.72581702960443
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03983554235330255,
+            -0.03159126186422527,
+            -0.0029905149761224234,
+            0.9987022471985441
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            13.266259694888307,
+            1.7609645747175586,
+            0.8691214489758066
+          ],
+          "bounds": {
+            "left": 674.0491367014614,
+            "top": 149.6102488417636,
+            "right": 870.824718128953,
+            "bottom": 322.5210559754815,
+            "width": 196.7755814274916,
+            "height": 172.9108071337179
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.040023841705276265,
+            0.00837101788891782,
+            -0.004591809068099422,
+            0.9991531081091308
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          12,
+          0.2654392755120967,
+          1.1
+        ]
+      },
+      "grips": [
+        {
+          "agent": "organizer",
+          "card": 1,
+          "tip": [
+            10.273851988811685,
+            0.5635983573448031,
+            0.9971908328832662
+          ],
+          "contact": [
+            10.273851988811685,
+            0.5635983573448031,
+            0.9971908328832662
+          ],
+          "attached": true
+        },
+        {
+          "agent": "organizer",
+          "card": 2,
+          "tip": [
+            13.25604257595868,
+            0.563663652176716,
+            0.9652856385872474
+          ],
+          "contact": [
+            13.25604257595868,
+            0.563663652176716,
+            0.9652856385872474
+          ],
+          "attached": true
+        }
+      ],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 17,
+      "phase": "organize",
+      "round": 4,
+      "progress": 0.9551538461538467,
+      "actionPhase": "hold",
+      "camera": {
+        "position": [
+          9.84,
+          5.33687119971165,
+          11.03
+        ],
+        "look": [
+          12,
+          1.05,
+          0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            10.5,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 455.0778475372475,
+            "top": 171.6016572922397,
+            "right": 677.2596639625384,
+            "bottom": 353.87937790643724,
+            "width": 222.1818164252909,
+            "height": 182.27772061419753
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            -0.01998266989305576,
+            0.0007997333656868065,
+            0.9990002733008909
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            13.6,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 701.6908721074041,
+            "top": 159.0367516281334,
+            "right": 894.8264704200521,
+            "bottom": 336.2183029811368,
+            "width": 193.13559831264809,
+            "height": 177.18155135300339
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            0.01998266989305576,
+            -0.0007997333656868065,
+            0.9990002733008909
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          12,
+          0.19999999999999996,
+          1.1
+        ]
+      },
+      "grips": [
+        {
+          "agent": "organizer",
+          "card": 1,
+          "tip": [
+            10.8,
+            0.5499999999999999,
+            1.1
+          ],
+          "contact": [
+            10.5,
+            0.4026417903892936,
+            1.0959935303957702
+          ],
+          "attached": false
+        },
+        {
+          "agent": "organizer",
+          "card": 2,
+          "tip": [
+            12.8,
+            0.5499999999999999,
+            1.1
+          ],
+          "contact": [
+            13.6,
+            0.4026417903892936,
+            1.0959935303957702
+          ],
+          "attached": false
+        }
+      ],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 18,
+      "phase": "done",
+      "round": 4,
+      "progress": 0,
+      "actionPhase": "anticipate",
+      "camera": {
+        "position": [
+          9.84,
+          5.296242509986777,
+          11.03
+        ],
+        "look": [
+          12,
+          1.05,
+          0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            10.5,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 454.83433936823775,
+            "top": 171.20380921269765,
+            "right": 677.2616682123688,
+            "bottom": 353.79098361064257,
+            "width": 222.42732884413107,
+            "height": 182.58717439794492
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            -0.01998266989305576,
+            0.0007997333656868065,
+            0.9990002733008909
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            13.6,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 701.7163095803556,
+            "top": 158.82356764781426,
+            "right": 895.0159870229875,
+            "bottom": 336.2146375969504,
+            "width": 193.29967744263183,
+            "height": 177.39106994913615
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            0.01998266989305576,
+            -0.0007997333656868065,
+            0.9990002733008909
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          12,
+          0.19999999999999996,
+          1.1
+        ]
+      },
+      "grips": [],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 18,
+      "phase": "done",
+      "round": 4,
+      "progress": 0.35555555555555557,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          11.570193279702998,
+          6.106052117307393,
+          11.992584434492148
+        ],
+        "look": [
+          12,
+          1.05,
+          0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            10.5,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 472.7093024707876,
+            "top": 183.17322535884716,
+            "right": 669.1276801859175,
+            "bottom": 334.6420298702723,
+            "width": 196.4183777151299,
+            "height": 151.46880451142516
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            -0.01998266989305576,
+            0.0007997333656868065,
+            0.9990002733008909
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            13.6,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 693.1156895000759,
+            "top": 179.12622121135865,
+            "right": 884.9893117280706,
+            "bottom": 333.9171338110077,
+            "width": 191.8736222279947,
+            "height": 154.79091259964906
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            0.01998266989305576,
+            -0.0007997333656868065,
+            0.9990002733008909
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          12,
+          0.19999999999999996,
+          1.1
+        ]
+      },
+      "grips": [],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 18,
+      "phase": "done",
+      "round": 4,
+      "progress": 0.7110666666666673,
+      "actionPhase": "carry",
+      "camera": {
+        "position": [
+          15.05396321442862,
+          7.577871742000209,
+          15.152276198050663
+        ],
+        "look": [
+          12,
+          1.05,
+          0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            10.5,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 527.2131870922811,
+            "top": 195.68339932307273,
+            "right": 663.3898508218979,
+            "bottom": 320.1274975465905,
+            "width": 136.17666372961673,
+            "height": 124.44409822351778
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            -0.01998266989305576,
+            0.0007997333656868065,
+            0.9990002733008909
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            13.6,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 679.9969419884835,
+            "top": 207.3624069439925,
+            "right": 831.6787480545773,
+            "bottom": 332.8523561402935,
+            "width": 151.68180606609383,
+            "height": 125.48994919630101
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            0.01998266989305576,
+            -0.0007997333656868065,
+            0.9990002733008909
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          12,
+          0.19999999999999996,
+          1.1
+        ]
+      },
+      "grips": [],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    },
+    {
+      "step": 18,
+      "phase": "done",
+      "round": 4,
+      "progress": 1,
+      "actionPhase": "hold",
+      "camera": {
+        "position": [
+          15.42,
+          7.4399999999999995,
+          15.53
+        ],
+        "look": [
+          12,
+          1.05,
+          0.5
+        ]
+      },
+      "cards": [
+        {
+          "id": 1,
+          "active": true,
+          "position": [
+            10.5,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 531.3873355369047,
+            "top": 196.4456088787317,
+            "right": 663.2326825566557,
+            "bottom": 318.7948952616182,
+            "width": 131.845347019751,
+            "height": 122.3492863828865
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            -0.01998266989305576,
+            0.0007997333656868065,
+            0.9990002733008909
+          ]
+        },
+        {
+          "id": 2,
+          "active": true,
+          "position": [
+            13.6,
+            1.6,
+            1
+          ],
+          "bounds": {
+            "left": 679.2274690599766,
+            "top": 208.01890516793952,
+            "right": 827.2191684695007,
+            "bottom": 332.03012948132374,
+            "width": 147.99169940952413,
+            "height": 124.01122431338422
+          },
+          "depth": 0.14,
+          "quaternion": [
+            -0.03998133658638884,
+            0.01998266989305576,
+            -0.0007997333656868065,
+            0.9990002733008909
+          ]
+        }
+      ],
+      "agents": {
+        "explorer": [
+          -4.5,
+          1.5,
+          0.5
+        ],
+        "reviewer": [
+          4.8,
+          1.8,
+          0.3
+        ],
+        "organizer": [
+          12,
+          0.19999999999999996,
+          1.1
+        ]
+      },
+      "grips": [],
+      "token": {
+        "position": [
+          -0.25,
+          0.9,
+          -2.8
+        ],
+        "direction": "none"
+      }
+    }
+  ],
+  "browser": "152.0.4191.66",
+  "screenshots": "work/agent-loop-validation",
+  "totalMotionFramesObserved": 332,
+  "retainedMotionFrames": "Representative first / carry / release / final frames for return, handoff, review, feedback, organize and final shots; the full local run is in work/agent-loop-validation/result.json."
+}
