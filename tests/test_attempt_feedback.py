@@ -232,7 +232,7 @@ def test_ui_request_revision_does_not_change_execution_identity_or_ready_cache_k
                                           "fixture-logical-model", value]).encode()).hexdigest()
     assert RunService(store, None).cache_key(req) == original_key
     assert execution_identity(store, req)["cache_key"] == original_key
-    assert AGENT_SPEC_VERSION == 18
+    assert AGENT_SPEC_VERSION == 19
 
 
 @pytest.mark.parametrize("which", ["previous", "current"])

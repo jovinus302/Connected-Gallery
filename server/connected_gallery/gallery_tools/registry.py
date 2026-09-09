@@ -1,8 +1,10 @@
 from __future__ import annotations
 import base64
+import concurrent.futures
 import hashlib
 import io
 import json
+import threading
 import time
 from datetime import datetime
 from pydantic import BaseModel, Field, model_validator
@@ -16,6 +18,18 @@ from connected_gallery.adapters.store import encoded
 from connected_gallery.agent_specs.budgets import run_timeout
 from connected_gallery.domain.context import PhotoContext
 
+# A reused full-photo line belongs to the requested region when most of it lies
+# inside: OCR line boxes routinely overhang a hand-drawn selection edge.
+REUSED_LINE_OVERLAP = 0.5
+INITIAL_CANDIDATE_CHANNELS = ("visual", "text_literal", "text_semantic", "faces")
+INITIAL_CANDIDATE_INSTRUCTION = (
+    "host-retrieved leads from the selected anchor: similarity and keyword hits, not accepted "
+    "results and not evidence of relation. Many leads are irrelevant. Do not submit a lead unless "
+    "you verify the selected meaning in that lead's own image; when the leads do not show it, "
+    "search with your own strategy before submitting. You may submit in your first response only "
+    "when the attached images already verify your result"
+)
+
 
 class InspectArgs(BaseModel):
     photo_ids: list[str] = Field(max_length=8)
@@ -24,6 +38,12 @@ class InspectArgs(BaseModel):
 class RegionArgs(BaseModel):
     photo_id: str
     box: Box | None = None
+
+
+class RecognizeTextArgs(RegionArgs):
+    # Only recognize_text takes this escape hatch. RegionArgs stays the shared
+    # shape of every other region tool and of the artifact cache keys.
+    refresh: bool = False
 
 
 class ListArgs(BaseModel):
@@ -94,6 +114,14 @@ class GalleryTools:
         self.seen = set()
         self.covered = set()
         self.searched = set()
+        # Concurrently executed tools share this toolkit. Reentrant, because a
+        # guarded update (list_photos) reports guarded coverage in the same call.
+        self.tracking = threading.RLock()
+        # One rendering of the same (photo, box, version) per run; the metadata
+        # text block is still rebuilt from current analysis on every call.
+        self.render_memo = {}
+        self.render_waits = {}
+        self.render_lock = threading.RLock()
         self.result = None
         self.defer_results = False
         self.versions = {p.id: p.version for p in store.photos()}
@@ -111,9 +139,11 @@ class GalleryTools:
                 "View an actual image crop; coordinates are normalized in the oriented image.",
             ),
             "recognize_text": (
-                RegionArgs,
+                RecognizeTextArgs,
                 "Read text using Korean OCR. Returns recognition evidence and normalized x,y,width,height "
-                "boxes in the FULL oriented photo, even for a crop. Copy matching boxes directly.",
+                "boxes in the FULL oriented photo, even for a crop. Copy matching boxes directly. "
+                "For a region, already recognized full-photo lines are reused by default; "
+                "set refresh=true to force OCR on the exact crop when the reused lines look incomplete.",
             ),
             "ground_regions": (
                 GroundArgs,
@@ -211,14 +241,30 @@ class GalleryTools:
             raise ValueError("Photo outside selected year")
         return p
 
+    def render(self, photo_id, box, version):
+        """Encode the transported JPEG once per run; identical requests wait."""
+        key = (photo_id, encoded(box.model_dump()) if box else None, version)
+        with self.render_lock:
+            if key in self.render_memo:
+                return self.render_memo[key]
+            wait = self.render_waits.setdefault(key, threading.Lock())
+        with wait:
+            with self.render_lock:
+                if key in self.render_memo:
+                    return self.render_memo[key]
+            image = self.store.read_image(photo_id, box)
+            image.thumbnail((1536, 1536))
+            out = io.BytesIO()
+            image.save(out, "JPEG", quality=85)
+            data = base64.b64encode(out.getvalue()).decode()
+            with self.render_lock:
+                self.render_memo[key] = data
+        return data
+
     def image_block(self, photo_id, box=None):
         asset = self.authorize(photo_id)
-        image = self.store.read_image(photo_id, box)
-        image.thumbnail((1536, 1536))
-        out = io.BytesIO()
-        image.save(out, "JPEG", quality=85)
-        self.seen.add(photo_id)
-        return [
+        data = self.render(photo_id, box, asset.version)
+        blocks = [
             {
                 "type": "text",
                 "text": encoded(
@@ -238,24 +284,41 @@ class GalleryTools:
                 "source": {
                     "type": "base64",
                     "media_type": "image/jpeg",
-                    "data": base64.b64encode(out.getvalue()).decode(),
+                    "data": data,
                 },
             },
         ]
+        # Observation credit only for a block a caller can actually transport:
+        # a half-built attachment is dropped, and its photo must stay unseen.
+        with self.tracking:
+            self.seen.add(photo_id)
+        return blocks
 
-    def artifact(self, name, args, fn):
-        p = self.authorize(args.photo_id)
-        key = hashlib.sha256(
+    def artifact_key(self, name, photo, args):
+        """The only derivation of an artifact cache key."""
+        return hashlib.sha256(
             encoded(
                 [
                     name,
-                    p.id,
-                    p.version,
+                    photo.id,
+                    photo.version,
                     args.model_dump(),
                     self.models.pins if hasattr(self.models, "pins") else {},
                 ]
             ).encode()
         ).hexdigest()
+
+    def stored_artifact(self, name, args):
+        """Read an existing artifact without running inference; None when absent."""
+        p = self.authorize(args.photo_id)
+        rows = self.store.rows(
+            "SELECT data FROM artifacts WHERE key=?", (self.artifact_key(name, p, args),)
+        )
+        return json.loads(rows[0]["data"]) if rows else None
+
+    def artifact(self, name, args, fn):
+        p = self.authorize(args.photo_id)
+        key = self.artifact_key(name, p, args)
         rows = self.store.rows("SELECT data FROM artifacts WHERE key=?", (key,))
         if rows:
             return json.loads(rows[0]["data"])
@@ -276,30 +339,29 @@ class GalleryTools:
                 result = getattr(self, name)(args)
         else:
             result = getattr(self, name)(args)
-        self.store.event(
-            self.run_id,
-            "tool",
-            {
-                "name": name,
-                "seen": sorted(self.seen),
-                "covered": sorted(self.covered),
-                "searched": sorted(self.searched),
-            },
-        )
+        self.store.event(self.run_id, "tool", {"name": name, **self.tracking_snapshot()})
         return result
+
+    def tracking_snapshot(self):
+        with self.tracking:
+            return {"seen": sorted(self.seen), "covered": sorted(self.covered),
+                    "searched": sorted(self.searched)}
 
     def coverage_status(self):
         photos = self.store.photos(self.request.explore.year if self.request.explore else None)
-        return {"covered_count": sum(p.id in self.covered for p in photos),
+        with self.tracking:
+            covered = set(self.covered)
+        return {"covered_count": sum(p.id in covered for p in photos),
                 "total_count": len(photos),
-                "next_uncovered_offset": next((i for i, p in enumerate(photos) if p.id not in self.covered), None)}
+                "next_uncovered_offset": next((i for i, p in enumerate(photos) if p.id not in covered), None)}
 
     def list_photos(self, args):
         photos = self.store.photos(
             self.request.explore.year if self.request.explore else None
         )
         page = photos[args.offset : args.offset + args.limit]
-        self.covered.update(p.id for p in page)
+        with self.tracking:
+            self.covered.update(p.id for p in page)
         output = [self.catalog_entry(p) for p in page]
         return {
             "total": len(photos),
@@ -331,17 +393,56 @@ class GalleryTools:
         return self.image_block(args.photo_id, args.box)
 
     def recognize_text(self, args):
-        result = self.artifact("ocr-v1", args, self.models.ocr)
+        if args.box is not None and not getattr(args, "refresh", False):
+            reused = self.reused_full_photo_lines(args.photo_id, args.box)
+            # An empty filter is not evidence of no text in the region: fall
+            # through to the exact crop, which is what today's cost already is.
+            if reused:
+                return {"coordinate_space": "full_oriented_photo_normalized_xywh",
+                        "texts": reused, "source": "full_photo_ocr"}
+        # The cache key stays [name, photo id, version, {photo_id, box}, pins];
+        # refresh is a request flag, never part of the stored artifact identity.
+        region = RegionArgs(photo_id=args.photo_id, box=args.box)
+        result = self.artifact("ocr-v1", region, self.models.ocr)
         image = self.store.read_image(args.photo_id, args.box)
-        texts = []
+        return {"coordinate_space": "full_oriented_photo_normalized_xywh",
+                "texts": self.ocr_lines(result, image.size, args.box),
+                "source": "region_ocr"}
+
+    def ocr_lines(self, result, size, crop):
+        lines = []
         for page in result["pages"]:
             evidence = page.get("res", page)
             for text, score, xyxy in zip(evidence["rec_texts"], evidence["rec_scores"],
                                          evidence["rec_boxes"], strict=True):
-                box = self.pixel_box(xyxy, image.size, args.box)
+                box = self.pixel_box(xyxy, size, crop)
                 if box is not None:
-                    texts.append({"text": text, "score": score, "box": box})
-        return {"coordinate_space": "full_oriented_photo_normalized_xywh", "texts": texts}
+                    lines.append({"text": text, "score": score, "box": box})
+        return lines
+
+    def reused_full_photo_lines(self, photo_id, box):
+        """Lines of an existing full-photo OCR artifact that fall inside `box`.
+
+        None when no full-photo artifact exists. Stored rec_boxes are pixels of
+        the full stored image, which is the same file that was recognized, so
+        normalizing by its size puts them in the returned coordinate space.
+        """
+        stored = self.stored_artifact("ocr-v1", RegionArgs(photo_id=photo_id, box=None))
+        if stored is None:
+            return None
+        size = self.store.read_image(photo_id).size
+        return [line for line in self.ocr_lines(stored, size, None)
+                if self.inside_ratio(line["box"], box) >= REUSED_LINE_OVERLAP]
+
+    @staticmethod
+    def inside_ratio(box, region):
+        """Fraction of a normalized full-photo box's area inside a region."""
+        area = box["width"] * box["height"]
+        if area <= 0:
+            return 0.0
+        width = min(box["x"] + box["width"], region.x + region.width) - max(box["x"], region.x)
+        height = min(box["y"] + box["height"], region.y + region.height) - max(box["y"], region.y)
+        return max(0.0, width) * max(0.0, height) / area
 
     def ground_regions(self, args):
         result = self.artifact(
@@ -425,18 +526,25 @@ class GalleryTools:
             results.append(key)
         return {"indexed": results}
 
-    def index_coverage(self, space):
+    def index_coverage_sets(self, space):
+        """Read-only coverage. Grants no search credit; index_coverage does."""
+        eligible = self.candidate_ids()
         indexed = {
             r["photo_id"]
             for r in self.store.rows(
                 "SELECT DISTINCT photo_id FROM vectors WHERE space=?", (space,)
             )
-        } & self.candidate_ids()
-        self.searched.update(indexed)
-        missing = self.candidate_ids() - indexed
+        } & eligible
+        return indexed, eligible
+
+    def index_coverage(self, space):
+        indexed, eligible = self.index_coverage_sets(space)
+        with self.tracking:
+            self.searched.update(indexed)
+        missing = eligible - indexed
         return {
             "indexed_count": len(indexed),
-            "eligible_count": len(self.candidate_ids()),
+            "eligible_count": len(eligible),
             "unindexed_ids": sorted(missing)[:20],
             "unindexed_count": len(missing),
         }
@@ -499,6 +607,171 @@ class GalleryTools:
                 self.candidate_ids(),
                 args.limit,
             )
+        }
+
+    def anchor_text_queries(self, anchor, errors):
+        """Label first, then cached in-box OCR text when it says something else.
+
+        The selected label is what the user actually chose. Region OCR text can
+        collapse to one very common token when a line straddles the selection
+        edge, which retrieves the whole gallery; it stays a second query, never
+        the only one.
+        """
+        queries = []
+        if anchor.label.strip():
+            queries.append(("label", anchor.label))
+        recognized = self.anchor_ocr_text(anchor, errors)
+        if recognized and recognized != anchor.label:
+            queries.append(("ocr", recognized))
+        return queries
+
+    def anchor_ocr_text(self, anchor, errors):
+        """Text for the initial lead channels: cached OCR only, never inference."""
+        try:
+            stored = self.stored_artifact(
+                "ocr-v1", RegionArgs(photo_id=anchor.photo_id, box=None)
+            )
+            if stored is not None:
+                size = self.store.read_image(anchor.photo_id).size
+                lines = self.ocr_lines(stored, size, None)
+                if anchor.box is not None:
+                    lines = [line for line in lines
+                             if self.inside_ratio(line["box"], anchor.box) >= REUSED_LINE_OVERLAP]
+                text = " ".join(line["text"] for line in lines if line["text"].strip())
+                if text.strip():
+                    return text[:400]
+        except Exception as e:
+            errors["text_query"] = type(e).__name__
+        return ""
+
+    def initial_candidates(self, anchor, limit):
+        """Host-retrieved leads supplied before the explorer's first response.
+
+        Channels run concurrently and fail independently; a failed channel is an
+        unavailable evidence source, not an empty gallery. No OCR inference runs
+        here, and no coverage or search credit is granted: only the caller's
+        image_block records what the model actually observes.
+        """
+        started = time.monotonic()
+        allowed = self.candidate_ids()
+        errors = {}
+        queries = self.anchor_text_queries(anchor, errors)
+
+        def visual():
+            space, vector = self.models.image(
+                self.store.read_image(anchor.photo_id, anchor.box)
+            )
+            return self.store.search(space, vector, allowed, limit)
+
+        def by_query(retrieve):
+            """Every query of the channel in order; the label's hits come first."""
+            hits, taken = [], set()
+            for source, text in queries:
+                for hit in retrieve(text):
+                    if hit["photo_id"] in taken:
+                        continue
+                    taken.add(hit["photo_id"])
+                    hits.append({**hit, "query_source": source})
+            return hits[:limit]
+
+        def text_literal():
+            def literal(text):
+                match = '"' + text.replace('"', '""') + '"'
+                return [
+                    {"photo_id": r["photo_id"]}
+                    for r in self.store.rows(
+                        "SELECT photo_id FROM evidence_fts WHERE evidence_fts MATCH ?", (match,)
+                    )
+                    if r["photo_id"] in allowed
+                ][:limit]
+
+            return by_query(literal)
+
+        def text_semantic():
+            def semantic(text):
+                space, vector = self.models.text(text)
+                return self.store.search(space, vector, allowed, limit)
+
+            return by_query(semantic)
+
+        def faces():
+            if anchor.kind != "person":
+                return []
+            detected = self.artifact(
+                "sface-v1",
+                RegionArgs(photo_id=anchor.photo_id, box=anchor.box),
+                self.models.faces,
+            )["faces"]
+            largest = sorted(detected, key=lambda f: f["box"]["width"] * f["box"]["height"],
+                             reverse=True)[:3]
+            hits = []
+            for face in largest:
+                hits += self.store.search("sface", face["vector"], allowed, limit)
+            return hits
+
+        runners = {"visual": visual, "text_literal": text_literal,
+                   "text_semantic": text_semantic, "faces": faces}
+        results = {}
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=len(runners), thread_name_prefix="initial-candidates"
+        ) as pool:
+            futures = {name: pool.submit(runners[name]) for name in INITIAL_CANDIDATE_CHANNELS}
+            for name, future in futures.items():
+                try:
+                    results[name] = future.result()
+                except Exception as e:
+                    results[name] = []
+                    errors[name] = type(e).__name__
+        evidence, queues = {}, {}
+        for name in INITIAL_CANDIDATE_CHANNELS:
+            queue = []
+            for hit in results[name]:
+                pid = hit.get("photo_id")
+                if pid is None or pid == anchor.photo_id or pid not in allowed:
+                    continue
+                queue.append(pid)
+                entry = evidence.setdefault(pid, {"photo_id": pid, "channels": [],
+                                                  "similarity": {}, "literal_match": False,
+                                                  "query_source": None})
+                if name not in entry["channels"]:
+                    entry["channels"].append(name)
+                if name == "text_literal":
+                    entry["literal_match"] = True
+                if entry["query_source"] is None and hit.get("query_source"):
+                    entry["query_source"] = hit["query_source"]
+                if "similarity" in hit:
+                    score = round(float(hit["similarity"]), 4)
+                    if score > entry["similarity"].get(name, -2):
+                        entry["similarity"][name] = score
+            queues[name] = queue
+        selected, taken, depth = [], set(), 0
+        while len(selected) < limit and any(depth < len(queues[n]) for n in INITIAL_CANDIDATE_CHANNELS):
+            for name in INITIAL_CANDIDATE_CHANNELS:
+                if len(selected) >= limit:
+                    break
+                queue = queues[name]
+                if depth < len(queue) and queue[depth] not in taken:
+                    taken.add(queue[depth])
+                    selected.append(evidence[queue[depth]])
+            depth += 1
+        coverage = {}
+        for label, space in (("visual", "visual_space"), ("text", "text_space")):
+            try:
+                indexed, eligible = self.index_coverage_sets(getattr(self.models, space))
+                coverage[label] = {"indexed_count": len(indexed), "eligible_count": len(eligible),
+                                   "unindexed_count": len(eligible - indexed)}
+            except Exception as e:
+                errors["coverage_" + label] = type(e).__name__
+        return {
+            "limit": limit,
+            # Which query sources ran, never the query text or any photo id.
+            "text_queries": {source: any(s == source for s, _ in queries)
+                             for source in ("label", "ocr")},
+            "channels": {n: len(set(queues[n])) for n in INITIAL_CANDIDATE_CHANNELS},
+            "coverage": coverage,
+            "channel_errors": errors,
+            "candidates": selected,
+            "seconds": round(time.monotonic() - started, 3),
         }
 
     def search_location(self, args):
@@ -589,10 +862,12 @@ class GalleryTools:
         ids = [x.photo_id for x in args.items]
         if len(ids) != len(set(ids)):
             raise ValueError("Duplicate result IDs")
+        with self.tracking:
+            observed = self.seen | self.searched
         if (
             not ids
             and args.complete
-            and not self.allowed().issubset(self.seen | self.searched)
+            and not self.allowed().issubset(observed)
         ):
             raise ValueError(
                 "Unsearched photos remain. An empty index is not evidence of no matches. Inspect unindexed photos or submit incomplete."
@@ -614,7 +889,9 @@ class GalleryTools:
         return {"saved": True, "complete": args.complete}
 
     def submit_space_proposal(self, args):
-        if not self.allowed().issubset(self.covered):
+        with self.tracking:
+            covered = set(self.covered)
+        if not self.allowed().issubset(covered):
             coverage = self.coverage_status()
             raise ValueError(f"Page through the whole library before finalizing Spaces. "
                              f"Covered {coverage['covered_count']}/{coverage['total_count']}; "

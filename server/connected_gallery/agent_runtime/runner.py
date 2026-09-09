@@ -12,7 +12,8 @@ from langgraph.graph.message import add_messages
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from connected_gallery.agent_specs.prompts import PROMPTS
 from connected_gallery.agent_specs.versions import AGENT_SPEC_VERSION
-from connected_gallery.gallery_tools.registry import GalleryTools
+from connected_gallery.agent_specs.budgets import initial_candidate_limit
+from connected_gallery.gallery_tools.registry import GalleryTools, INITIAL_CANDIDATE_INSTRUCTION
 from connected_gallery.adapters.store import encoded
 from connected_gallery.application.attempt_feedback import RETRY_FEEDBACK_VERSION, load_prior_attempt_feedback, feedback_block
 
@@ -150,54 +151,98 @@ class GraphAgentRunner:
                     "repair_used": state.get("repair_used", False) or repairing,
                     "repair_pending": False}
 
+        def tool_failure(e):
+            # Validation errors are useful to the model; infrastructure details are redacted.
+            if isinstance(e, ValidationError):
+                return {"error": "ValidationError", "issues": [
+                    {"path": list(x["loc"]), "type": x["type"], "message": x["msg"]}
+                    for x in e.errors(include_input=False, include_context=False, include_url=False)[:12]
+                ]}
+            return {"error": str(e)[:300] if isinstance(e, ValueError) else type(e).__name__}
+
         async def tools(state):
-            messages = []
+            tool_calls = state["messages"][-1].tool_calls
+            contents = [None] * len(tool_calls)
             calls = state.get("calls", 0)
             repair_pending = False
             repairing = state.get("turns", 0) > turns
             repair_submitted = False
-            for call in state["messages"][-1].tool_calls:
-                if repairing and (repair_submitted or not call["name"].startswith("submit_")):
-                    messages.append(ToolMessage(content=encoded({"error": "Only a corrected submission is permitted."}), tool_call_id=call["id"]))
-                    continue
+            # Ordering carries meaning only around submission: a call placed
+            # after a submit must still observe it. Calls before the first
+            # submit are independent, so they run together under the same
+            # sequentially decided budget.
+            split = next((i for i, call in enumerate(tool_calls)
+                          if call["name"].startswith("submit_")), len(tool_calls))
+            plan = []
+            for index, call in enumerate(tool_calls[:split]):
                 if repairing:
-                    repair_submitted = True
-                if calls >= max_calls - 1 and not call["name"].startswith("submit_"):
-                    messages.append(ToolMessage(
-                        content=encoded({"error": "Tool budget reserved for submission. Submit current evidence now."}),
-                        tool_call_id=call["id"],
-                    ))
+                    contents[index] = encoded({"error": "Only a corrected submission is permitted."})
+                    continue
+                if calls >= max_calls - 1:
+                    contents[index] = encoded(
+                        {"error": "Tool budget reserved for submission. Submit current evidence now."})
                     continue
                 calls += 1
                 if calls > max_calls + int(repairing):
                     raise RuntimeError("Tool budget exceeded")
+                plan.append((index, call))
+
+            async def run(call):
                 started = time.monotonic()
-                error = None
                 try:
-                    result = await asyncio.to_thread(
-                        toolkit.invoke, call["name"], call["args"]
-                    )
+                    result = await asyncio.to_thread(toolkit.invoke, call["name"], call["args"])
                     content = result if isinstance(result, list) else encoded(result)
+                    return content, None, None, round(time.monotonic() - started, 3)
                 except Exception as e:
-                    error = type(e).__name__
-                    if call["name"].startswith("submit_") and isinstance(e, ValueError):
+                    detail = tool_failure(e)
+                    return encoded(detail), e, detail, round(time.monotonic() - started, 3)
+
+            if plan:
+                # Identical (name, args) inside one batch is one observation.
+                identity = {index: (call["name"], json.dumps(call["args"], sort_keys=True, default=str))
+                            for index, call in plan}
+                distinct = {}
+                for index, call in plan:
+                    distinct.setdefault(identity[index], call)
+                keys = list(distinct)
+                outcomes = dict(zip(keys, await asyncio.gather(*(run(distinct[k]) for k in keys))))
+                for index, call in plan:
+                    content, failure, detail, seconds = outcomes[identity[index]]
+                    contents[index] = content
+                    if failure is not None:
+                        self.store.event(run_id, "tool_error", {"name": call["name"], **detail})
+                    self.store.event(run_id, "tool_timing", {
+                        "name": call["name"], "seconds": seconds,
+                        "error": None if failure is None else type(failure).__name__,
+                        "concurrent": True,
+                    })
+
+            for offset, call in enumerate(tool_calls[split:]):
+                index = split + offset
+                if repairing and (repair_submitted or not call["name"].startswith("submit_")):
+                    contents[index] = encoded({"error": "Only a corrected submission is permitted."})
+                    continue
+                if repairing:
+                    repair_submitted = True
+                if calls >= max_calls - 1 and not call["name"].startswith("submit_"):
+                    contents[index] = encoded(
+                        {"error": "Tool budget reserved for submission. Submit current evidence now."})
+                    continue
+                calls += 1
+                if calls > max_calls + int(repairing):
+                    raise RuntimeError("Tool budget exceeded")
+                content, failure, detail, seconds = await run(call)
+                contents[index] = content
+                if failure is not None:
+                    if call["name"].startswith("submit_") and isinstance(failure, ValueError):
                         repair_pending = True
-                    # Validation errors are useful to the model; infrastructure details are redacted.
-                    if isinstance(e, ValidationError):
-                        detail = {"error": "ValidationError", "issues": [
-                            {"path": list(x["loc"]), "type": x["type"], "message": x["msg"]}
-                            for x in e.errors(include_input=False, include_context=False, include_url=False)[:12]
-                        ]}
-                    else:
-                        detail = {"error": str(e)[:300] if isinstance(e, ValueError) else error}
-                    content = encoded(detail)
                     self.store.event(run_id, "tool_error", {"name": call["name"], **detail})
                 self.store.event(run_id, "tool_timing", {
-                    "name": call["name"],
-                    "seconds": round(time.monotonic() - started, 3),
-                    "error": error,
+                    "name": call["name"], "seconds": seconds,
+                    "error": None if failure is None else type(failure).__name__,
                 })
-                messages.append(ToolMessage(content=content, tool_call_id=call["id"]))
+            messages = [ToolMessage(content=contents[i], tool_call_id=call["id"])
+                        for i, call in enumerate(tool_calls)]
             return {"messages": messages, "calls": calls, "repair_pending": repair_pending}
 
         def after_model(state):
@@ -331,6 +376,47 @@ class GraphAgentRunner:
                 self.store.event(run_id, "tool", {
                     "name": "initial_photo", "seen": sorted(toolkit.seen),
                     "covered": [], "searched": [],
+                })
+            limit = initial_candidate_limit() if request.role == "explorer" else 0
+            if not checkpoint.next and limit:
+                # Host-side retrieval leads, supplied like the anchor image:
+                # transport of already indexed evidence, not a semantic choice
+                # of results and not search/coverage credit. Costs no model turn
+                # or tool call; the model still decides what the images mean.
+                started = time.monotonic()
+                leads = await asyncio.to_thread(toolkit.initial_candidates,
+                                                request.explore.anchor, limit)
+                rendering = time.monotonic()
+                blocks, supplied = [], []
+                for candidate in leads["candidates"]:
+                    try:
+                        images = await asyncio.to_thread(toolkit.image_block, candidate["photo_id"])
+                    except Exception as e:
+                        leads["channel_errors"].setdefault("images", type(e).__name__)
+                        continue
+                    blocks.append({"type": "text", "text": encoded({"initial_candidate": candidate})})
+                    blocks += images
+                    supplied.append(candidate["photo_id"])
+                summary = {"count": len(supplied), "limit": limit, "channels": leads["channels"],
+                           "coverage": leads["coverage"], "channel_errors": leads["channel_errors"],
+                           "instruction": INITIAL_CANDIDATE_INSTRUCTION}
+                initial_content.append({"type": "text", "text": encoded({"initial_candidates": summary})})
+                initial_content += blocks
+                if supplied:
+                    # Same recovery record as the initial photo: observation only.
+                    self.store.event(run_id, "tool", {
+                        "name": "initial_candidates", "seen": sorted(toolkit.seen),
+                        "covered": [], "searched": [],
+                    })
+                # The measured supply delay is everything before the first model
+                # call, so rendering the attached images counts too.
+                self.store.event(run_id, "initial_candidates", {
+                    "seconds": round(time.monotonic() - started, 3),
+                    "retrieval_seconds": leads["seconds"],
+                    "render_seconds": round(time.monotonic() - rendering, 3),
+                    "count": len(supplied), "limit": limit,
+                    "channels": leads["channels"], "text_queries": leads["text_queries"],
+                    "channel_errors": leads["channel_errors"],
                 })
             initial = (
                 None

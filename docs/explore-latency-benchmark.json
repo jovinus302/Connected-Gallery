@@ -1,0 +1,1406 @@
+{
+  "after-fix": {
+    "note": "v3 revision (label-first text channel), N=8, warm, jitter 0.006",
+    "rebuilt_at": "2026-09-09T07:02:37.886873+00:00",
+    "cases": [
+      {
+        "id": "existing-nightwalk-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 27.672,
+        "model_turns": 1,
+        "model_seconds": 6.657,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 6.218,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 27.623,
+        "queue_wait_seconds": 0.75,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 4,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 1,
+        "initial_candidates": {
+          "seconds": 0.609,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 8,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": {
+            "label": true,
+            "ocr": true
+          }
+        }
+      },
+      {
+        "id": "existing-nightwalk-text",
+        "repeat": 1,
+        "prepared_cache_hit": true,
+        "status": "completed",
+        "total_seconds": 0.031,
+        "model_turns": 0,
+        "model_seconds": 0,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": null,
+        "review_kind": null,
+        "results_at_seconds": 0.019,
+        "queue_wait_seconds": null,
+        "tool_seconds_by_name": {},
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 4,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 1
+      },
+      {
+        "id": "new-bookstore-name",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 17.437,
+        "model_turns": 1,
+        "model_seconds": 7.938,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 3.578,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 17.242,
+        "queue_wait_seconds": 0.413,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.297,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 1,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": {
+            "label": true,
+            "ocr": false
+          }
+        }
+      },
+      {
+        "id": "existing-receipt-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "incomplete",
+        "total_seconds": 35.266,
+        "model_turns": 2,
+        "model_seconds": 12.984,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 6.579,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 35.098,
+        "queue_wait_seconds": 0.481,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 5,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.343,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 6,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": {
+            "label": true,
+            "ocr": false
+          }
+        }
+      },
+      {
+        "id": "existing-menu-text-newbox",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 32.688,
+        "model_turns": 1,
+        "model_seconds": 7.156,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 5.953,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 32.531,
+        "queue_wait_seconds": 0.457,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.016
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 5,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.313,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 6,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": {
+            "label": true,
+            "ocr": false
+          }
+        }
+      }
+    ]
+  },
+  "after-n0-jit": {
+    "note": "same code as after, CG_EXPLORE_INITIAL_CANDIDATES=0, anchors jittered by 0.002 to avoid the prepared cache, warm",
+    "rebuilt_at": "2026-09-09T07:02:37.887959+00:00",
+    "cases": [
+      {
+        "id": "new-bookstore-name",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "failed",
+        "total_seconds": 24.204,
+        "model_turns": 7,
+        "model_seconds": 20.843,
+        "ocr_seconds": 2.671,
+        "ocr_calls": 1,
+        "review_seconds": null,
+        "review_kind": null,
+        "results_at_seconds": null,
+        "queue_wait_seconds": 0.046,
+        "tool_seconds_by_name": {
+          "recognize_text": 2.671,
+          "search_text": 0.016,
+          "inspect_photos": 0.047,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 0.0,
+        "error": "RuntimeError: Submission validation repair exhausted",
+        "expected_count": 1,
+        "item_count": 0,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "new-book-title",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 39.265,
+        "model_turns": 6,
+        "model_seconds": 28.331,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 2.796,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 38.815,
+        "queue_wait_seconds": 0.042,
+        "tool_seconds_by_name": {
+          "inspect_region": 0.0,
+          "search_text": 0.328,
+          "search_visual": 1.0,
+          "ensure_embeddings": 1.172,
+          "inspect_photos": 0.157,
+          "submit_exploration_result": 0.015
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "new-train-number",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "failed",
+        "total_seconds": 40.375,
+        "model_turns": 3,
+        "model_seconds": 9.234,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": null,
+        "review_kind": null,
+        "results_at_seconds": null,
+        "queue_wait_seconds": 0.219,
+        "tool_seconds_by_name": {
+          "inspect_photos": 0.204,
+          "search_text": 0.032,
+          "search_visual": 0.219,
+          "ensure_embeddings": 0.454
+        },
+        "recall": 0.0,
+        "error": "RuntimeError: Model unavailable (TimeoutError)",
+        "expected_count": 1,
+        "item_count": 0,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "existing-nightwalk-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 69.578,
+        "model_turns": 3,
+        "model_seconds": 18.688,
+        "ocr_seconds": 4.781,
+        "ocr_calls": 1,
+        "review_seconds": 9.5,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 69.062,
+        "queue_wait_seconds": 0.066,
+        "tool_seconds_by_name": {
+          "recognize_text": 4.781,
+          "search_text": 4.781,
+          "search_visual": 4.953,
+          "inspect_photos": 0.125,
+          "list_photos": 0.016,
+          "submit_exploration_result": 0.016
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 4,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "existing-receipt-text-newbox",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 35.297,
+        "model_turns": 3,
+        "model_seconds": 13.062,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 5.812,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 34.931,
+        "queue_wait_seconds": 0.049,
+        "tool_seconds_by_name": {
+          "list_photos": 0.016,
+          "search_text": 0.031,
+          "search_visual": 1.031,
+          "inspect_photos": 0.094,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 4,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "existing-menu-text-newbox",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 32.813,
+        "model_turns": 3,
+        "model_seconds": 12.453,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 7.063,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 32.303,
+        "queue_wait_seconds": 0.05,
+        "tool_seconds_by_name": {
+          "inspect_region": 0.0,
+          "search_visual": 1.016,
+          "inspect_photos": 0.078,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 0.667,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 3,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      }
+    ]
+  },
+  "after": {
+    "note": "worktree code v2 (agent_spec 19), CG_EXPLORE_INITIAL_CANDIDATES=8; first case ran cold after restart",
+    "rebuilt_at": "2026-09-09T07:02:37.891117+00:00",
+    "cases": [
+      {
+        "id": "new-bookstore-name",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 45.937,
+        "model_turns": 3,
+        "model_seconds": 20.078,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 3.125,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 45.7,
+        "queue_wait_seconds": 16.956,
+        "tool_seconds_by_name": {
+          "search_text": 0.016,
+          "inspect_photos": 0.032,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 16.781,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 1,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "new-book-title",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 14.438,
+        "model_turns": 1,
+        "model_seconds": 5.437,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 3.844,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 14.211,
+        "queue_wait_seconds": 0.401,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.266,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 1,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "new-train-number",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "incomplete",
+        "total_seconds": 19.468,
+        "model_turns": 2,
+        "model_seconds": 11.157,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 2.421,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 18.962,
+        "queue_wait_seconds": 0.566,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.015
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.453,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 1,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "new-hotel-name",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 13.36,
+        "model_turns": 1,
+        "model_seconds": 4.281,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 2.515,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 13.032,
+        "queue_wait_seconds": 0.509,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.016
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.359,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 1,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "new-distractor-empty",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "incomplete",
+        "total_seconds": 15.859,
+        "model_turns": 3,
+        "model_seconds": 14.922,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": null,
+        "review_kind": "empty_evidence_review",
+        "results_at_seconds": 15.67,
+        "queue_wait_seconds": 0.563,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0,
+          "search_text": 0.11
+        },
+        "recall": null,
+        "error": null,
+        "expected_count": 0,
+        "item_count": 0,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.437,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 0,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "existing-m2-object",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 31.328,
+        "model_turns": 2,
+        "model_seconds": 14.36,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 7.219,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 30.879,
+        "queue_wait_seconds": 0.328,
+        "tool_seconds_by_name": {
+          "inspect_photos": 0.0,
+          "submit_exploration_result": 0.015
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.172,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 2,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "existing-ba217-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "failed",
+        "total_seconds": 30.735,
+        "model_turns": 0,
+        "model_seconds": 0,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": null,
+        "review_kind": null,
+        "results_at_seconds": null,
+        "queue_wait_seconds": 0.311,
+        "tool_seconds_by_name": {},
+        "recall": 0.0,
+        "error": "RuntimeError: Model unavailable (TimeoutError)",
+        "expected_count": 2,
+        "item_count": 0,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.156,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 2,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "existing-receipt-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 32.671,
+        "model_turns": 1,
+        "model_seconds": 8.922,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 7.047,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 32.384,
+        "queue_wait_seconds": 0.319,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 0.667,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 4,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.157,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 6,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "existing-lighthouse-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 33.204,
+        "model_turns": 1,
+        "model_seconds": 6.516,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 6.671,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 32.987,
+        "queue_wait_seconds": 0.28,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 2,
+        "item_count": 2,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.156,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 3,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "existing-nightwalk-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 18.921,
+        "model_turns": 1,
+        "model_seconds": 6.109,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 5.813,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 18.633,
+        "queue_wait_seconds": 0.303,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 0.333,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.172,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 8,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "existing-receipt-text-newbox",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 33.188,
+        "model_turns": 1,
+        "model_seconds": 8.64,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 7.641,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 33.015,
+        "queue_wait_seconds": 0.325,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 5,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.172,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 6,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "existing-menu-text-newbox",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 30.672,
+        "model_turns": 1,
+        "model_seconds": 7.437,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 6.875,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 30.484,
+        "queue_wait_seconds": 0.316,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 5,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.172,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 6,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      }
+    ]
+  },
+  "after-rerun-jit": {
+    "note": "same code as after, N=8, warm re-run of anomalous cases, jitter 0.004",
+    "rebuilt_at": "2026-09-09T07:02:37.891117+00:00",
+    "cases": [
+      {
+        "id": "new-bookstore-name",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 14.906,
+        "model_turns": 1,
+        "model_seconds": 6.0,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 3.172,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 14.592,
+        "queue_wait_seconds": 0.351,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.219,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 1,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "existing-ba217-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 25.016,
+        "model_turns": 1,
+        "model_seconds": 7.719,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 6.171,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 24.875,
+        "queue_wait_seconds": 0.354,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 2,
+        "item_count": 2,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.219,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 2,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      },
+      {
+        "id": "existing-nightwalk-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 23.453,
+        "model_turns": 2,
+        "model_seconds": 12.375,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 5.406,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 23.214,
+        "queue_wait_seconds": 0.33,
+        "tool_seconds_by_name": {
+          "inspect_photos": 0.03,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 0.333,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.203,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 8,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": null
+        }
+      }
+    ]
+  },
+  "before": {
+    "note": "original server code (agent_spec 18); includes 2 model-proxy timeouts and their re-runs",
+    "rebuilt_at": "2026-09-09T07:02:37.893978+00:00",
+    "cases": [
+      {
+        "id": "new-bookstore-name",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 22.25,
+        "model_turns": 4,
+        "model_seconds": 12.828,
+        "ocr_seconds": 1.344,
+        "ocr_calls": 1,
+        "review_seconds": 2.234,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 22.119,
+        "queue_wait_seconds": 0.043,
+        "tool_seconds_by_name": {
+          "recognize_text": 1.344,
+          "search_visual": 0.344,
+          "inspect_photos": 0.031,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "new-book-title",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 20.718,
+        "model_turns": 4,
+        "model_seconds": 11.86,
+        "ocr_seconds": 1.156,
+        "ocr_calls": 1,
+        "review_seconds": 2.312,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 20.5,
+        "queue_wait_seconds": 0.032,
+        "tool_seconds_by_name": {
+          "recognize_text": 1.156,
+          "search_text": 0.015,
+          "inspect_photos": 0.047,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "new-train-number",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 18.86,
+        "model_turns": 3,
+        "model_seconds": 8.5,
+        "ocr_seconds": 1.125,
+        "ocr_calls": 1,
+        "review_seconds": 2.969,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 18.71,
+        "queue_wait_seconds": 0.023,
+        "tool_seconds_by_name": {
+          "search_text": 0.015,
+          "search_visual": 0.812,
+          "recognize_text": 1.125,
+          "inspect_photos": 0.032,
+          "submit_exploration_result": 0.015
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "new-hotel-name",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 27.093,
+        "model_turns": 6,
+        "model_seconds": 17.234,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 3.25,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 27.0,
+        "queue_wait_seconds": 0.025,
+        "tool_seconds_by_name": {
+          "inspect_region": 0.0,
+          "list_photos": 0.016,
+          "inspect_photos": 0.016,
+          "search_visual": 0.094,
+          "search_text": 0.046,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "new-distractor-empty",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "incomplete",
+        "total_seconds": 10.297,
+        "model_turns": 3,
+        "model_seconds": 9.986,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": null,
+        "review_kind": "empty_evidence_review",
+        "results_at_seconds": 10.097,
+        "queue_wait_seconds": 0.018,
+        "tool_seconds_by_name": {
+          "search_text": 0.015,
+          "inspect_photos": 0.046,
+          "submit_exploration_result": 0.015
+        },
+        "recall": null,
+        "error": null,
+        "expected_count": 0,
+        "item_count": 0,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "existing-m2-object",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "failed",
+        "total_seconds": 45.907,
+        "model_turns": 3,
+        "model_seconds": 14.579,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": null,
+        "review_kind": null,
+        "results_at_seconds": null,
+        "queue_wait_seconds": 0.035,
+        "tool_seconds_by_name": {
+          "search_visual": 0.594,
+          "search_text": 0.0,
+          "inspect_photos": 0.093,
+          "submit_exploration_result": 0.015
+        },
+        "recall": 0.0,
+        "error": "RuntimeError: Model unavailable (TimeoutError)",
+        "expected_count": 1,
+        "item_count": 0,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "existing-ba217-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "failed",
+        "total_seconds": 38.156,
+        "model_turns": 2,
+        "model_seconds": 7.391,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": null,
+        "review_kind": null,
+        "results_at_seconds": null,
+        "queue_wait_seconds": 0.032,
+        "tool_seconds_by_name": {
+          "search_text": 0.031,
+          "inspect_photos": 0.062,
+          "search_visual": 0.047
+        },
+        "recall": 0.0,
+        "error": "RuntimeError: Model unavailable (TimeoutError)",
+        "expected_count": 2,
+        "item_count": 0,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "existing-receipt-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 34.672,
+        "model_turns": 3,
+        "model_seconds": 13.781,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 7.187,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 34.394,
+        "queue_wait_seconds": 0.028,
+        "tool_seconds_by_name": {
+          "search_text": 0.016,
+          "search_visual": 0.375,
+          "inspect_photos": 0.094,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 5,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "existing-lighthouse-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 26.359,
+        "model_turns": 4,
+        "model_seconds": 12.42,
+        "ocr_seconds": 0.891,
+        "ocr_calls": 1,
+        "review_seconds": 5.0,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 25.928,
+        "queue_wait_seconds": 0.024,
+        "tool_seconds_by_name": {
+          "recognize_text": 0.891,
+          "search_text": 0.016,
+          "inspect_photos": 0.062,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 0.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 1
+      },
+      {
+        "id": "existing-nightwalk-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 60.094,
+        "model_turns": 4,
+        "model_seconds": 15.954,
+        "ocr_seconds": 1.921,
+        "ocr_calls": 1,
+        "review_seconds": 25.453,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 59.75,
+        "queue_wait_seconds": 0.023,
+        "tool_seconds_by_name": {
+          "recognize_text": 1.921,
+          "search_visual": 0.11,
+          "search_text": 0.015,
+          "inspect_photos": 0.062,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 5,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 1
+      },
+      {
+        "id": "existing-m2-object",
+        "repeat": 1,
+        "prepared_cache_hit": false,
+        "status": "incomplete",
+        "total_seconds": 22.485,
+        "model_turns": 3,
+        "model_seconds": 13.063,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 5.187,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 22.33,
+        "queue_wait_seconds": 0.028,
+        "tool_seconds_by_name": {
+          "search_visual": 0.344,
+          "inspect_photos": 0.047,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 0.0,
+        "error": null,
+        "expected_count": 1,
+        "item_count": 1,
+        "forbidden_hit_count": 1,
+        "unexpected_count": 0
+      },
+      {
+        "id": "existing-ba217-text",
+        "repeat": 1,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 22.484,
+        "model_turns": 3,
+        "model_seconds": 10.969,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 3.86,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 22.193,
+        "queue_wait_seconds": 0.035,
+        "tool_seconds_by_name": {
+          "search_visual": 0.109,
+          "search_text": 0.032,
+          "inspect_photos": 0.047,
+          "submit_exploration_result": 0.015
+        },
+        "recall": 0.5,
+        "error": null,
+        "expected_count": 2,
+        "item_count": 1,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "existing-receipt-text-newbox",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 39.125,
+        "model_turns": 4,
+        "model_seconds": 17.531,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 8.297,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 38.688,
+        "queue_wait_seconds": 0.025,
+        "tool_seconds_by_name": {
+          "inspect_region": 0.0,
+          "search_text": 0.015,
+          "inspect_photos": 0.125,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 5,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      },
+      {
+        "id": "existing-menu-text-newbox",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 59.281,
+        "model_turns": 3,
+        "model_seconds": 16.922,
+        "ocr_seconds": 4.547,
+        "ocr_calls": 1,
+        "review_seconds": 7.953,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 59.224,
+        "queue_wait_seconds": 0.048,
+        "tool_seconds_by_name": {
+          "recognize_text": 4.547,
+          "search_text": 0.031,
+          "list_photos": 0.0,
+          "inspect_photos": 0.062,
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 5,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0
+      }
+    ]
+  },
+  "final": {
+    "note": "final revision (Codex findings 3/4 fixed), N=8, first case cold after restart, jitter 0.008",
+    "rebuilt_at": "2026-09-09T07:02:37.895107+00:00",
+    "cases": [
+      {
+        "id": "existing-nightwalk-text",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "incomplete",
+        "total_seconds": 45.25,
+        "model_turns": 1,
+        "model_seconds": 8.344,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 6.985,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 44.874,
+        "queue_wait_seconds": 16.304,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.015
+        },
+        "recall": 0.667,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 4,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 1,
+        "initial_candidates": {
+          "seconds": 16.203,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 8,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": {
+            "label": true,
+            "ocr": true
+          }
+        }
+      },
+      {
+        "id": "existing-menu-text-newbox",
+        "repeat": 0,
+        "prepared_cache_hit": false,
+        "status": "completed",
+        "total_seconds": 33.438,
+        "model_turns": 1,
+        "model_seconds": 8.016,
+        "ocr_seconds": 0,
+        "ocr_calls": 0,
+        "review_seconds": 8.218,
+        "review_kind": "evidence_review",
+        "results_at_seconds": 32.948,
+        "queue_wait_seconds": 0.497,
+        "tool_seconds_by_name": {
+          "submit_exploration_result": 0.0
+        },
+        "recall": 1.0,
+        "error": null,
+        "expected_count": 3,
+        "item_count": 5,
+        "forbidden_hit_count": 0,
+        "unexpected_count": 0,
+        "initial_candidates": {
+          "seconds": 0.438,
+          "count": 8,
+          "limit": 8,
+          "channels": {
+            "faces": 0,
+            "text_literal": 6,
+            "text_semantic": 8,
+            "visual": 8
+          },
+          "channel_errors": {},
+          "text_queries": {
+            "label": true,
+            "ocr": false
+          }
+        }
+      }
+    ]
+  },
+  "_scope": "PC server API measurements on one machine (CPU inference), one synthetic gallery of 32 photos, one model proxy; before/after comparison only, not a general guarantee. Cases with prepared_cache_hit=true or error 'Model unavailable' are excluded from comparisons."
+}

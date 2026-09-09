@@ -9,6 +9,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from connected_gallery.adapters.store import encoded
+from connected_gallery.agent_specs.budgets import initial_candidate_limit
 from connected_gallery.agent_specs.versions import AGENT_SPEC_VERSION, RETRIEVAL_POLICY
 from connected_gallery.domain.empty_evidence import EMPTY_EVIDENCE_SPEC, EMPTY_EVIDENCE_POLICY, MAX_EMPTY_CANDIDATES
 from connected_gallery.domain.models import RunRequest
@@ -16,6 +17,7 @@ from connected_gallery.domain.models import RunRequest
 
 RETRY_FEEDBACK_VERSION = 1
 IDENTITY_EVENT = "exploration_attempt_identity"
+INITIAL_CANDIDATE_EVENT = "exploration_attempt_initial_candidates"
 MAX_FEEDBACK_CHARS = 48_000
 MAX_IDENTITY_CHARS = 16_000
 FEEDBACK_INSTRUCTION = (
@@ -77,6 +79,15 @@ def record_execution_identity(store, run_id, request):
                 raise ValueError("Exploration execution snapshot changed; start a new run")
         elif len(payload) <= MAX_IDENTITY_CHARS:
             store.event(run_id, IDENTITY_EVENT, identity)
+        # Recorded beside the identity, never inside it: the identity payload is
+        # compared for equality to match a prior attempt's private feedback and
+        # to guard a prepared revision, so a host retrieval setting must not
+        # partition it. The supply changes how leads reach the model, not which
+        # selection, gallery snapshot or model this attempt describes.
+        if not store.rows("SELECT 1 FROM events WHERE run_id=? AND kind=?",
+                          (run_id, INITIAL_CANDIDATE_EVENT)):
+            store.event(run_id, INITIAL_CANDIDATE_EVENT,
+                        {"initial_candidate_limit": initial_candidate_limit()})
 
 
 PhotoId = Annotated[str, Field(pattern=r"^[a-zA-Z0-9_-]{1,128}$")]

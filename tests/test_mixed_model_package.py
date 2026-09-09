@@ -56,7 +56,7 @@ def mixed_stage(dataset, monkeypatch, positive_model=PRIMARY):
     report = script("stage-complete-demo.py").stage(dataset.args)
     staged = dataset.args.stage_dir
     assert rows(root) == before and report["retained_payload_bytes_and_revisions_unchanged"]
-    assert report["agent_spec"] == 18 and report["context_spec"] == CONTEXT_SPEC
+    assert report["agent_spec"] == 19 and report["context_spec"] == CONTEXT_SPEC
     assert report["validation"]["confirmed_empty_connect"] == 1
     assert {row["cache_model"] for row in report["validation"]["cache_records"] if row["kind"] == "connect"} == {PRIMARY, OLD}
     return staged, keys, empty_model

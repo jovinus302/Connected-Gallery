@@ -187,7 +187,7 @@ def test_existing_prepared_positive_and_negative_namespaces_are_unchanged(store,
     req, service = selection("object"), RunService(store, None)
     value = req.explore.model_dump(mode="json", exclude={"request_revision"})
     value["photo_version"] = store.photo("a").version
-    original = hashlib.sha256(encoded(["agent-spec-v18", "v13-reviewed-result-revision", "fixture-model", value]).encode()).hexdigest()
+    original = hashlib.sha256(encoded(["agent-spec-v19", "v13-reviewed-result-revision", "fixture-model", value]).encode()).hexdigest()
     assert service.cache_key(req) == original
     store.cache_put(original, prepared())
     assert service.ready(req.explore)["result"] == prepared()

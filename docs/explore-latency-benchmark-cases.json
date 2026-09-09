@@ -1,0 +1,420 @@
+{
+  "photos": [
+    {
+      "id": "bench-explore-01",
+      "file": "bench_01.png",
+      "summary": "저장한 장소 캡처: 달빛서점 성수점, 서울 성동구 연무장길 12, 10:00-21:00, 메모 '주말에 들르기'.",
+      "text": [
+        "달빛서점",
+        "달빛서점 성수점",
+        "서울 성동구 연무장길 12",
+        "10:00–21:00",
+        "주말에 들르기"
+      ]
+    },
+    {
+      "id": "bench-explore-02",
+      "file": "bench_02.png",
+      "summary": "달빛서점 성수점에서 받은 종이 영수증 사진: 바람의 지도 16,000 / 연필 세트 4,500 / 합계 20,500.",
+      "text": [
+        "달빛서점 성수점",
+        "2026-11-02 15:10",
+        "바람의 지도 16,000",
+        "연필 세트 4,500",
+        "합계 20,500",
+        "카드 승인 1234"
+      ]
+    },
+    {
+      "id": "bench-explore-03",
+      "file": "bench_03.png",
+      "summary": "전자책 상점 상세 페이지: 바람의 지도, 지은이 한서연, 달빛북스, 16,000원.",
+      "text": [
+        "바람의 지도",
+        "한서연",
+        "달빛북스",
+        "16,000원",
+        "EPUB",
+        "312쪽"
+      ]
+    },
+    {
+      "id": "bench-explore-04",
+      "file": "bench_04.png",
+      "summary": "승차권 상세: 한빛열차 HB301, 서울 → 부산, 2026-11-05 08:30 출발 / 11:15 도착, 좌석 7C.",
+      "text": [
+        "한빛열차",
+        "HB301",
+        "서울",
+        "부산",
+        "08:30",
+        "11:15",
+        "7C"
+      ]
+    },
+    {
+      "id": "bench-explore-05",
+      "file": "bench_05.png",
+      "summary": "여행 노트 '부산 1박 2일': HB301 서울 출발, 별빛호텔 해운대 체크인, HB308 부산 출발.",
+      "text": [
+        "부산 1박 2일",
+        "11.05 (목) HB301 08:30 서울 출발",
+        "별빛호텔 해운대 체크인 15:00",
+        "11.06 (금) HB308 18:20 부산 출발"
+      ]
+    },
+    {
+      "id": "bench-explore-06",
+      "file": "bench_06.png",
+      "summary": "무관한 메모 '장보기 목록': 우유, 계란 10개, 세제, 휴지. (거리 조절용 방해 항목)",
+      "text": [
+        "장보기 목록",
+        "우유",
+        "계란 10개",
+        "세제",
+        "휴지"
+      ]
+    },
+    {
+      "id": "bench-explore-07",
+      "file": "bench_07.png",
+      "summary": "숙소 예약 상세: 별빛호텔 부산 해운대, 체크인 2026-11-05 / 체크아웃 2026-11-06, 예약번호 STAR-7781.",
+      "text": [
+        "별빛호텔",
+        "별빛호텔 부산 해운대",
+        "체크인 2026.11.05",
+        "체크아웃 2026.11.06",
+        "예약번호 STAR-7781",
+        "디럭스 더블 1실"
+      ]
+    },
+    {
+      "id": "bench-explore-08",
+      "file": "bench_08.png",
+      "summary": "저장한 장소 캡처: 달빛서점 해운대점, 부산 해운대구 달맞이길 45, 11:00-20:00.",
+      "text": [
+        "달빛서점",
+        "달빛서점 해운대점",
+        "부산 해운대구 달맞이길 45",
+        "11:00–20:00"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "new-bookstore-name",
+      "anchor": {
+        "photo_id": "bench-explore-01",
+        "box": {
+          "x": 0.0388888888888889,
+          "y": 0.428125,
+          "width": 0.2868055555555555,
+          "height": 0.0265625
+        },
+        "label": "달빛서점 성수점",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [
+        "bench-explore-02"
+      ],
+      "acceptable": [
+        "bench-explore-08"
+      ],
+      "forbidden": [
+        "bench-explore-06",
+        "bench-explore-03"
+      ],
+      "note": "Same store name reappears on the paper receipt (expected); the sibling branch bench-explore-08 shares the brand but not the specific store (acceptable, not required); the grocery memo and the unrelated e-book page share no entities (forbidden)."
+    },
+    {
+      "id": "new-book-title",
+      "anchor": {
+        "photo_id": "bench-explore-02",
+        "box": {
+          "x": 0.1416666666666667,
+          "y": 0.2796875,
+          "width": 0.1819444444444444,
+          "height": 0.023046875
+        },
+        "label": "바람의 지도",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [
+        "bench-explore-03"
+      ],
+      "acceptable": [
+        "bench-explore-01"
+      ],
+      "forbidden": [
+        "bench-explore-06",
+        "bench-explore-04",
+        "bench-explore-07"
+      ],
+      "note": "The book title on the receipt should surface its e-book product page (expected); the bookstore where it was bought is a looser match (acceptable); train, hotel, and grocery captures are unrelated (forbidden)."
+    },
+    {
+      "id": "new-train-number",
+      "anchor": {
+        "photo_id": "bench-explore-04",
+        "box": {
+          "x": 0.8159722222222222,
+          "y": 0.53359375,
+          "width": 0.1201388888888889,
+          "height": 0.020703125
+        },
+        "label": "HB301",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [
+        "bench-explore-05"
+      ],
+      "acceptable": [],
+      "forbidden": [
+        "bench-explore-06",
+        "bench-explore-01",
+        "bench-explore-02",
+        "bench-explore-03"
+      ],
+      "note": "The train number only reappears in the travel note's itinerary line; bookstore/receipt/e-book/grocery captures are unrelated (forbidden)."
+    },
+    {
+      "id": "new-hotel-name",
+      "anchor": {
+        "photo_id": "bench-explore-07",
+        "box": {
+          "x": 0.0388888888888889,
+          "y": 0.34609375,
+          "width": 0.2222222222222222,
+          "height": 0.034375
+        },
+        "label": "별빛호텔",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [
+        "bench-explore-05"
+      ],
+      "acceptable": [],
+      "forbidden": [
+        "bench-explore-06",
+        "bench-explore-01",
+        "bench-explore-02",
+        "bench-explore-03",
+        "bench-explore-04"
+      ],
+      "note": "The hotel name only reappears in the travel note's check-in line; other captures share no entities (forbidden)."
+    },
+    {
+      "id": "new-distractor-empty",
+      "anchor": {
+        "photo_id": "bench-explore-06",
+        "box": {
+          "x": 0.0416666666666667,
+          "y": 0.1484375,
+          "width": 0.3236111111111111,
+          "height": 0.037109375
+        },
+        "label": "장보기 목록",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [],
+      "acceptable": [],
+      "forbidden": [
+        "bench-explore-01",
+        "bench-explore-02",
+        "bench-explore-03",
+        "bench-explore-04",
+        "bench-explore-05",
+        "bench-explore-07",
+        "bench-explore-08"
+      ],
+      "note": "expected empty: the grocery list is an unrelated distractor and should not surface any of the travel/bookstore captures."
+    },
+    {
+      "id": "existing-m2-object",
+      "anchor": {
+        "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_22",
+        "box": null,
+        "label": "ORBIT M2",
+        "kind": "object"
+      },
+      "direction": "related",
+      "expected": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_26"
+      ],
+      "acceptable": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_29",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_31"
+      ],
+      "forbidden": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_33"
+      ],
+      "note": "ORBIT M1 (id 33) is a different model and should not be treated as the same object."
+    },
+    {
+      "id": "existing-ba217-text",
+      "anchor": {
+        "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_36",
+        "box": null,
+        "label": "BA217",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_39",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_40"
+      ],
+      "acceptable": [],
+      "forbidden": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_35"
+      ],
+      "note": "Flight number BA217 should match its own itinerary/ticket captures, not the unrelated id 35."
+    },
+    {
+      "id": "existing-receipt-text",
+      "anchor": {
+        "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_24",
+        "box": {
+          "x": 0.2822265625,
+          "y": 0.3131510416666667,
+          "width": 0.3623046875,
+          "height": 0.061848958333333315
+        },
+        "label": "소라식탁",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_25",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_20",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_28"
+      ],
+      "acceptable": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_21",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_32"
+      ],
+      "forbidden": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_35",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_22"
+      ],
+      "note": "Restaurant name 소라식탁 should surface its own saved-place/map/itinerary captures; unrelated flight (35) and headphone (22) captures are forbidden."
+    },
+    {
+      "id": "existing-lighthouse-text",
+      "anchor": {
+        "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_38",
+        "box": {
+          "x": 0.04,
+          "y": 0.524,
+          "width": 0.247,
+          "height": 0.041
+        },
+        "label": "하얀등대",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_21",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_42"
+      ],
+      "acceptable": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_39"
+      ],
+      "forbidden": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_22",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_35"
+      ],
+      "note": "하얀등대 landmark should surface its own saved-place capture; unrelated headphone (22) and flight (35) captures are forbidden. _42 is the actual white-lighthouse photo (found by the baseline run)."
+    },
+    {
+      "id": "existing-nightwalk-text",
+      "anchor": {
+        "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_27",
+        "box": {
+          "x": 0.3,
+          "y": 0.236,
+          "width": 0.255,
+          "height": 0.12
+        },
+        "label": "제주 빛산책",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_23",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_34",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_41"
+      ],
+      "acceptable": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_30"
+      ],
+      "forbidden": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_22",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_35"
+      ],
+      "note": "제주 빛산책 event should surface its own related trip captures; unrelated headphone (22) and flight (35) captures are forbidden."
+    },
+    {
+      "id": "existing-receipt-text-newbox",
+      "anchor": {
+        "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_24",
+        "box": {
+          "x": 0.2862,
+          "y": 0.3161,
+          "width": 0.3623,
+          "height": 0.0618
+        },
+        "label": "소라식탁",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_25",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_20",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_28"
+      ],
+      "acceptable": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_21",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_32"
+      ],
+      "forbidden": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_35",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_22"
+      ],
+      "note": "Same receipt text as existing-receipt-text but a slightly shifted box, so the per-box OCR artifact cache cannot hit; measures new-region OCR cost."
+    },
+    {
+      "id": "existing-menu-text-newbox",
+      "anchor": {
+        "photo_id": "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_25",
+        "box": {
+          "x": 0.231,
+          "y": 0.175,
+          "width": 0.55,
+          "height": 0.118
+        },
+        "label": "소라식탁",
+        "kind": "text"
+      },
+      "direction": "related",
+      "expected": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_24",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_20",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_28"
+      ],
+      "acceptable": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_21",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_32"
+      ],
+      "forbidden": [
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_35",
+        "b2b74ae6-4c2b-45f9-8b2b-da86c1010eca_22"
+      ],
+      "note": "Menu board (1024x1536) store-name region with a box that differs from the analyst's stored region; measures new-region OCR cost."
+    }
+  ]
+}
