@@ -1,0 +1,514 @@
+[
+  {
+    "id": "S01",
+    "start": 0,
+    "end": 1.5,
+    "first": 1,
+    "last": 36,
+    "kind": "intro",
+    "title": "이 와인, 어디서 봤더라?",
+    "detail": "사진 한 장에서 시작합니다",
+    "anchor": 0,
+    "photos": [
+      0
+    ]
+  },
+  {
+    "id": "S02",
+    "start": 1.5,
+    "end": 3,
+    "first": 37,
+    "last": 72,
+    "kind": "select_wine",
+    "title": "이 와인, 어디서 봤더라?",
+    "detail": "궁금한 대상을 선택",
+    "anchor": 0,
+    "photos": [
+      0
+    ]
+  },
+  {
+    "id": "S03",
+    "start": 3,
+    "end": 4,
+    "first": 73,
+    "last": 96,
+    "kind": "search",
+    "title": "눈앞의 단서로 찾기",
+    "detail": "선택한 와인으로 요청",
+    "anchor": 0,
+    "photos": [
+      0
+    ]
+  },
+  {
+    "id": "S04",
+    "start": 4,
+    "end": 5,
+    "first": 97,
+    "last": 120,
+    "kind": "tokens",
+    "title": "후보가 돌아옵니다",
+    "detail": "아직 확인하지 않은 후보",
+    "anchor": 0,
+    "photos": []
+  },
+  {
+    "id": "S05",
+    "start": 5,
+    "end": 6,
+    "first": 121,
+    "last": 144,
+    "kind": "inspect_request",
+    "title": "이번에는 직접 봅니다",
+    "detail": "후보의 사진을 요청",
+    "anchor": 0,
+    "photos": []
+  },
+  {
+    "id": "S06",
+    "start": 6,
+    "end": 8,
+    "first": 145,
+    "last": 192,
+    "kind": "observe",
+    "title": "사진을 펼쳐봅니다",
+    "detail": "관찰한 뒤 독립 검토로",
+    "anchor": 0,
+    "photos": [
+      4,
+      3
+    ]
+  },
+  {
+    "id": "S07",
+    "start": 8,
+    "end": 10,
+    "first": 193,
+    "last": 240,
+    "kind": "review_reject",
+    "title": "선택한 라벨을 확인할 수 없음",
+    "detail": "원본과 후보를 따로 비교",
+    "anchor": 0,
+    "photos": [
+      0,
+      4
+    ]
+  },
+  {
+    "id": "S08",
+    "start": 10,
+    "end": 12,
+    "first": 241,
+    "last": 288,
+    "kind": "review_reject",
+    "title": "선택한 라벨을 확인할 수 없음",
+    "detail": "두 후보 모두 와인 연결 근거 부족",
+    "anchor": 0,
+    "photos": [
+      0,
+      3
+    ]
+  },
+  {
+    "id": "S09",
+    "start": 12,
+    "end": 14,
+    "first": 289,
+    "last": 336,
+    "kind": "feedback",
+    "title": "단서를 더 구체적으로",
+    "detail": "붉은 원 라벨의 와인병",
+    "anchor": 0,
+    "photos": [
+      0,
+      4,
+      3
+    ]
+  },
+  {
+    "id": "S10",
+    "start": 14,
+    "end": 15,
+    "first": 337,
+    "last": 360,
+    "kind": "search_refined",
+    "title": "같은 와인, 더 구체적인 단서",
+    "detail": "붉은 원 라벨의 와인병",
+    "anchor": 0,
+    "photos": [
+      0
+    ]
+  },
+  {
+    "id": "S11",
+    "start": 15,
+    "end": 16,
+    "first": 361,
+    "last": 384,
+    "kind": "tokens_new",
+    "title": "새 후보도 직접 확인합니다",
+    "detail": "목록을 받은 뒤 사진 확인 요청",
+    "anchor": 0,
+    "photos": []
+  },
+  {
+    "id": "S12",
+    "start": 16,
+    "end": 18,
+    "first": 385,
+    "last": 432,
+    "kind": "observe",
+    "title": "다른 장면에서 찾은 단서",
+    "detail": "이미지를 관찰한 뒤 제출",
+    "anchor": 0,
+    "photos": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "S13",
+    "start": 18,
+    "end": 20,
+    "first": 433,
+    "last": 480,
+    "kind": "review_label",
+    "title": "붉은 원이 있는 크림색 라벨",
+    "detail": "원본과 식당 사진을 비교",
+    "anchor": 0,
+    "photos": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "S14",
+    "start": 20,
+    "end": 21.5,
+    "first": 481,
+    "last": 516,
+    "kind": "review_label",
+    "title": "붉은 원이 있는 크림색 라벨",
+    "detail": "원본과 매장 사진을 비교",
+    "anchor": 0,
+    "photos": [
+      0,
+      2
+    ]
+  },
+  {
+    "id": "S15",
+    "start": 21.5,
+    "end": 23,
+    "first": 517,
+    "last": 552,
+    "kind": "results",
+    "title": "붉은 원 라벨이 보이는 장면",
+    "detail": "확인된 사진에 읽을 순서를",
+    "anchor": 0,
+    "photos": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "S16",
+    "start": 23,
+    "end": 25,
+    "first": 553,
+    "last": 600,
+    "kind": "open_restaurant",
+    "title": "사진을 열면, 함께 볼 이유까지.",
+    "detail": "이제 식당 사진 전체가 기준",
+    "anchor": 1,
+    "photos": [
+      1
+    ]
+  },
+  {
+    "id": "S17",
+    "start": 25,
+    "end": 26.5,
+    "first": 601,
+    "last": 636,
+    "kind": "context_tokens",
+    "title": "사진 전체를 살펴봅니다",
+    "detail": "새 기준에서 후보를 확보하고 관찰",
+    "anchor": 1,
+    "photos": [
+      1
+    ]
+  },
+  {
+    "id": "S18",
+    "start": 26.5,
+    "end": 28.5,
+    "first": 637,
+    "last": 684,
+    "kind": "context_observe",
+    "title": "다시 만난 거리와 카페",
+    "detail": "새 맥락의 후보로 전체 사진을 확인",
+    "anchor": 1,
+    "photos": [
+      1,
+      3,
+      4
+    ]
+  },
+  {
+    "id": "S19a",
+    "start": 28.5,
+    "end": 29.75,
+    "first": 685,
+    "last": 714,
+    "kind": "context_review",
+    "title": "같은 데모 설정 날짜 · 2026.06.14",
+    "detail": "식당과 거리의 사진·날짜·설명을 확인",
+    "anchor": 1,
+    "photos": [
+      1,
+      3
+    ]
+  },
+  {
+    "id": "S19b",
+    "start": 29.75,
+    "end": 31,
+    "first": 715,
+    "last": 744,
+    "kind": "context_review",
+    "title": "같은 데모 설정 날짜 · 2026.06.14",
+    "detail": "식당과 카페도 별도로 확인",
+    "anchor": 1,
+    "photos": [
+      1,
+      4
+    ]
+  },
+  {
+    "id": "S20",
+    "start": 31,
+    "end": 33,
+    "first": 745,
+    "last": 792,
+    "kind": "context_restaurant",
+    "title": "와인이 없어도, 함께 볼 이유",
+    "detail": "같은 데모 설정 날짜 · 2026.06.14",
+    "anchor": 1,
+    "photos": [
+      1,
+      3,
+      4
+    ]
+  },
+  {
+    "id": "S21",
+    "start": 33,
+    "end": 35,
+    "first": 793,
+    "last": 840,
+    "kind": "select_person",
+    "title": "이번에는, 이 사람의 다른 날.",
+    "detail": "사용자의 새로운 선택",
+    "anchor": 1,
+    "photos": [
+      1
+    ]
+  },
+  {
+    "id": "S22",
+    "start": 35,
+    "end": 36,
+    "first": 841,
+    "last": 864,
+    "kind": "person_tokens",
+    "title": "새 관심에서 다시 시작",
+    "detail": "선택한 사람으로 요청 → 후보 → 사진 확인",
+    "anchor": 1,
+    "photos": [
+      1
+    ]
+  },
+  {
+    "id": "S23",
+    "start": 36,
+    "end": 37,
+    "first": 865,
+    "last": 888,
+    "kind": "observe",
+    "title": "다른 장면의 사람을 봅니다",
+    "detail": "이미지를 받은 뒤 독립 검토로",
+    "anchor": 1,
+    "photos": [
+      3,
+      5
+    ]
+  },
+  {
+    "id": "S24a",
+    "start": 37,
+    "end": 38,
+    "first": 889,
+    "last": 912,
+    "kind": "review_person",
+    "title": "선택한 사람을 원본과 비교",
+    "detail": "거리 사진의 인물을 확인",
+    "anchor": 1,
+    "photos": [
+      1,
+      3
+    ]
+  },
+  {
+    "id": "S24b",
+    "start": 38,
+    "end": 39,
+    "first": 913,
+    "last": 936,
+    "kind": "review_person",
+    "title": "선택한 사람을 원본과 비교",
+    "detail": "바닷가 사진도 따로 확인",
+    "anchor": 1,
+    "photos": [
+      1,
+      5
+    ]
+  },
+  {
+    "id": "S24c",
+    "start": 39,
+    "end": 40.5,
+    "first": 937,
+    "last": 972,
+    "kind": "results",
+    "title": "이 사람이 보이는 장면",
+    "detail": "관계와 설명을 확인한 뒤 정리",
+    "anchor": 1,
+    "photos": [
+      3,
+      5
+    ]
+  },
+  {
+    "id": "S25",
+    "start": 40.5,
+    "end": 43,
+    "first": 973,
+    "last": 1032,
+    "kind": "open_beach",
+    "title": "",
+    "detail": "",
+    "anchor": 5,
+    "photos": [
+      5
+    ]
+  },
+  {
+    "id": "S26",
+    "start": 43,
+    "end": 44.5,
+    "first": 1033,
+    "last": 1068,
+    "kind": "beach_tokens",
+    "title": "도착한 사진에서, 새로운 맥락",
+    "detail": "바닷가 사진 전체가 새로운 기준",
+    "anchor": 5,
+    "photos": [
+      5
+    ]
+  },
+  {
+    "id": "S27",
+    "start": 44.5,
+    "end": 46,
+    "first": 1069,
+    "last": 1104,
+    "kind": "context_observe",
+    "title": "다른 날의 장면을 다시 살펴봅니다",
+    "detail": "새로 확보한 식당·거리의 전체 사진 확인",
+    "anchor": 5,
+    "photos": [
+      5,
+      1,
+      3
+    ]
+  },
+  {
+    "id": "S28a",
+    "start": 46,
+    "end": 47,
+    "first": 1105,
+    "last": 1128,
+    "kind": "context_review",
+    "title": "이 사람이 보이는 다른 장면",
+    "detail": "바닷가와 식당의 사진·설명을 독립 확인",
+    "anchor": 5,
+    "photos": [
+      5,
+      1
+    ]
+  },
+  {
+    "id": "S28b",
+    "start": 47,
+    "end": 48,
+    "first": 1129,
+    "last": 1152,
+    "kind": "context_review",
+    "title": "이 사람이 보이는 다른 장면",
+    "detail": "거리도 새 기준에서 별도로 확인",
+    "anchor": 5,
+    "photos": [
+      5,
+      3
+    ]
+  },
+  {
+    "id": "S29",
+    "start": 48,
+    "end": 50,
+    "first": 1153,
+    "last": 1200,
+    "kind": "context_beach",
+    "title": "이 사람이 보이는 다른 장면",
+    "detail": "데모 설정 날짜 · 바닷가 04.18 / 식당·거리 06.14",
+    "anchor": 5,
+    "photos": [
+      5,
+      1,
+      3
+    ]
+  },
+  {
+    "id": "S30",
+    "start": 50,
+    "end": 51.5,
+    "first": 1201,
+    "last": 1236,
+    "kind": "path",
+    "title": "",
+    "detail": "작은 단서에서 이어진 장면들",
+    "anchor": 5,
+    "photos": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  {
+    "id": "S31",
+    "start": 51.5,
+    "end": 54,
+    "first": 1237,
+    "last": 1296,
+    "kind": "end",
+    "title": "",
+    "detail": "",
+    "anchor": null,
+    "photos": []
+  }
+]

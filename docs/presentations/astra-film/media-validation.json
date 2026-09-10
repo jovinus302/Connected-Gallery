@@ -1,0 +1,261 @@
+{
+  "verdict": "PASS",
+  "checks": [
+    {
+      "claim": "Every frame exists in order",
+      "pass": true,
+      "evidence": 1296
+    },
+    {
+      "claim": "All PNGs decode",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "No empty black output",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "Consistent image resolution",
+      "pass": true,
+      "evidence": [
+        [
+          1920,
+          1080
+        ]
+      ]
+    },
+    {
+      "claim": "H.264 / 1296 frames / 24 fps / 54 seconds",
+      "pass": true,
+      "evidence": {
+        "kind": "vide",
+        "codec": "avc1",
+        "timing": {
+          "timescale": 12288,
+          "ticks": 663552,
+          "seconds": 54.0
+        },
+        "sample_count": 1296,
+        "sample_duration_entries": [
+          [
+            1296,
+            512
+          ]
+        ],
+        "width": 1920.0,
+        "height": 1080.0,
+        "fps": 24.0
+      }
+    },
+    {
+      "claim": "AAC stereo / 48 kHz soundtrack",
+      "pass": true,
+      "evidence": {
+        "kind": "soun",
+        "codec": "mp4a",
+        "timing": {
+          "timescale": 48000,
+          "ticks": 2593791,
+          "seconds": 54.0373125
+        },
+        "sample_count": 2533,
+        "sample_duration_entries": [
+          [
+            19,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            32,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            73,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            86,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            250,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            423,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            925,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            718,
+            1024
+          ]
+        ],
+        "channels": 2,
+        "sample_rate": 48000.0
+      }
+    },
+    {
+      "claim": "Original PCM is exactly 54 seconds with headroom",
+      "pass": true,
+      "evidence": {
+        "seconds": 54.0,
+        "rate": 48000,
+        "channels": 2,
+        "peak_dbfs": -3.0003622493859567
+      }
+    },
+    {
+      "claim": "Credit card is unchanged for the last 60 rendered frames",
+      "pass": true,
+      "evidence": 1
+    },
+    {
+      "claim": "Exact-pose holds reuse matching image bytes",
+      "pass": true,
+      "evidence": {
+        "holds": 631,
+        "bad": []
+      }
+    }
+  ],
+  "mp4": {
+    "path": "docs\\presentations\\astra-film\\connected-gallery-astra.mp4",
+    "bytes": 20801779,
+    "sha256": "e17d42a6179fe7639fe038d6c0cd2c6e32a65aa1a1ed75a604b0ea0bba9cbd32",
+    "duration": {
+      "timescale": 1000,
+      "ticks": 54016,
+      "seconds": 54.016
+    },
+    "tracks": [
+      {
+        "kind": "vide",
+        "codec": "avc1",
+        "timing": {
+          "timescale": 12288,
+          "ticks": 663552,
+          "seconds": 54.0
+        },
+        "sample_count": 1296,
+        "sample_duration_entries": [
+          [
+            1296,
+            512
+          ]
+        ],
+        "width": 1920.0,
+        "height": 1080.0,
+        "fps": 24.0
+      },
+      {
+        "kind": "soun",
+        "codec": "mp4a",
+        "timing": {
+          "timescale": 48000,
+          "ticks": 2593791,
+          "seconds": 54.0373125
+        },
+        "sample_count": 2533,
+        "sample_duration_entries": [
+          [
+            19,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            32,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            73,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            86,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            250,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            423,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            925,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            718,
+            1024
+          ]
+        ],
+        "channels": 2,
+        "sample_rate": 48000.0
+      }
+    ]
+  },
+  "unique_frame_hashes": 665,
+  "limitations": "No audience study; audio levels are measured, not a listening-panel verdict."
+}

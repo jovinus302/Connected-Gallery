@@ -1,0 +1,2358 @@
+{
+  "verdict": "PASS",
+  "scope": "Serialized scene and geometry only; not audience comprehension or real model accuracy.",
+  "checks": [
+    {
+      "claim": "54 seconds / 24 fps / 1080p",
+      "pass": true,
+      "evidence": {
+        "frames": [
+          1,
+          1296
+        ],
+        "fps": 24,
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    },
+    {
+      "claim": "35 contiguous shots",
+      "pass": true,
+      "evidence": 35
+    },
+    {
+      "claim": "Blender Eevee scene",
+      "pass": true,
+      "evidence": "BLENDER_EEVEE"
+    },
+    {
+      "claim": "Original source sheet embedded unchanged",
+      "pass": true,
+      "evidence": "b3cc91b506ba04edae79484e1c33a4c7b4421cde2e89891a0c44f5ebc427ab8e"
+    },
+    {
+      "claim": "Korean fonts embedded",
+      "pass": true,
+      "evidence": [
+        {
+          "name": "Malgun Gothic Regular",
+          "packed": true
+        },
+        {
+          "name": "Malgun Gothic Bold",
+          "packed": true
+        }
+      ]
+    },
+    {
+      "claim": "Original soundtrack embedded",
+      "pass": true,
+      "evidence": [
+        {
+          "name": "score.wav",
+          "packed": true
+        }
+      ]
+    },
+    {
+      "claim": "S01 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 34,
+        "actual": [
+          0
+        ],
+        "expected": [
+          0
+        ]
+      }
+    },
+    {
+      "claim": "S01 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S01 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.3520123362541199,
+        0.21521225571632385,
+        0.8207567930221558,
+        0.8179123401641846
+      ]
+    },
+    {
+      "claim": "S02 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 70,
+        "actual": [
+          0
+        ],
+        "expected": [
+          0
+        ]
+      }
+    },
+    {
+      "claim": "S02 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S02 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.3520123362541199,
+        0.21521225571632385,
+        0.8207567930221558,
+        0.8179123401641846
+      ]
+    },
+    {
+      "claim": "S03 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 94,
+        "actual": [
+          0
+        ],
+        "expected": [
+          0
+        ]
+      }
+    },
+    {
+      "claim": "S03 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S03 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.1720702350139618,
+        0.3262147009372711,
+        0.5464146733283997,
+        0.8122236132621765
+      ]
+    },
+    {
+      "claim": "S04 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 118,
+        "actual": [],
+        "expected": []
+      }
+    },
+    {
+      "claim": "S04 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S04 candidate list is opaque and contains no photograph",
+      "pass": true,
+      "evidence": 2
+    },
+    {
+      "claim": "S05 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 142,
+        "actual": [],
+        "expected": []
+      }
+    },
+    {
+      "claim": "S05 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S05 candidate list is opaque and contains no photograph",
+      "pass": true,
+      "evidence": 2
+    },
+    {
+      "claim": "S06 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 190,
+        "actual": [
+          3,
+          4
+        ],
+        "expected": [
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "claim": "S06 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S06 photo 4 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.1839401125907898,
+        0.33826273679733276,
+        0.5002849698066711,
+        0.7494286298751831
+      ]
+    },
+    {
+      "claim": "S06 photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5191890597343445,
+        0.3368600606918335,
+        0.8372899293899536,
+        0.7485406994819641
+      ]
+    },
+    {
+      "claim": "S07 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 238,
+        "actual": [
+          0,
+          4
+        ],
+        "expected": [
+          0,
+          4
+        ]
+      }
+    },
+    {
+      "claim": "S07 insets retain available sources",
+      "pass": true,
+      "evidence": [
+        0
+      ]
+    },
+    {
+      "claim": "S07 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "claim": "S07 photo 4 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "claim": "S07 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.4686797857284546,
+        0.4241321086883545,
+        0.5184295773506165,
+        0.5574333071708679
+      ]
+    },
+    {
+      "claim": "S08 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 286,
+        "actual": [
+          0,
+          3
+        ],
+        "expected": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "claim": "S08 insets retain available sources",
+      "pass": true,
+      "evidence": [
+        0
+      ]
+    },
+    {
+      "claim": "S08 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "claim": "S08 photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "claim": "S08 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.4686797857284546,
+        0.4241321086883545,
+        0.5184295773506165,
+        0.5574333071708679
+      ]
+    },
+    {
+      "claim": "S09 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 334,
+        "actual": [
+          0,
+          3,
+          4
+        ],
+        "expected": [
+          0,
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "claim": "S09 insets retain available sources",
+      "pass": true,
+      "evidence": [
+        0
+      ]
+    },
+    {
+      "claim": "S09 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.14425286650657654,
+        0.36237674951553345,
+        0.4334002137184143,
+        0.7367083430290222
+      ]
+    },
+    {
+      "claim": "S09 photo 4 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.6146761775016785,
+        0.302594929933548,
+        0.8131754994392395,
+        0.5563279986381531
+      ]
+    },
+    {
+      "claim": "S09 photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.6192137002944946,
+        0.579777717590332,
+        0.825713574886322,
+        0.8492406010627747
+      ]
+    },
+    {
+      "claim": "S09 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.4015837013721466,
+        0.3500785827636719,
+        0.4752393364906311,
+        0.5455008745193481
+      ]
+    },
+    {
+      "claim": "S10 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 358,
+        "actual": [
+          0
+        ],
+        "expected": [
+          0
+        ]
+      }
+    },
+    {
+      "claim": "S10 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S10 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.1720702350139618,
+        0.3262147009372711,
+        0.5464146733283997,
+        0.8122236132621765
+      ]
+    },
+    {
+      "claim": "S11 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 382,
+        "actual": [],
+        "expected": []
+      }
+    },
+    {
+      "claim": "S11 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S11 candidate list is opaque and contains no photograph",
+      "pass": true,
+      "evidence": 2
+    },
+    {
+      "claim": "S12 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 430,
+        "actual": [
+          1,
+          2
+        ],
+        "expected": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "claim": "S12 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S12 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.1839401125907898,
+        0.33826273679733276,
+        0.5002849698066711,
+        0.7494286298751831
+      ]
+    },
+    {
+      "claim": "S12 photo 2 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5191890597343445,
+        0.3368600606918335,
+        0.8372899293899536,
+        0.7485406994819641
+      ]
+    },
+    {
+      "claim": "S13 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 478,
+        "actual": [
+          0,
+          1
+        ],
+        "expected": [
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "claim": "S13 insets retain available sources",
+      "pass": true,
+      "evidence": [
+        0,
+        1
+      ]
+    },
+    {
+      "claim": "S13 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "claim": "S13 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "claim": "S13 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.37406641244888306,
+        0.2105105221271515,
+        0.437276154756546,
+        0.3743787407875061
+      ]
+    },
+    {
+      "claim": "S13 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.565828800201416,
+        0.22134189307689667,
+        0.6284853219985962,
+        0.36588189005851746
+      ]
+    },
+    {
+      "claim": "S14 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 514,
+        "actual": [
+          0,
+          2
+        ],
+        "expected": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "claim": "S14 insets retain available sources",
+      "pass": true,
+      "evidence": [
+        0,
+        2
+      ]
+    },
+    {
+      "claim": "S14 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "claim": "S14 photo 2 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "claim": "S14 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.37406641244888306,
+        0.2105105221271515,
+        0.437276154756546,
+        0.3743787407875061
+      ]
+    },
+    {
+      "claim": "S14 photo 2 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.565820574760437,
+        0.21946732699871063,
+        0.6285032033920288,
+        0.36780038475990295
+      ]
+    },
+    {
+      "claim": "S15 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 550,
+        "actual": [
+          1,
+          2
+        ],
+        "expected": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "claim": "S15 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S15 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.13569043576717377,
+        0.3096254765987396,
+        0.5168184041976929,
+        0.8038685917854309
+      ]
+    },
+    {
+      "claim": "S15 photo 2 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5538275241851807,
+        0.3310478925704956,
+        0.8493341207504272,
+        0.7119318246841431
+      ]
+    },
+    {
+      "claim": "S16 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 598,
+        "actual": [
+          1
+        ],
+        "expected": [
+          1
+        ]
+      }
+    },
+    {
+      "claim": "S16 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S16 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.3487504720687866,
+        0.20958569645881653,
+        0.8278812170028687,
+        0.8249523639678955
+      ]
+    },
+    {
+      "claim": "S17 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 634,
+        "actual": [
+          1
+        ],
+        "expected": [
+          1
+        ]
+      }
+    },
+    {
+      "claim": "S17 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S17 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.15354950726032257,
+        0.3340073227882385,
+        0.49072501063346863,
+        0.7720611691474915
+      ]
+    },
+    {
+      "claim": "S18 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 682,
+        "actual": [
+          1,
+          3,
+          4
+        ],
+        "expected": [
+          1,
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "claim": "S18 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S18 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.0498557947576046,
+        0.431192010641098,
+        0.3339657485485077,
+        0.7973272800445557
+      ]
+    },
+    {
+      "claim": "S18 photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.36339908838272095,
+        0.3649979829788208,
+        0.6371047496795654,
+        0.7212784290313721
+      ]
+    },
+    {
+      "claim": "S18 photo 4 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.66233229637146,
+        0.3637578785419464,
+        0.9415613412857056,
+        0.720441997051239
+      ]
+    },
+    {
+      "claim": "S19a whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 712,
+        "actual": [
+          1,
+          3
+        ],
+        "expected": [
+          1,
+          3
+        ]
+      }
+    },
+    {
+      "claim": "S19a insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S19a photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.10091787576675415,
+        0.32325971126556396,
+        0.4528898000717163,
+        0.7784377336502075
+      ]
+    },
+    {
+      "claim": "S19a photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5472486615180969,
+        0.3213680684566498,
+        0.9010819792747498,
+        0.7773057222366333
+      ]
+    },
+    {
+      "claim": "S19b whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 742,
+        "actual": [
+          1,
+          4
+        ],
+        "expected": [
+          1,
+          4
+        ]
+      }
+    },
+    {
+      "claim": "S19b insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S19b photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.10091787576675415,
+        0.32325971126556396,
+        0.4528898000717163,
+        0.7784377336502075
+      ]
+    },
+    {
+      "claim": "S19b photo 4 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5472486615180969,
+        0.3213680684566498,
+        0.9010819792747498,
+        0.7773057222366333
+      ]
+    },
+    {
+      "claim": "S20 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 790,
+        "actual": [
+          1,
+          3,
+          4
+        ],
+        "expected": [
+          1,
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "claim": "S20 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S20 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.3405144512653351,
+        0.40780776739120483,
+        0.6608262062072754,
+        0.8260846734046936
+      ]
+    },
+    {
+      "claim": "S20 photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.07264261692762375,
+        0.29968497157096863,
+        0.2931438684463501,
+        0.5798681974411011
+      ]
+    },
+    {
+      "claim": "S20 photo 4 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.707287073135376,
+        0.29689133167266846,
+        0.9292848706245422,
+        0.5777392983436584
+      ]
+    },
+    {
+      "claim": "S21 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 838,
+        "actual": [
+          1
+        ],
+        "expected": [
+          1
+        ]
+      }
+    },
+    {
+      "claim": "S21 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S21 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.3520123362541199,
+        0.21521225571632385,
+        0.8207567930221558,
+        0.8179123401641846
+      ]
+    },
+    {
+      "claim": "S22 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 862,
+        "actual": [
+          1
+        ],
+        "expected": [
+          1
+        ]
+      }
+    },
+    {
+      "claim": "S22 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S22 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.15354950726032257,
+        0.3340073227882385,
+        0.49072501063346863,
+        0.7720611691474915
+      ]
+    },
+    {
+      "claim": "S23 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 886,
+        "actual": [
+          3,
+          5
+        ],
+        "expected": [
+          3,
+          5
+        ]
+      }
+    },
+    {
+      "claim": "S23 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S23 photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.1839401125907898,
+        0.33826273679733276,
+        0.5002849698066711,
+        0.7494286298751831
+      ]
+    },
+    {
+      "claim": "S23 photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5191890597343445,
+        0.3368600606918335,
+        0.8372899293899536,
+        0.7485406994819641
+      ]
+    },
+    {
+      "claim": "S24a whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 910,
+        "actual": [
+          1,
+          3
+        ],
+        "expected": [
+          1,
+          3
+        ]
+      }
+    },
+    {
+      "claim": "S24a insets retain available sources",
+      "pass": true,
+      "evidence": [
+        1,
+        3
+      ]
+    },
+    {
+      "claim": "S24a photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "claim": "S24a photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "claim": "S24a photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.3726590871810913,
+        0.2108602374792099,
+        0.44944101572036743,
+        0.35136085748672485
+      ]
+    },
+    {
+      "claim": "S24a photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5532136559486389,
+        0.21594583988189697,
+        0.6295382976531982,
+        0.34863582253456116
+      ]
+    },
+    {
+      "claim": "S24b whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 934,
+        "actual": [
+          1,
+          5
+        ],
+        "expected": [
+          1,
+          5
+        ]
+      }
+    },
+    {
+      "claim": "S24b insets retain available sources",
+      "pass": true,
+      "evidence": [
+        1,
+        5
+      ]
+    },
+    {
+      "claim": "S24b photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "claim": "S24b photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "claim": "S24b photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.3726590871810913,
+        0.2108602374792099,
+        0.44944101572036743,
+        0.35136085748672485
+      ]
+    },
+    {
+      "claim": "S24b photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.553197979927063,
+        0.21125371754169464,
+        0.6295835375785828,
+        0.35343071818351746
+      ]
+    },
+    {
+      "claim": "S24c whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 970,
+        "actual": [
+          3,
+          5
+        ],
+        "expected": [
+          3,
+          5
+        ]
+      }
+    },
+    {
+      "claim": "S24c insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S24c photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.13569043576717377,
+        0.3096254765987396,
+        0.5168184041976929,
+        0.8038685917854309
+      ]
+    },
+    {
+      "claim": "S24c photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5538275241851807,
+        0.3310478925704956,
+        0.8493341207504272,
+        0.7119318246841431
+      ]
+    },
+    {
+      "claim": "S25 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 1030,
+        "actual": [
+          5
+        ],
+        "expected": [
+          5
+        ]
+      }
+    },
+    {
+      "claim": "S25 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S25 photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.29928216338157654,
+        0.18691173195838928,
+        0.8797616958618164,
+        0.9309553503990173
+      ]
+    },
+    {
+      "claim": "S26 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 1066,
+        "actual": [
+          5
+        ],
+        "expected": [
+          5
+        ]
+      }
+    },
+    {
+      "claim": "S26 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S26 photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.15354950726032257,
+        0.3340073227882385,
+        0.49072501063346863,
+        0.7720611691474915
+      ]
+    },
+    {
+      "claim": "S27 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 1102,
+        "actual": [
+          1,
+          3,
+          5
+        ],
+        "expected": [
+          1,
+          3,
+          5
+        ]
+      }
+    },
+    {
+      "claim": "S27 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S27 photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.0498557947576046,
+        0.431192010641098,
+        0.3339657485485077,
+        0.7973272800445557
+      ]
+    },
+    {
+      "claim": "S27 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.36339908838272095,
+        0.3649979829788208,
+        0.6371047496795654,
+        0.7212784290313721
+      ]
+    },
+    {
+      "claim": "S27 photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.66233229637146,
+        0.3637578785419464,
+        0.9415613412857056,
+        0.720441997051239
+      ]
+    },
+    {
+      "claim": "S28a whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 1126,
+        "actual": [
+          1,
+          5
+        ],
+        "expected": [
+          1,
+          5
+        ]
+      }
+    },
+    {
+      "claim": "S28a insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S28a photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.10091787576675415,
+        0.32325971126556396,
+        0.4528898000717163,
+        0.7784377336502075
+      ]
+    },
+    {
+      "claim": "S28a photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5472486615180969,
+        0.3213680684566498,
+        0.9010819792747498,
+        0.7773057222366333
+      ]
+    },
+    {
+      "claim": "S28b whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 1150,
+        "actual": [
+          3,
+          5
+        ],
+        "expected": [
+          3,
+          5
+        ]
+      }
+    },
+    {
+      "claim": "S28b insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S28b photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.10091787576675415,
+        0.32325971126556396,
+        0.4528898000717163,
+        0.7784377336502075
+      ]
+    },
+    {
+      "claim": "S28b photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.5472486615180969,
+        0.3213680684566498,
+        0.9010819792747498,
+        0.7773057222366333
+      ]
+    },
+    {
+      "claim": "S29 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 1198,
+        "actual": [
+          1,
+          3,
+          5
+        ],
+        "expected": [
+          1,
+          3,
+          5
+        ]
+      }
+    },
+    {
+      "claim": "S29 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S29 photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.3405144512653351,
+        0.40780776739120483,
+        0.6608262062072754,
+        0.8260846734046936
+      ]
+    },
+    {
+      "claim": "S29 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.07264261692762375,
+        0.29968497157096863,
+        0.2931438684463501,
+        0.5798681974411011
+      ]
+    },
+    {
+      "claim": "S29 photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.707287073135376,
+        0.29689133167266846,
+        0.9292848706245422,
+        0.5777392983436584
+      ]
+    },
+    {
+      "claim": "S30 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 1234,
+        "actual": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "expected": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "claim": "S30 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "S30 photo 0 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.07371228188276291,
+        0.45314955711364746,
+        0.31301677227020264,
+        0.7614250779151917
+      ]
+    },
+    {
+      "claim": "S30 photo 1 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.38274523615837097,
+        0.4519895911216736,
+        0.6182569861412048,
+        0.7606233954429626
+      ]
+    },
+    {
+      "claim": "S30 photo 5 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.687755286693573,
+        0.4508267343044281,
+        0.9286546111106873,
+        0.7598196864128113
+      ]
+    },
+    {
+      "claim": "S30 photo 2 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.13191714882850647,
+        0.1874886006116867,
+        0.2564064860343933,
+        0.34374144673347473
+      ]
+    },
+    {
+      "claim": "S30 photo 4 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.4391140639781952,
+        0.18599654734134674,
+        0.5609239339828491,
+        0.34242552518844604
+      ]
+    },
+    {
+      "claim": "S30 photo 3 stays in frame",
+      "pass": true,
+      "evidence": [
+        0.743882417678833,
+        0.18450085818767548,
+        0.8691891431808472,
+        0.34110626578330994
+      ]
+    },
+    {
+      "claim": "Final path has five evidenced edges, not a complete graph",
+      "pass": true,
+      "evidence": 5
+    },
+    {
+      "claim": "S31 whole-photo scope",
+      "pass": true,
+      "evidence": {
+        "frame": 1294,
+        "actual": [],
+        "expected": []
+      }
+    },
+    {
+      "claim": "S31 insets retain available sources",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "Credit matches required wording",
+      "pass": true,
+      "evidence": [
+        "Connected Gallery",
+        "사진 한 장에서, 다음 기억으로.",
+        "Made with Astra · Blender / Eevee",
+        "생성 사진 · 가상 날짜 · 고정 시나리오"
+      ]
+    },
+    {
+      "claim": "End card holds unchanged for 60 frames",
+      "pass": true,
+      "evidence": 60
+    },
+    {
+      "claim": "Editable VSE contains one complete image sequence",
+      "pass": true,
+      "evidence": [
+        {
+          "elements": 1296,
+          "duration": 1296
+        }
+      ]
+    },
+    {
+      "claim": "All editable sequence paths resolve",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "claim": "Editable VSE soundtrack is embedded",
+      "pass": true,
+      "evidence": [
+        "Original synthesized score and Foley"
+      ]
+    },
+    {
+      "claim": "Editable output preserves 54s / 1080p / 24fps",
+      "pass": true,
+      "evidence": [
+        1,
+        1296,
+        24,
+        1920,
+        1080
+      ]
+    }
+  ],
+  "possible_title_conflicts": [
+    {
+      "shot": "S09",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.6192137002944946,
+        0.579777717590332,
+        0.825713574886322,
+        0.8492406010627747
+      ]
+    },
+    {
+      "shot": "S25",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.29928216338157654,
+        0.18691173195838928,
+        0.8797616958618164,
+        0.9309553503990173
+      ]
+    }
+  ],
+  "camera_projected_photo_bounds": [
+    {
+      "shot": "S01",
+      "photo": 0,
+      "whole": true,
+      "bounds": [
+        0.3520123362541199,
+        0.21521225571632385,
+        0.8207567930221558,
+        0.8179123401641846
+      ]
+    },
+    {
+      "shot": "S02",
+      "photo": 0,
+      "whole": true,
+      "bounds": [
+        0.3520123362541199,
+        0.21521225571632385,
+        0.8207567930221558,
+        0.8179123401641846
+      ]
+    },
+    {
+      "shot": "S03",
+      "photo": 0,
+      "whole": true,
+      "bounds": [
+        0.1720702350139618,
+        0.3262147009372711,
+        0.5464146733283997,
+        0.8122236132621765
+      ]
+    },
+    {
+      "shot": "S06",
+      "photo": 4,
+      "whole": true,
+      "bounds": [
+        0.1839401125907898,
+        0.33826273679733276,
+        0.5002849698066711,
+        0.7494286298751831
+      ]
+    },
+    {
+      "shot": "S06",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.5191890597343445,
+        0.3368600606918335,
+        0.8372899293899536,
+        0.7485406994819641
+      ]
+    },
+    {
+      "shot": "S07",
+      "photo": 0,
+      "whole": true,
+      "bounds": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "shot": "S07",
+      "photo": 4,
+      "whole": true,
+      "bounds": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "shot": "S07",
+      "photo": 0,
+      "whole": false,
+      "bounds": [
+        0.4686797857284546,
+        0.4241321086883545,
+        0.5184295773506165,
+        0.5574333071708679
+      ]
+    },
+    {
+      "shot": "S08",
+      "photo": 0,
+      "whole": true,
+      "bounds": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "shot": "S08",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "shot": "S08",
+      "photo": 0,
+      "whole": false,
+      "bounds": [
+        0.4686797857284546,
+        0.4241321086883545,
+        0.5184295773506165,
+        0.5574333071708679
+      ]
+    },
+    {
+      "shot": "S09",
+      "photo": 0,
+      "whole": true,
+      "bounds": [
+        0.14425286650657654,
+        0.36237674951553345,
+        0.4334002137184143,
+        0.7367083430290222
+      ]
+    },
+    {
+      "shot": "S09",
+      "photo": 4,
+      "whole": true,
+      "bounds": [
+        0.6146761775016785,
+        0.302594929933548,
+        0.8131754994392395,
+        0.5563279986381531
+      ]
+    },
+    {
+      "shot": "S09",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.6192137002944946,
+        0.579777717590332,
+        0.825713574886322,
+        0.8492406010627747
+      ]
+    },
+    {
+      "shot": "S09",
+      "photo": 0,
+      "whole": false,
+      "bounds": [
+        0.4015837013721466,
+        0.3500785827636719,
+        0.4752393364906311,
+        0.5455008745193481
+      ]
+    },
+    {
+      "shot": "S10",
+      "photo": 0,
+      "whole": true,
+      "bounds": [
+        0.1720702350139618,
+        0.3262147009372711,
+        0.5464146733283997,
+        0.8122236132621765
+      ]
+    },
+    {
+      "shot": "S12",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.1839401125907898,
+        0.33826273679733276,
+        0.5002849698066711,
+        0.7494286298751831
+      ]
+    },
+    {
+      "shot": "S12",
+      "photo": 2,
+      "whole": true,
+      "bounds": [
+        0.5191890597343445,
+        0.3368600606918335,
+        0.8372899293899536,
+        0.7485406994819641
+      ]
+    },
+    {
+      "shot": "S13",
+      "photo": 0,
+      "whole": true,
+      "bounds": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "shot": "S13",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "shot": "S13",
+      "photo": 0,
+      "whole": false,
+      "bounds": [
+        0.37406641244888306,
+        0.2105105221271515,
+        0.437276154756546,
+        0.3743787407875061
+      ]
+    },
+    {
+      "shot": "S13",
+      "photo": 1,
+      "whole": false,
+      "bounds": [
+        0.565828800201416,
+        0.22134189307689667,
+        0.6284853219985962,
+        0.36588189005851746
+      ]
+    },
+    {
+      "shot": "S14",
+      "photo": 0,
+      "whole": true,
+      "bounds": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "shot": "S14",
+      "photo": 2,
+      "whole": true,
+      "bounds": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "shot": "S14",
+      "photo": 0,
+      "whole": false,
+      "bounds": [
+        0.37406641244888306,
+        0.2105105221271515,
+        0.437276154756546,
+        0.3743787407875061
+      ]
+    },
+    {
+      "shot": "S14",
+      "photo": 2,
+      "whole": false,
+      "bounds": [
+        0.565820574760437,
+        0.21946732699871063,
+        0.6285032033920288,
+        0.36780038475990295
+      ]
+    },
+    {
+      "shot": "S15",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.13569043576717377,
+        0.3096254765987396,
+        0.5168184041976929,
+        0.8038685917854309
+      ]
+    },
+    {
+      "shot": "S15",
+      "photo": 2,
+      "whole": true,
+      "bounds": [
+        0.5538275241851807,
+        0.3310478925704956,
+        0.8493341207504272,
+        0.7119318246841431
+      ]
+    },
+    {
+      "shot": "S16",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.3487504720687866,
+        0.20958569645881653,
+        0.8278812170028687,
+        0.8249523639678955
+      ]
+    },
+    {
+      "shot": "S17",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.15354950726032257,
+        0.3340073227882385,
+        0.49072501063346863,
+        0.7720611691474915
+      ]
+    },
+    {
+      "shot": "S18",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.0498557947576046,
+        0.431192010641098,
+        0.3339657485485077,
+        0.7973272800445557
+      ]
+    },
+    {
+      "shot": "S18",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.36339908838272095,
+        0.3649979829788208,
+        0.6371047496795654,
+        0.7212784290313721
+      ]
+    },
+    {
+      "shot": "S18",
+      "photo": 4,
+      "whole": true,
+      "bounds": [
+        0.66233229637146,
+        0.3637578785419464,
+        0.9415613412857056,
+        0.720441997051239
+      ]
+    },
+    {
+      "shot": "S19a",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.10091787576675415,
+        0.32325971126556396,
+        0.4528898000717163,
+        0.7784377336502075
+      ]
+    },
+    {
+      "shot": "S19a",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.5472486615180969,
+        0.3213680684566498,
+        0.9010819792747498,
+        0.7773057222366333
+      ]
+    },
+    {
+      "shot": "S19b",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.10091787576675415,
+        0.32325971126556396,
+        0.4528898000717163,
+        0.7784377336502075
+      ]
+    },
+    {
+      "shot": "S19b",
+      "photo": 4,
+      "whole": true,
+      "bounds": [
+        0.5472486615180969,
+        0.3213680684566498,
+        0.9010819792747498,
+        0.7773057222366333
+      ]
+    },
+    {
+      "shot": "S20",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.3405144512653351,
+        0.40780776739120483,
+        0.6608262062072754,
+        0.8260846734046936
+      ]
+    },
+    {
+      "shot": "S20",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.07264261692762375,
+        0.29968497157096863,
+        0.2931438684463501,
+        0.5798681974411011
+      ]
+    },
+    {
+      "shot": "S20",
+      "photo": 4,
+      "whole": true,
+      "bounds": [
+        0.707287073135376,
+        0.29689133167266846,
+        0.9292848706245422,
+        0.5777392983436584
+      ]
+    },
+    {
+      "shot": "S21",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.3520123362541199,
+        0.21521225571632385,
+        0.8207567930221558,
+        0.8179123401641846
+      ]
+    },
+    {
+      "shot": "S22",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.15354950726032257,
+        0.3340073227882385,
+        0.49072501063346863,
+        0.7720611691474915
+      ]
+    },
+    {
+      "shot": "S23",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.1839401125907898,
+        0.33826273679733276,
+        0.5002849698066711,
+        0.7494286298751831
+      ]
+    },
+    {
+      "shot": "S23",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.5191890597343445,
+        0.3368600606918335,
+        0.8372899293899536,
+        0.7485406994819641
+      ]
+    },
+    {
+      "shot": "S24a",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "shot": "S24a",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "shot": "S24a",
+      "photo": 1,
+      "whole": false,
+      "bounds": [
+        0.3726590871810913,
+        0.2108602374792099,
+        0.44944101572036743,
+        0.35136085748672485
+      ]
+    },
+    {
+      "shot": "S24a",
+      "photo": 3,
+      "whole": false,
+      "bounds": [
+        0.5532136559486389,
+        0.21594583988189697,
+        0.6295382976531982,
+        0.34863582253456116
+      ]
+    },
+    {
+      "shot": "S24b",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.09843047708272934,
+        0.3205242455005646,
+        0.4527183473110199,
+        0.7772375345230103
+      ]
+    },
+    {
+      "shot": "S24b",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.5470739603042603,
+        0.3233635127544403,
+        0.8985700011253357,
+        0.7789343595504761
+      ]
+    },
+    {
+      "shot": "S24b",
+      "photo": 1,
+      "whole": false,
+      "bounds": [
+        0.3726590871810913,
+        0.2108602374792099,
+        0.44944101572036743,
+        0.35136085748672485
+      ]
+    },
+    {
+      "shot": "S24b",
+      "photo": 5,
+      "whole": false,
+      "bounds": [
+        0.553197979927063,
+        0.21125371754169464,
+        0.6295835375785828,
+        0.35343071818351746
+      ]
+    },
+    {
+      "shot": "S24c",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.13569043576717377,
+        0.3096254765987396,
+        0.5168184041976929,
+        0.8038685917854309
+      ]
+    },
+    {
+      "shot": "S24c",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.5538275241851807,
+        0.3310478925704956,
+        0.8493341207504272,
+        0.7119318246841431
+      ]
+    },
+    {
+      "shot": "S25",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.29928216338157654,
+        0.18691173195838928,
+        0.8797616958618164,
+        0.9309553503990173
+      ]
+    },
+    {
+      "shot": "S26",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.15354950726032257,
+        0.3340073227882385,
+        0.49072501063346863,
+        0.7720611691474915
+      ]
+    },
+    {
+      "shot": "S27",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.0498557947576046,
+        0.431192010641098,
+        0.3339657485485077,
+        0.7973272800445557
+      ]
+    },
+    {
+      "shot": "S27",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.36339908838272095,
+        0.3649979829788208,
+        0.6371047496795654,
+        0.7212784290313721
+      ]
+    },
+    {
+      "shot": "S27",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.66233229637146,
+        0.3637578785419464,
+        0.9415613412857056,
+        0.720441997051239
+      ]
+    },
+    {
+      "shot": "S28a",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.10091787576675415,
+        0.32325971126556396,
+        0.4528898000717163,
+        0.7784377336502075
+      ]
+    },
+    {
+      "shot": "S28a",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.5472486615180969,
+        0.3213680684566498,
+        0.9010819792747498,
+        0.7773057222366333
+      ]
+    },
+    {
+      "shot": "S28b",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.10091787576675415,
+        0.32325971126556396,
+        0.4528898000717163,
+        0.7784377336502075
+      ]
+    },
+    {
+      "shot": "S28b",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.5472486615180969,
+        0.3213680684566498,
+        0.9010819792747498,
+        0.7773057222366333
+      ]
+    },
+    {
+      "shot": "S29",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.3405144512653351,
+        0.40780776739120483,
+        0.6608262062072754,
+        0.8260846734046936
+      ]
+    },
+    {
+      "shot": "S29",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.07264261692762375,
+        0.29968497157096863,
+        0.2931438684463501,
+        0.5798681974411011
+      ]
+    },
+    {
+      "shot": "S29",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.707287073135376,
+        0.29689133167266846,
+        0.9292848706245422,
+        0.5777392983436584
+      ]
+    },
+    {
+      "shot": "S30",
+      "photo": 0,
+      "whole": true,
+      "bounds": [
+        0.07371228188276291,
+        0.45314955711364746,
+        0.31301677227020264,
+        0.7614250779151917
+      ]
+    },
+    {
+      "shot": "S30",
+      "photo": 1,
+      "whole": true,
+      "bounds": [
+        0.38274523615837097,
+        0.4519895911216736,
+        0.6182569861412048,
+        0.7606233954429626
+      ]
+    },
+    {
+      "shot": "S30",
+      "photo": 5,
+      "whole": true,
+      "bounds": [
+        0.687755286693573,
+        0.4508267343044281,
+        0.9286546111106873,
+        0.7598196864128113
+      ]
+    },
+    {
+      "shot": "S30",
+      "photo": 2,
+      "whole": true,
+      "bounds": [
+        0.13191714882850647,
+        0.1874886006116867,
+        0.2564064860343933,
+        0.34374144673347473
+      ]
+    },
+    {
+      "shot": "S30",
+      "photo": 4,
+      "whole": true,
+      "bounds": [
+        0.4391140639781952,
+        0.18599654734134674,
+        0.5609239339828491,
+        0.34242552518844604
+      ]
+    },
+    {
+      "shot": "S30",
+      "photo": 3,
+      "whole": true,
+      "bounds": [
+        0.743882417678833,
+        0.18450085818767548,
+        0.8691891431808472,
+        0.34110626578330994
+      ]
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+"""Original deterministic score and tactile sound design; no external samples.
+
+Run with Python + numpy. Outputs a 54 s, 48 kHz stereo PCM WAV and provenance.
+"""
+import json
+import math
+import wave
+from pathlib import Path
+
+import numpy as np
+
+ROOT=Path(__file__).resolve().parents[2]
+OUT=ROOT/'outputs/astra-film'
+SR=48000
+SECONDS=54
+rng=np.random.default_rng(20260910)
+music=np.zeros((SR*SECONDS,2),dtype=np.float32)
+foley=np.zeros_like(music)
+
+
+def hz(note):return 440*2**((note-69)/12)
+
+
+def place(track,signal,start,level=1.,pan=0.):
+    i=round(start*SR)
+    if i<0:signal=signal[-i:];i=0
+    n=min(len(signal),len(track)-i)
+    if n<=0:return
+    a=math.cos((pan+1)*math.pi/4)*level
+    b=math.sin((pan+1)*math.pi/4)*level
+    track[i:i+n,0]+=signal[:n]*a
+    track[i:i+n,1]+=signal[:n]*b
+
+
+def pad(notes,start,duration,level=.025):
+    t=np.arange(round(duration*SR),dtype=np.float64)/SR
+    attack=np.minimum(1,t/.8)
+    release=np.minimum(1,(duration-t)/1.4)
+    env=np.clip(attack*release,0,1)**1.5
+    for i,n in enumerate(notes):
+        freq=hz(n)
+        wave_=np.sin(2*np.pi*freq*t+.003*np.sin(2*np.pi*.21*t))
+        wave_+=.20*np.sin(2*np.pi*freq*2.001*t+i)
+        wave_+=.08*np.sin(2*np.pi*freq*3*t)
+        wave_*=env*(.95+.05*np.sin(2*np.pi*.11*t+i))
+        place(music,wave_,start,level,(i/(len(notes)-1)-.5)*1.0)
+
+
+def bell(track,note,start,duration=.55,level=.06,pan=0.):
+    t=np.arange(round(duration*SR),dtype=np.float64)/SR
+    env=(1-np.exp(-t*110))*np.exp(-t*7)
+    sig=(np.sin(2*np.pi*hz(note)*t)+.23*np.sin(2*np.pi*hz(note)*2.76*t)+.11*np.sin(2*np.pi*hz(note)*4.1*t))*env
+    sig*=np.minimum(1,(duration-t)/.08)
+    place(track,sig,start,level,pan)
+
+
+def paper(start,duration=.22,level=.05,pan=0.):
+    n=round(duration*SR)
+    noise=rng.normal(0,1,n)
+    # Correlated short grain evokes paper friction, without sampled media.
+    sig=np.convolve(noise,np.ones(9)/9,mode='same')
+    t=np.arange(n)/SR
+    env=np.sin(np.pi*t/duration)**2
+    env*=.7+.3*np.sin(2*np.pi*39*t)**2
+    place(foley,sig*env,start,level,pan)
+
+
+def stone(start,pan=0.):
+    t=np.arange(round(.22*SR))/SR
+    sig=np.sin(2*np.pi*115*t)*np.exp(-t*34)+.15*rng.normal(0,1,len(t))*np.exp(-t*70)
+    place(foley,sig,start,.05,pan)
+
+
+# D major / B minor suspended palette. Discovery opens the voicing at 40.5 s.
+for notes,start,duration in [
+    ([50,57,61,66],0,8.5),([47,54,57,62],7.5,7.3),
+    ([43,50,57,61],14,9.5),([50,57,62,66],23,10.8),
+    ([47,54,61,66],33,8.2),([43,55,62,69],40.5,7.0),
+    ([50,57,61,66,69],47,7.0),
+]:pad(notes,start,duration,.018 if start<14 else .022)
+
+for k,t in enumerate(np.arange(1.2,51.5,.75)):
+    if 8<=t<=14:continue
+    note=[74,69,73,78,76,69,73,66][k%8]
+    bell(music,note,float(t),.60,.012,math.sin(k*1.1)*.65)
+
+for t in [1.7,23.2,33.25,40.7]:
+    bell(foley,83,t,.16,.055,-.2)
+    paper(t+.03,.09,.04)
+
+# Request and response reverse the same two-note figure.
+for t in [3.05,5.0,14.02,15.65,25.55,35.05,43.6]:
+    bell(foley,74,t,.26,.035,-.5);bell(foley,81,t+.11,.25,.028,.5)
+for t in [4.05,6.05,15.1,16.05,26.65,36.05,44.55]:
+    bell(foley,81,t,.25,.029,.5);bell(foley,74,t+.11,.28,.035,-.5)
+
+for t in [6.15,6.38,7.6,10.02,12.35,16.15,16.38,21.6,23.35,26.7,27.0,28.5,31.05,36.2,39.1,40.85,44.65,44.9,46.05,48.15]:
+    paper(t,.22,.06,float(rng.uniform(-.6,.6)))
+for t in [9.1,11.1]:bell(foley,66,t,.8,.04,.1)
+for t in [19.3,21.0,29.4,30.65,37.7,38.7,46.7,47.7]:bell(foley,86,t,.75,.044,.2)
+for t in [22.2,31.45,39.8,48.45]:stone(t)
+bell(foley,81,12.30,.65,.038,.4)
+bell(foley,74,12.55,.65,.03,-.4)
+for n,t in [(74,40.75),(81,41.0),(86,41.2),(81,51.5),(86,51.75)]:bell(music,n,t,1.4,.033,0.)
+
+# Room tone is deliberately quiet; no literal sea recording or invented scene audio.
+air=rng.normal(0,1,SR*SECONDS).astype(np.float32)
+air=np.convolve(air,np.ones(80,dtype=np.float32)/80,mode='same')
+place(foley,air,0,.003)
+
+mix=music+foley
+fade_in=np.minimum(1,np.arange(len(mix))/(SR*.25))
+fade_out=np.minimum(1,(len(mix)-1-np.arange(len(mix)))/(SR*1.25))
+mix*=np.minimum(fade_in,fade_out)[:,None]
+peak=float(np.max(np.abs(mix)))
+gain=10**(-3.0/20)/max(peak,1e-9)
+mix*=gain
+OUT.mkdir(parents=True,exist_ok=True)
+pcm=np.round(np.clip(mix,-1,1)*32767).astype('<i2')
+with wave.open(str(OUT/'score.wav'),'wb') as out:
+    out.setnchannels(2);out.setsampwidth(2);out.setframerate(SR);out.writeframes(pcm.tobytes())
+evidence={
+    'duration_seconds':SECONDS,'sample_rate':SR,'channels':2,'sample_count':len(mix),
+    'peak_dbfs':20*math.log10(float(np.max(np.abs(mix)))),
+    'rms_dbfs':20*math.log10(float(np.sqrt(np.mean(mix**2)))),
+    'clipped_samples':int(np.count_nonzero(np.abs(mix)>=1)),
+    'source':'Original deterministic synthesis authored for this film by Astra; no external recordings or samples.',
+    'implementation':'NumPy oscillators, shaped seeded noise, envelopes and stereo placement. Generated by score.py.',
+    'seed':20260910,
+}
+(OUT/'audio-validation.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(evidence,ensure_ascii=False))
