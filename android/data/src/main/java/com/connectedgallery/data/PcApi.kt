@@ -28,12 +28,12 @@ import javax.inject.Singleton
   val request=request(endpoint(),path)
   if(method!="GET") request.method(method,(body?.toString()?:"{}").toRequestBody("application/json".toMediaType()))
   client.newCall(request.build()).execute().use { response ->
-   if(!response.isSuccessful) throw IOException("서버 응답 오류 (${response.code})")
+   if(!response.isSuccessful) throw serverResponseFailure(response.code)
    json.parseToJsonElement(response.body!!.string()).jsonObject
   }
  }
  suspend fun upload(id:String,bytes:ByteArray)=withContext(Dispatchers.IO) {
   val request=request(endpoint(),"/assets/$id/preview").put(bytes.toRequestBody("image/jpeg".toMediaType())).build()
-  client.newCall(request).execute().use { if(!it.isSuccessful) throw IOException("사진 전송 실패 (${it.code})") }
+  client.newCall(request).execute().use { if(!it.isSuccessful) throw serverResponseFailure(it.code) }
  }
 }

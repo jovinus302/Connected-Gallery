@@ -8,6 +8,17 @@ import org.junit.Test
 import java.io.IOException
 
 class RefreshStagesTest {
+ @Test fun authenticationFailureIncludesActionableReason() = runBlocking {
+  for(code in listOf(401,403)) {
+   try {
+    refreshStage("사진을 불러왔어요") { throw serverResponseFailure(code) }
+    fail("Expected failure")
+   } catch(e:PhotoRefreshFailure) {
+    assertTrue(e.userMessage.contains("사진을 불러왔어요"))
+    assertTrue(e.userMessage.contains("접속 키"))
+   }
+  }
+ }
  @Test fun localFailureStopsBeforeServerStage() = runBlocking {
   var serverCalled=false
   val cause=IOException("local read failed")

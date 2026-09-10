@@ -19,12 +19,15 @@ class PhotoContextDeviceTest {
   val opened=mutableListOf<String>()
   var failure=false
   var searches=0
+  var refreshFailure:Exception?=null
+  var offline=false
   override suspend fun loadJourney()=saved
   override suspend fun saveJourney(journey:Journey) { saved=journey }
-  override suspend fun refreshAndSync(progress:(String)->Unit) { }
+  override suspend fun refreshAndSync(progress:(String)->Unit) { refreshFailure?.let { throw it };progress("사진을 불러왔어요") }
   override suspend fun analysis(photoId:String)=Analysis(photoId,regions=listOf(Region("subject",photoId,RegionBox(0f,0f,1f,1f),"object",if(photoId=="wine")"와인" else "디저트")))
   override suspend fun context(photoId:String,retry:Boolean,onUpdate:(ContextState)->Unit) {
    opened.add(photoId)
+   if(offline) { onUpdate(ContextState(photoId,"offline"));return }
    if(failure && !retry) { onUpdate(ContextState(photoId,"failed"));return }
    val groups=if(photoId=="dinner")listOf(ResultGroup("day","같은 날의 다른 장면","사진을 확인한 테스트용 근거",listOf("dessert"))) else emptyList()
    onUpdate(ContextState(photoId,if(groups.isEmpty())"empty" else "ready",1,context=PhotoContext("$photoId 주변 장면",groups)))
@@ -38,6 +41,23 @@ class PhotoContextDeviceTest {
   override suspend fun cancelExploration() { }
   override suspend fun feedback(kind:String,photoId:String?,regionId:String?,value:String) { }
   override suspend fun metric(name:String,value:String) { }
+ }
+ @Test fun refreshFailureKeepsPhotosAndShowsStageMessage() {
+  val repo=Repository().apply { refreshFailure=PhotoRefreshFailure("사진 접근을 확인해 주세요") };lateinit var vm:GalleryViewModel
+  compose.runOnIdle { vm=GalleryViewModel(repo);vm.refresh() }
+  compose.waitUntil(3000) { vm.status.value=="사진 접근을 확인해 주세요" }
+  compose.runOnIdle { assertEquals(4,vm.photos.value.size);repo.refreshFailure=null;vm.refresh() }
+  compose.waitUntil(3000) { vm.status.value=="사진을 불러왔어요" }
+ }
+ @Test fun offlinePhotoOffersServerGuidanceAndRetry() {
+  val repo=Repository().apply { offline=true };lateinit var vm:GalleryViewModel
+  compose.runOnIdle { vm=GalleryViewModel(repo) }
+  compose.setContent { GalleryTheme { ExploreScreen(vm) } }
+  compose.runOnIdle { vm.open("dinner") }
+  compose.onNodeWithText("분석 서버에 연결하지 못했어요. 설정의 ‘서버 연결’을 확인해 주세요").assertIsDisplayed()
+  compose.runOnIdle { repo.offline=false }
+  compose.onNodeWithText("연결 후 다시 시도").performClick()
+  compose.onNodeWithText("dinner 주변 장면").assertIsDisplayed()
  }
  @Test fun automaticContextConnectThreeHopsAndBackRestoreOnDevice() {
   val repo=Repository();lateinit var vm:GalleryViewModel

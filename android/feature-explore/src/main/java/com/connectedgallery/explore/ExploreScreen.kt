@@ -110,7 +110,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
                                         OutlinedButton(onClick = vm::retryContext) { Text("다시 시도") }
                                     }
                                     "offline" -> {
-                                        Text("PC 연결을 확인하면 주변 사진을 볼 수 있어요", style = MaterialTheme.typography.bodyMedium)
+                                        Text("분석 서버에 연결하지 못했어요. 설정의 ‘서버 연결’을 확인해 주세요", style = MaterialTheme.typography.bodyMedium)
                                         OutlinedButton(onClick = vm::retryContext) { Text("연결 후 다시 시도") }
                                     }
                                     else -> {
