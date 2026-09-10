@@ -1,0 +1,2085 @@
+{
+  "duration": 93,
+  "captions": [
+    [
+      0,
+      4,
+      "이 와인, 어디서 봤더라?"
+    ],
+    [
+      4,
+      10,
+      "후보를 받아, 사진을 직접 펼쳐봅니다."
+    ],
+    [
+      10,
+      16,
+      "원본과 비교하니, 와인 연결 근거가 부족합니다."
+    ],
+    [
+      16,
+      22,
+      "같은 와인에서, 붉은 원 라벨로 단서를 좁힙니다."
+    ],
+    [
+      22,
+      29,
+      "새 사진도 원본의 라벨과 하나씩 비교합니다."
+    ],
+    [
+      29,
+      33,
+      "확인한 두 장면을, 보기 좋게 정리합니다."
+    ],
+    [
+      33,
+      37,
+      "식당 사진을 열면, 사진 전체가 새 기준이 됩니다."
+    ],
+    [
+      37,
+      41,
+      "이번에는 사진 전체에서 함께 볼 장면을 찾습니다."
+    ],
+    [
+      41,
+      47,
+      "와인이 없어도, 같은 설정 날짜로 이어집니다."
+    ],
+    [
+      47,
+      51,
+      "이번에는, 이 사람의 다른 날이 궁금합니다."
+    ],
+    [
+      51,
+      56,
+      "새로운 선택에서, 다시 사진을 찾아 펼칩니다."
+    ],
+    [
+      56,
+      62,
+      "선택한 사람을 비교하고, 확인한 장면을 모읍니다."
+    ],
+    [
+      62,
+      66,
+      "바닷가에 도착하면, 그 사진에서 다시 시작합니다."
+    ],
+    [
+      66,
+      71,
+      "새 기준으로 찾은 사진도, 직접 보고 비교합니다."
+    ],
+    [
+      71,
+      77,
+      "사진마다 근거를 살펴, 함께 볼 이유를 남깁니다."
+    ],
+    [
+      77,
+      89,
+      "작은 단서 하나에서, 다음 장면으로."
+    ]
+  ],
+  "events": [
+    {
+      "time": 1.0,
+      "frame": 25,
+      "kind": "user_selection",
+      "photo": 0,
+      "scope": "object"
+    },
+    {
+      "time": 1.7,
+      "frame": 42,
+      "kind": "carry",
+      "photo": 0,
+      "actor": "Explorer",
+      "until": 3.7
+    },
+    {
+      "time": 4,
+      "frame": 97,
+      "kind": "request",
+      "anchor": 0,
+      "candidates": [
+        4,
+        3
+      ],
+      "flow": "wine / first"
+    },
+    {
+      "time": 4.55,
+      "frame": 110,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Explorer",
+      "until": 5.35
+    },
+    {
+      "time": 4.55,
+      "frame": 110,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Organizer",
+      "until": 5.35
+    },
+    {
+      "time": 5.75,
+      "frame": 139,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Explorer",
+      "until": 6.35
+    },
+    {
+      "time": 5.75,
+      "frame": 139,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Organizer",
+      "until": 6.35
+    },
+    {
+      "time": 4.55,
+      "frame": 110,
+      "kind": "opaque_list",
+      "flow": "wine / first",
+      "ids": [
+        4,
+        3
+      ]
+    },
+    {
+      "time": 5.75,
+      "frame": 139,
+      "kind": "inspect_request",
+      "flow": "wine / first",
+      "ids": [
+        4,
+        3
+      ]
+    },
+    {
+      "time": 6.35,
+      "frame": 153,
+      "kind": "carry",
+      "photo": 4,
+      "actor": "Explorer",
+      "until": 9.5
+    },
+    {
+      "time": 6.35,
+      "frame": 153,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 9.5
+    },
+    {
+      "time": 6.35,
+      "frame": 153,
+      "kind": "images_observed",
+      "flow": "wine / first",
+      "ids": [
+        4,
+        3
+      ]
+    },
+    {
+      "time": 10,
+      "frame": 241,
+      "kind": "independent_review",
+      "anchor": 0,
+      "candidate": 4,
+      "relation": "unsupported",
+      "passed": false,
+      "end": 12.5
+    },
+    {
+      "time": 12.5,
+      "frame": 301,
+      "kind": "carry",
+      "photo": 4,
+      "actor": "Organizer",
+      "until": 13.7
+    },
+    {
+      "time": 12.5,
+      "frame": 301,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 13.7
+    },
+    {
+      "time": 13.7,
+      "frame": 330,
+      "kind": "independent_review",
+      "anchor": 0,
+      "candidate": 3,
+      "relation": "unsupported",
+      "passed": false,
+      "end": 16
+    },
+    {
+      "time": 16.35,
+      "frame": 393,
+      "kind": "carry",
+      "photo": 0,
+      "actor": "Reviewer",
+      "until": 18.4
+    },
+    {
+      "time": 16,
+      "frame": 385,
+      "kind": "conditional_retry",
+      "anchor": 0,
+      "prior_candidates": [
+        4,
+        3
+      ],
+      "count": 1,
+      "conditions": [
+        "all unsupported",
+        "incomplete",
+        "valid anchor",
+        "remaining budgets"
+      ]
+    },
+    {
+      "time": 19.1,
+      "frame": 459,
+      "kind": "carry",
+      "photo": 4,
+      "actor": "Organizer",
+      "until": 20.5
+    },
+    {
+      "time": 19.1,
+      "frame": 459,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 20.5
+    },
+    {
+      "time": 19.6,
+      "frame": 471,
+      "kind": "request",
+      "anchor": 0,
+      "candidates": [
+        1,
+        2
+      ],
+      "flow": "wine / refined"
+    },
+    {
+      "time": 20.150000000000002,
+      "frame": 485,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Explorer",
+      "until": 20.950000000000003
+    },
+    {
+      "time": 20.150000000000002,
+      "frame": 485,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Organizer",
+      "until": 20.950000000000003
+    },
+    {
+      "time": 21.35,
+      "frame": 513,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Explorer",
+      "until": 21.950000000000003
+    },
+    {
+      "time": 21.35,
+      "frame": 513,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Organizer",
+      "until": 21.950000000000003
+    },
+    {
+      "time": 20.150000000000002,
+      "frame": 485,
+      "kind": "opaque_list",
+      "flow": "wine / refined",
+      "ids": [
+        1,
+        2
+      ]
+    },
+    {
+      "time": 21.35,
+      "frame": 513,
+      "kind": "inspect_request",
+      "flow": "wine / refined",
+      "ids": [
+        1,
+        2
+      ]
+    },
+    {
+      "time": 21.950000000000003,
+      "frame": 528,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Explorer",
+      "until": 23.1
+    },
+    {
+      "time": 21.950000000000003,
+      "frame": 528,
+      "kind": "carry",
+      "photo": 2,
+      "actor": "Organizer",
+      "until": 23.1
+    },
+    {
+      "time": 21.950000000000003,
+      "frame": 528,
+      "kind": "images_observed",
+      "flow": "wine / refined",
+      "ids": [
+        1,
+        2
+      ]
+    },
+    {
+      "time": 23.1,
+      "frame": 555,
+      "kind": "independent_review",
+      "anchor": 0,
+      "candidate": 1,
+      "relation": "label",
+      "passed": true,
+      "end": 25.5
+    },
+    {
+      "time": 25.5,
+      "frame": 613,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Organizer",
+      "until": 26.5
+    },
+    {
+      "time": 25.5,
+      "frame": 613,
+      "kind": "carry",
+      "photo": 2,
+      "actor": "Organizer",
+      "until": 26.5
+    },
+    {
+      "time": 26.5,
+      "frame": 637,
+      "kind": "independent_review",
+      "anchor": 0,
+      "candidate": 2,
+      "relation": "label",
+      "passed": true,
+      "end": 29
+    },
+    {
+      "time": 29,
+      "frame": 697,
+      "kind": "carry",
+      "photo": 0,
+      "actor": "Organizer",
+      "until": 32.7
+    },
+    {
+      "time": 29,
+      "frame": 697,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Organizer",
+      "until": 31.7
+    },
+    {
+      "time": 29,
+      "frame": 697,
+      "kind": "carry",
+      "photo": 2,
+      "actor": "Organizer",
+      "until": 31.7
+    },
+    {
+      "time": 31.7,
+      "frame": 762,
+      "kind": "arranged",
+      "photos": [
+        1,
+        2
+      ],
+      "context": false
+    },
+    {
+      "time": 33,
+      "frame": 793,
+      "kind": "user_selection",
+      "photo": 1,
+      "scope": "whole"
+    },
+    {
+      "time": 33.25,
+      "frame": 799,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Explorer",
+      "until": 34.8
+    },
+    {
+      "time": 33.25,
+      "frame": 799,
+      "kind": "carry",
+      "photo": 2,
+      "actor": "Organizer",
+      "until": 35
+    },
+    {
+      "time": 35,
+      "frame": 841,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Explorer",
+      "until": 36.7
+    },
+    {
+      "time": 34,
+      "frame": 817,
+      "kind": "new_whole_photo_anchor",
+      "anchor": 1
+    },
+    {
+      "time": 37,
+      "frame": 889,
+      "kind": "request",
+      "anchor": 1,
+      "candidates": [
+        3,
+        4
+      ],
+      "flow": "restaurant / whole-photo context"
+    },
+    {
+      "time": 37.55,
+      "frame": 902,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Explorer",
+      "until": 38.35
+    },
+    {
+      "time": 37.55,
+      "frame": 902,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Organizer",
+      "until": 38.35
+    },
+    {
+      "time": 38.75,
+      "frame": 931,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Explorer",
+      "until": 39.35
+    },
+    {
+      "time": 38.75,
+      "frame": 931,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Organizer",
+      "until": 39.35
+    },
+    {
+      "time": 37.55,
+      "frame": 902,
+      "kind": "opaque_list",
+      "flow": "restaurant / whole-photo context",
+      "ids": [
+        3,
+        4
+      ]
+    },
+    {
+      "time": 38.75,
+      "frame": 931,
+      "kind": "inspect_request",
+      "flow": "restaurant / whole-photo context",
+      "ids": [
+        3,
+        4
+      ]
+    },
+    {
+      "time": 39.35,
+      "frame": 945,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Explorer",
+      "until": 40.8
+    },
+    {
+      "time": 39.35,
+      "frame": 945,
+      "kind": "carry",
+      "photo": 4,
+      "actor": "Organizer",
+      "until": 40.8
+    },
+    {
+      "time": 39.35,
+      "frame": 945,
+      "kind": "images_observed",
+      "flow": "restaurant / whole-photo context",
+      "ids": [
+        3,
+        4
+      ]
+    },
+    {
+      "time": 41,
+      "frame": 985,
+      "kind": "independent_review",
+      "anchor": 1,
+      "candidate": 3,
+      "relation": "fixture_date",
+      "passed": true,
+      "end": 43.2
+    },
+    {
+      "time": 43.2,
+      "frame": 1038,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 44.1
+    },
+    {
+      "time": 43.2,
+      "frame": 1038,
+      "kind": "carry",
+      "photo": 4,
+      "actor": "Organizer",
+      "until": 44.1
+    },
+    {
+      "time": 44.1,
+      "frame": 1059,
+      "kind": "independent_review",
+      "anchor": 1,
+      "candidate": 4,
+      "relation": "fixture_date",
+      "passed": true,
+      "end": 46.3
+    },
+    {
+      "time": 46.3,
+      "frame": 1112,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 47.5
+    },
+    {
+      "time": 46.3,
+      "frame": 1112,
+      "kind": "carry",
+      "photo": 4,
+      "actor": "Organizer",
+      "until": 47.5
+    },
+    {
+      "time": 47.5,
+      "frame": 1141,
+      "kind": "arranged",
+      "photos": [
+        3,
+        4
+      ],
+      "context": true
+    },
+    {
+      "time": 47.6,
+      "frame": 1143,
+      "kind": "user_selection",
+      "photo": 1,
+      "scope": "object"
+    },
+    {
+      "time": 47.6,
+      "frame": 1143,
+      "kind": "new_connect",
+      "anchor": 1,
+      "selection": "person"
+    },
+    {
+      "time": 49.4,
+      "frame": 1187,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 51
+    },
+    {
+      "time": 49.4,
+      "frame": 1187,
+      "kind": "carry",
+      "photo": 4,
+      "actor": "Organizer",
+      "until": 51
+    },
+    {
+      "time": 51,
+      "frame": 1225,
+      "kind": "request",
+      "anchor": 1,
+      "candidates": [
+        3,
+        5
+      ],
+      "flow": "person / new Connect"
+    },
+    {
+      "time": 51.55,
+      "frame": 1238,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Explorer",
+      "until": 52.35
+    },
+    {
+      "time": 51.55,
+      "frame": 1238,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Organizer",
+      "until": 52.35
+    },
+    {
+      "time": 52.75,
+      "frame": 1267,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Explorer",
+      "until": 53.35
+    },
+    {
+      "time": 52.75,
+      "frame": 1267,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Organizer",
+      "until": 53.35
+    },
+    {
+      "time": 51.55,
+      "frame": 1238,
+      "kind": "opaque_list",
+      "flow": "person / new Connect",
+      "ids": [
+        3,
+        5
+      ]
+    },
+    {
+      "time": 52.75,
+      "frame": 1267,
+      "kind": "inspect_request",
+      "flow": "person / new Connect",
+      "ids": [
+        3,
+        5
+      ]
+    },
+    {
+      "time": 53.35,
+      "frame": 1281,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Explorer",
+      "until": 55.8
+    },
+    {
+      "time": 53.35,
+      "frame": 1281,
+      "kind": "carry",
+      "photo": 5,
+      "actor": "Organizer",
+      "until": 55.8
+    },
+    {
+      "time": 53.35,
+      "frame": 1281,
+      "kind": "images_observed",
+      "flow": "person / new Connect",
+      "ids": [
+        3,
+        5
+      ]
+    },
+    {
+      "time": 56,
+      "frame": 1345,
+      "kind": "independent_review",
+      "anchor": 1,
+      "candidate": 3,
+      "relation": "person",
+      "passed": true,
+      "end": 58.15
+    },
+    {
+      "time": 58.15,
+      "frame": 1397,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 59.05
+    },
+    {
+      "time": 58.15,
+      "frame": 1397,
+      "kind": "carry",
+      "photo": 5,
+      "actor": "Organizer",
+      "until": 59.05
+    },
+    {
+      "time": 59.05,
+      "frame": 1418,
+      "kind": "independent_review",
+      "anchor": 1,
+      "candidate": 5,
+      "relation": "person",
+      "passed": true,
+      "end": 61.3
+    },
+    {
+      "time": 61.3,
+      "frame": 1472,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Organizer",
+      "until": 62.8
+    },
+    {
+      "time": 61.3,
+      "frame": 1472,
+      "kind": "carry",
+      "photo": 5,
+      "actor": "Organizer",
+      "until": 62.8
+    },
+    {
+      "time": 61.3,
+      "frame": 1472,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 62.8
+    },
+    {
+      "time": 62.8,
+      "frame": 1508,
+      "kind": "arranged",
+      "photos": [
+        5,
+        3
+      ],
+      "context": false
+    },
+    {
+      "time": 63,
+      "frame": 1513,
+      "kind": "user_selection",
+      "photo": 5,
+      "scope": "whole"
+    },
+    {
+      "time": 63.15,
+      "frame": 1517,
+      "kind": "carry",
+      "photo": 5,
+      "actor": "Organizer",
+      "until": 64.45
+    },
+    {
+      "time": 63.2,
+      "frame": 1518,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 65
+    },
+    {
+      "time": 64.55,
+      "frame": 1550,
+      "kind": "carry",
+      "photo": 5,
+      "actor": "Organizer",
+      "until": 65.8
+    },
+    {
+      "time": 64,
+      "frame": 1537,
+      "kind": "new_whole_photo_anchor",
+      "anchor": 5
+    },
+    {
+      "time": 66,
+      "frame": 1585,
+      "kind": "request",
+      "anchor": 5,
+      "candidates": [
+        1,
+        3
+      ],
+      "flow": "beach / whole-photo context"
+    },
+    {
+      "time": 66.55,
+      "frame": 1598,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Explorer",
+      "until": 67.35
+    },
+    {
+      "time": 66.55,
+      "frame": 1598,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Organizer",
+      "until": 67.35
+    },
+    {
+      "time": 67.75,
+      "frame": 1627,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Explorer",
+      "until": 68.35
+    },
+    {
+      "time": 67.75,
+      "frame": 1627,
+      "kind": "carry",
+      "photo": null,
+      "actor": "Organizer",
+      "until": 68.35
+    },
+    {
+      "time": 66.55,
+      "frame": 1598,
+      "kind": "opaque_list",
+      "flow": "beach / whole-photo context",
+      "ids": [
+        1,
+        3
+      ]
+    },
+    {
+      "time": 67.75,
+      "frame": 1627,
+      "kind": "inspect_request",
+      "flow": "beach / whole-photo context",
+      "ids": [
+        1,
+        3
+      ]
+    },
+    {
+      "time": 68.35,
+      "frame": 1641,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Explorer",
+      "until": 70.8
+    },
+    {
+      "time": 68.35,
+      "frame": 1641,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 70.8
+    },
+    {
+      "time": 68.35,
+      "frame": 1641,
+      "kind": "images_observed",
+      "flow": "beach / whole-photo context",
+      "ids": [
+        1,
+        3
+      ]
+    },
+    {
+      "time": 67.4,
+      "frame": 1619,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Organizer",
+      "until": 68.6
+    },
+    {
+      "time": 67.4,
+      "frame": 1619,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 68.6
+    },
+    {
+      "time": 71,
+      "frame": 1705,
+      "kind": "independent_review",
+      "anchor": 5,
+      "candidate": 1,
+      "relation": "whole_photo_person",
+      "passed": true,
+      "end": 73.2
+    },
+    {
+      "time": 73.2,
+      "frame": 1758,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Organizer",
+      "until": 74.1
+    },
+    {
+      "time": 73.2,
+      "frame": 1758,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 74.1
+    },
+    {
+      "time": 74.1,
+      "frame": 1779,
+      "kind": "independent_review",
+      "anchor": 5,
+      "candidate": 3,
+      "relation": "whole_photo_person",
+      "passed": true,
+      "end": 76.3
+    },
+    {
+      "time": 76.3,
+      "frame": 1832,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Organizer",
+      "until": 77.5
+    },
+    {
+      "time": 76.3,
+      "frame": 1832,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 77.5
+    },
+    {
+      "time": 77.5,
+      "frame": 1861,
+      "kind": "arranged",
+      "photos": [
+        1,
+        3
+      ],
+      "context": true
+    },
+    {
+      "time": 77.8,
+      "frame": 1868,
+      "kind": "carry",
+      "photo": 0,
+      "actor": "Organizer",
+      "until": 81.0
+    },
+    {
+      "time": 77.8,
+      "frame": 1868,
+      "kind": "carry",
+      "photo": 1,
+      "actor": "Organizer",
+      "until": 81.0
+    },
+    {
+      "time": 77.8,
+      "frame": 1868,
+      "kind": "carry",
+      "photo": 5,
+      "actor": "Explorer",
+      "until": 81.0
+    },
+    {
+      "time": 81.0,
+      "frame": 1945,
+      "kind": "carry",
+      "photo": 2,
+      "actor": "Organizer",
+      "until": 84.2
+    },
+    {
+      "time": 82.0,
+      "frame": 1969,
+      "kind": "carry",
+      "photo": 4,
+      "actor": "Organizer",
+      "until": 84.2
+    },
+    {
+      "time": 81.0,
+      "frame": 1945,
+      "kind": "carry",
+      "photo": 3,
+      "actor": "Organizer",
+      "until": 84.2
+    },
+    {
+      "time": 84.3,
+      "frame": 2024,
+      "kind": "final_path",
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          3
+        ]
+      ]
+    }
+  ],
+  "contacts": [
+    {
+      "object": "Wine / original selected source",
+      "actor": "Explorer",
+      "start": 1.7,
+      "end": 3.7,
+      "side": 1,
+      "stone": 0,
+      "grip_start": 2.0,
+      "grip_end": 3.4000000000000004,
+      "ramp": 0.3
+    },
+    {
+      "object": "wine / first / unopened candidate A",
+      "actor": "Explorer",
+      "start": 4.55,
+      "end": 5.35,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 4.694,
+      "grip_end": 5.2059999999999995,
+      "ramp": 0.14399999999999996
+    },
+    {
+      "object": "wine / first / unopened candidate B",
+      "actor": "Organizer",
+      "start": 4.55,
+      "end": 5.35,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 4.694,
+      "grip_end": 5.2059999999999995,
+      "ramp": 0.14399999999999996
+    },
+    {
+      "object": "wine / first / unopened candidate A",
+      "actor": "Explorer",
+      "start": 5.75,
+      "end": 6.35,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 5.858,
+      "grip_end": 6.242,
+      "ramp": 0.10799999999999993
+    },
+    {
+      "object": "wine / first / unopened candidate B",
+      "actor": "Organizer",
+      "start": 5.75,
+      "end": 6.35,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 5.858,
+      "grip_end": 6.242,
+      "ramp": 0.10799999999999993
+    },
+    {
+      "object": "wine / first / observed A",
+      "actor": "Explorer",
+      "start": 6.35,
+      "end": 9.5,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 6.6499999999999995,
+      "grip_end": 9.2,
+      "ramp": 0.3
+    },
+    {
+      "object": "wine / first / observed B",
+      "actor": "Organizer",
+      "start": 6.35,
+      "end": 9.5,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 6.6499999999999995,
+      "grip_end": 9.2,
+      "ramp": 0.3
+    },
+    {
+      "object": "Wine / original selected source",
+      "actor": "Reviewer",
+      "start": 10.25,
+      "end": 11.18,
+      "side": 1,
+      "grip_start": 10.43,
+      "grip_end": 11.0,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "wine / first / observed A",
+      "actor": "Reviewer",
+      "start": 11.35,
+      "end": 12.5,
+      "side": -1,
+      "grip_start": 11.53,
+      "grip_end": 12.32,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "wine / first / observed A",
+      "actor": "Organizer",
+      "start": 12.5,
+      "end": 13.7,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 12.716,
+      "grip_end": 13.484,
+      "ramp": 0.21599999999999986
+    },
+    {
+      "object": "wine / first / observed B",
+      "actor": "Organizer",
+      "start": 12.5,
+      "end": 13.7,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 12.716,
+      "grip_end": 13.484,
+      "ramp": 0.21599999999999986
+    },
+    {
+      "object": "Wine / original selected source",
+      "actor": "Reviewer",
+      "start": 13.95,
+      "end": 14.879999999999999,
+      "side": 1,
+      "grip_start": 14.129999999999999,
+      "grip_end": 14.7,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "wine / first / observed B",
+      "actor": "Reviewer",
+      "start": 15.049999999999999,
+      "end": 16,
+      "side": -1,
+      "grip_start": 15.229999999999999,
+      "grip_end": 15.82,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "Feedback / original red-circle label",
+      "actor": "Reviewer",
+      "start": 16.35,
+      "end": 18.4,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 16.650000000000002,
+      "grip_end": 18.099999999999998,
+      "ramp": 0.3
+    },
+    {
+      "object": "Feedback / original red-circle label",
+      "actor": "Explorer",
+      "start": 18.1,
+      "end": 19.3,
+      "side": -1,
+      "grip_start": 18.4,
+      "grip_end": 19,
+      "stone": 0
+    },
+    {
+      "object": "wine / first / observed A",
+      "actor": "Organizer",
+      "start": 19.1,
+      "end": 20.5,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 19.352,
+      "grip_end": 20.248,
+      "ramp": 0.2519999999999997
+    },
+    {
+      "object": "wine / first / observed B",
+      "actor": "Organizer",
+      "start": 19.1,
+      "end": 20.5,
+      "side": 1,
+      "stone": 2,
+      "grip_start": 19.352,
+      "grip_end": 20.248,
+      "ramp": 0.2519999999999997
+    },
+    {
+      "object": "wine / refined / unopened candidate A",
+      "actor": "Explorer",
+      "start": 20.150000000000002,
+      "end": 20.950000000000003,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 20.294000000000004,
+      "grip_end": 20.806000000000004,
+      "ramp": 0.14400000000000013
+    },
+    {
+      "object": "wine / refined / unopened candidate B",
+      "actor": "Organizer",
+      "start": 20.150000000000002,
+      "end": 20.950000000000003,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 20.294000000000004,
+      "grip_end": 20.806000000000004,
+      "ramp": 0.14400000000000013
+    },
+    {
+      "object": "wine / refined / unopened candidate A",
+      "actor": "Explorer",
+      "start": 21.35,
+      "end": 21.950000000000003,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 21.458000000000002,
+      "grip_end": 21.842000000000002,
+      "ramp": 0.10800000000000025
+    },
+    {
+      "object": "wine / refined / unopened candidate B",
+      "actor": "Organizer",
+      "start": 21.35,
+      "end": 21.950000000000003,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 21.458000000000002,
+      "grip_end": 21.842000000000002,
+      "ramp": 0.10800000000000025
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Explorer",
+      "start": 21.950000000000003,
+      "end": 23.1,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 22.157000000000004,
+      "grip_end": 22.893,
+      "ramp": 0.20699999999999974
+    },
+    {
+      "object": "wine / refined / observed B",
+      "actor": "Organizer",
+      "start": 21.950000000000003,
+      "end": 23.1,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 22.157000000000004,
+      "grip_end": 22.893,
+      "ramp": 0.20699999999999974
+    },
+    {
+      "object": "Wine / original selected source",
+      "actor": "Reviewer",
+      "start": 23.35,
+      "end": 24.28,
+      "side": 1,
+      "grip_start": 23.53,
+      "grip_end": 24.1,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Reviewer",
+      "start": 24.450000000000003,
+      "end": 25.5,
+      "side": -1,
+      "grip_start": 24.630000000000003,
+      "grip_end": 25.32,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Organizer",
+      "start": 25.5,
+      "end": 26.5,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 25.68,
+      "grip_end": 26.32,
+      "ramp": 0.18
+    },
+    {
+      "object": "wine / refined / observed B",
+      "actor": "Organizer",
+      "start": 25.5,
+      "end": 26.5,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 25.68,
+      "grip_end": 26.32,
+      "ramp": 0.18
+    },
+    {
+      "object": "Wine / original selected source",
+      "actor": "Reviewer",
+      "start": 26.75,
+      "end": 27.68,
+      "side": 1,
+      "grip_start": 26.93,
+      "grip_end": 27.5,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "wine / refined / observed B",
+      "actor": "Reviewer",
+      "start": 27.85,
+      "end": 29,
+      "side": -1,
+      "grip_start": 28.03,
+      "grip_end": 28.82,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "Wine / original selected source",
+      "actor": "Organizer",
+      "start": 29,
+      "end": 32.7,
+      "side": 1,
+      "stone": 2,
+      "grip_start": 29.3,
+      "grip_end": 32.400000000000006,
+      "ramp": 0.3
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Organizer",
+      "start": 29,
+      "end": 31.7,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 29.3,
+      "grip_end": 31.4,
+      "ramp": 0.3
+    },
+    {
+      "object": "wine / refined / observed B",
+      "actor": "Organizer",
+      "start": 29,
+      "end": 31.7,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 29.3,
+      "grip_end": 31.4,
+      "ramp": 0.3
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Explorer",
+      "start": 33.25,
+      "end": 34.8,
+      "side": 1,
+      "stone": 0,
+      "grip_start": 33.528999999999996,
+      "grip_end": 34.521,
+      "ramp": 0.27899999999999947
+    },
+    {
+      "object": "wine / refined / observed B",
+      "actor": "Organizer",
+      "start": 33.25,
+      "end": 35,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 33.55,
+      "grip_end": 34.7,
+      "ramp": 0.3
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Explorer",
+      "start": 35,
+      "end": 36.7,
+      "side": 1,
+      "stone": 0,
+      "grip_start": 35.3,
+      "grip_end": 36.400000000000006,
+      "ramp": 0.3
+    },
+    {
+      "object": "restaurant / whole-photo context / unopened candidate A",
+      "actor": "Explorer",
+      "start": 37.55,
+      "end": 38.35,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 37.693999999999996,
+      "grip_end": 38.206,
+      "ramp": 0.14400000000000077
+    },
+    {
+      "object": "restaurant / whole-photo context / unopened candidate B",
+      "actor": "Organizer",
+      "start": 37.55,
+      "end": 38.35,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 37.693999999999996,
+      "grip_end": 38.206,
+      "ramp": 0.14400000000000077
+    },
+    {
+      "object": "restaurant / whole-photo context / unopened candidate A",
+      "actor": "Explorer",
+      "start": 38.75,
+      "end": 39.35,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 38.858,
+      "grip_end": 39.242000000000004,
+      "ramp": 0.10800000000000025
+    },
+    {
+      "object": "restaurant / whole-photo context / unopened candidate B",
+      "actor": "Organizer",
+      "start": 38.75,
+      "end": 39.35,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 38.858,
+      "grip_end": 39.242000000000004,
+      "ramp": 0.10800000000000025
+    },
+    {
+      "object": "restaurant / whole-photo context / observed A",
+      "actor": "Explorer",
+      "start": 39.35,
+      "end": 40.8,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 39.611000000000004,
+      "grip_end": 40.539,
+      "ramp": 0.26099999999999923
+    },
+    {
+      "object": "restaurant / whole-photo context / observed B",
+      "actor": "Organizer",
+      "start": 39.35,
+      "end": 40.8,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 39.611000000000004,
+      "grip_end": 40.539,
+      "ramp": 0.26099999999999923
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Reviewer",
+      "start": 41.25,
+      "end": 42.18,
+      "side": 1,
+      "grip_start": 41.43,
+      "grip_end": 42.0,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "restaurant / whole-photo context / observed A",
+      "actor": "Reviewer",
+      "start": 42.35,
+      "end": 43.2,
+      "side": -1,
+      "grip_start": 42.53,
+      "grip_end": 43.02,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "restaurant / whole-photo context / observed A",
+      "actor": "Organizer",
+      "start": 43.2,
+      "end": 44.1,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 43.362,
+      "grip_end": 43.938,
+      "ramp": 0.16199999999999973
+    },
+    {
+      "object": "restaurant / whole-photo context / observed B",
+      "actor": "Organizer",
+      "start": 43.2,
+      "end": 44.1,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 43.362,
+      "grip_end": 43.938,
+      "ramp": 0.16199999999999973
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Reviewer",
+      "start": 44.35,
+      "end": 45.28,
+      "side": 1,
+      "grip_start": 44.53,
+      "grip_end": 45.1,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "restaurant / whole-photo context / observed B",
+      "actor": "Reviewer",
+      "start": 45.45,
+      "end": 46.3,
+      "side": -1,
+      "grip_start": 45.63,
+      "grip_end": 46.12,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "restaurant / whole-photo context / observed A",
+      "actor": "Organizer",
+      "start": 46.3,
+      "end": 47.5,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 46.516,
+      "grip_end": 47.284,
+      "ramp": 0.2160000000000005
+    },
+    {
+      "object": "restaurant / whole-photo context / observed B",
+      "actor": "Organizer",
+      "start": 46.3,
+      "end": 47.5,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 46.516,
+      "grip_end": 47.284,
+      "ramp": 0.2160000000000005
+    },
+    {
+      "object": "restaurant / whole-photo context / observed A",
+      "actor": "Organizer",
+      "start": 49.4,
+      "end": 51,
+      "side": 1,
+      "stone": 0,
+      "grip_start": 49.688,
+      "grip_end": 50.712,
+      "ramp": 0.28800000000000026
+    },
+    {
+      "object": "restaurant / whole-photo context / observed B",
+      "actor": "Organizer",
+      "start": 49.4,
+      "end": 51,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 49.688,
+      "grip_end": 50.712,
+      "ramp": 0.28800000000000026
+    },
+    {
+      "object": "person / new Connect / unopened candidate A",
+      "actor": "Explorer",
+      "start": 51.55,
+      "end": 52.35,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 51.693999999999996,
+      "grip_end": 52.206,
+      "ramp": 0.14400000000000077
+    },
+    {
+      "object": "person / new Connect / unopened candidate B",
+      "actor": "Organizer",
+      "start": 51.55,
+      "end": 52.35,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 51.693999999999996,
+      "grip_end": 52.206,
+      "ramp": 0.14400000000000077
+    },
+    {
+      "object": "person / new Connect / unopened candidate A",
+      "actor": "Explorer",
+      "start": 52.75,
+      "end": 53.35,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 52.858,
+      "grip_end": 53.242000000000004,
+      "ramp": 0.10800000000000025
+    },
+    {
+      "object": "person / new Connect / unopened candidate B",
+      "actor": "Organizer",
+      "start": 52.75,
+      "end": 53.35,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 52.858,
+      "grip_end": 53.242000000000004,
+      "ramp": 0.10800000000000025
+    },
+    {
+      "object": "person / new Connect / observed A",
+      "actor": "Explorer",
+      "start": 53.35,
+      "end": 55.8,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 53.65,
+      "grip_end": 55.5,
+      "ramp": 0.3
+    },
+    {
+      "object": "person / new Connect / observed B",
+      "actor": "Organizer",
+      "start": 53.35,
+      "end": 55.8,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 53.65,
+      "grip_end": 55.5,
+      "ramp": 0.3
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Reviewer",
+      "start": 56.25,
+      "end": 57.18,
+      "side": 1,
+      "grip_start": 56.43,
+      "grip_end": 57.0,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "person / new Connect / observed A",
+      "actor": "Reviewer",
+      "start": 57.35,
+      "end": 58.15,
+      "side": -1,
+      "grip_start": 57.53,
+      "grip_end": 57.97,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "person / new Connect / observed A",
+      "actor": "Organizer",
+      "start": 58.15,
+      "end": 59.05,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 58.312,
+      "grip_end": 58.888,
+      "ramp": 0.16199999999999973
+    },
+    {
+      "object": "person / new Connect / observed B",
+      "actor": "Organizer",
+      "start": 58.15,
+      "end": 59.05,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 58.312,
+      "grip_end": 58.888,
+      "ramp": 0.16199999999999973
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Reviewer",
+      "start": 59.3,
+      "end": 60.23,
+      "side": 1,
+      "grip_start": 59.48,
+      "grip_end": 60.05,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "person / new Connect / observed B",
+      "actor": "Reviewer",
+      "start": 60.4,
+      "end": 61.3,
+      "side": -1,
+      "grip_start": 60.58,
+      "grip_end": 61.12,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Organizer",
+      "start": 61.3,
+      "end": 62.8,
+      "side": 1,
+      "stone": 2,
+      "grip_start": 61.57,
+      "grip_end": 62.529999999999994,
+      "ramp": 0.27
+    },
+    {
+      "object": "person / new Connect / observed B",
+      "actor": "Organizer",
+      "start": 61.3,
+      "end": 62.8,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 61.57,
+      "grip_end": 62.529999999999994,
+      "ramp": 0.27
+    },
+    {
+      "object": "person / new Connect / observed A",
+      "actor": "Organizer",
+      "start": 61.3,
+      "end": 62.8,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 61.57,
+      "grip_end": 62.529999999999994,
+      "ramp": 0.27
+    },
+    {
+      "object": "person / new Connect / observed B",
+      "actor": "Organizer",
+      "start": 63.15,
+      "end": 64.45,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 63.384,
+      "grip_end": 64.21600000000001,
+      "ramp": 0.23400000000000076
+    },
+    {
+      "object": "person / new Connect / observed A",
+      "actor": "Organizer",
+      "start": 63.2,
+      "end": 65,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 63.5,
+      "grip_end": 64.7,
+      "ramp": 0.3
+    },
+    {
+      "object": "person / new Connect / observed B",
+      "actor": "Organizer",
+      "start": 64.55,
+      "end": 65.8,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 64.77499999999999,
+      "grip_end": 65.575,
+      "ramp": 0.22499999999999998
+    },
+    {
+      "object": "beach / whole-photo context / unopened candidate A",
+      "actor": "Explorer",
+      "start": 66.55,
+      "end": 67.35,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 66.694,
+      "grip_end": 67.20599999999999,
+      "ramp": 0.1439999999999995
+    },
+    {
+      "object": "beach / whole-photo context / unopened candidate B",
+      "actor": "Organizer",
+      "start": 66.55,
+      "end": 67.35,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 66.694,
+      "grip_end": 67.20599999999999,
+      "ramp": 0.1439999999999995
+    },
+    {
+      "object": "beach / whole-photo context / unopened candidate A",
+      "actor": "Explorer",
+      "start": 67.75,
+      "end": 68.35,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 67.858,
+      "grip_end": 68.24199999999999,
+      "ramp": 0.10799999999999897
+    },
+    {
+      "object": "beach / whole-photo context / unopened candidate B",
+      "actor": "Organizer",
+      "start": 67.75,
+      "end": 68.35,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 67.858,
+      "grip_end": 68.24199999999999,
+      "ramp": 0.10799999999999897
+    },
+    {
+      "object": "beach / whole-photo context / observed A",
+      "actor": "Explorer",
+      "start": 68.35,
+      "end": 70.8,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 68.64999999999999,
+      "grip_end": 70.5,
+      "ramp": 0.3
+    },
+    {
+      "object": "beach / whole-photo context / observed B",
+      "actor": "Organizer",
+      "start": 68.35,
+      "end": 70.8,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 68.64999999999999,
+      "grip_end": 70.5,
+      "ramp": 0.3
+    },
+    {
+      "object": "wine / refined / observed A",
+      "actor": "Organizer",
+      "start": 67.4,
+      "end": 68.6,
+      "side": 1,
+      "stone": 0,
+      "grip_start": 67.616,
+      "grip_end": 68.384,
+      "ramp": 0.21599999999999794
+    },
+    {
+      "object": "person / new Connect / observed A",
+      "actor": "Organizer",
+      "start": 67.4,
+      "end": 68.6,
+      "side": -1,
+      "stone": 1,
+      "grip_start": 67.616,
+      "grip_end": 68.384,
+      "ramp": 0.21599999999999794
+    },
+    {
+      "object": "person / new Connect / observed B",
+      "actor": "Reviewer",
+      "start": 71.25,
+      "end": 72.18,
+      "side": 1,
+      "grip_start": 71.43,
+      "grip_end": 72.0,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "beach / whole-photo context / observed A",
+      "actor": "Reviewer",
+      "start": 72.35,
+      "end": 73.2,
+      "side": -1,
+      "grip_start": 72.53,
+      "grip_end": 73.02,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "beach / whole-photo context / observed A",
+      "actor": "Organizer",
+      "start": 73.2,
+      "end": 74.1,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 73.362,
+      "grip_end": 73.938,
+      "ramp": 0.16199999999999845
+    },
+    {
+      "object": "beach / whole-photo context / observed B",
+      "actor": "Organizer",
+      "start": 73.2,
+      "end": 74.1,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 73.362,
+      "grip_end": 73.938,
+      "ramp": 0.16199999999999845
+    },
+    {
+      "object": "person / new Connect / observed B",
+      "actor": "Reviewer",
+      "start": 74.35,
+      "end": 75.28,
+      "side": 1,
+      "grip_start": 74.53,
+      "grip_end": 75.1,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "beach / whole-photo context / observed B",
+      "actor": "Reviewer",
+      "start": 75.44999999999999,
+      "end": 76.3,
+      "side": -1,
+      "grip_start": 75.63,
+      "grip_end": 76.11999999999999,
+      "stone": 0,
+      "look": true
+    },
+    {
+      "object": "beach / whole-photo context / observed A",
+      "actor": "Organizer",
+      "start": 76.3,
+      "end": 77.5,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 76.51599999999999,
+      "grip_end": 77.284,
+      "ramp": 0.2160000000000005
+    },
+    {
+      "object": "beach / whole-photo context / observed B",
+      "actor": "Organizer",
+      "start": 76.3,
+      "end": 77.5,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 76.51599999999999,
+      "grip_end": 77.284,
+      "ramp": 0.2160000000000005
+    },
+    {
+      "object": "Wine / original selected source",
+      "actor": "Organizer",
+      "start": 77.8,
+      "end": 81.0,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 78.1,
+      "grip_end": 80.7,
+      "ramp": 0.3
+    },
+    {
+      "object": "beach / whole-photo context / observed A",
+      "actor": "Organizer",
+      "start": 77.8,
+      "end": 81.0,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 78.1,
+      "grip_end": 80.7,
+      "ramp": 0.3
+    },
+    {
+      "object": "person / new Connect / observed B",
+      "actor": "Explorer",
+      "start": 77.8,
+      "end": 81.0,
+      "side": 1,
+      "stone": 1,
+      "grip_start": 78.1,
+      "grip_end": 80.7,
+      "ramp": 0.3
+    },
+    {
+      "object": "wine / refined / observed B",
+      "actor": "Organizer",
+      "start": 81.0,
+      "end": 84.2,
+      "side": -1,
+      "stone": 2,
+      "grip_start": 81.3,
+      "grip_end": 83.9,
+      "ramp": 0.3
+    },
+    {
+      "object": "restaurant / whole-photo context / observed B",
+      "actor": "Organizer",
+      "start": 82.0,
+      "end": 84.2,
+      "side": -1,
+      "stone": 0,
+      "grip_start": 82.3,
+      "grip_end": 83.9,
+      "ramp": 0.3
+    },
+    {
+      "object": "beach / whole-photo context / observed B",
+      "actor": "Organizer",
+      "start": 81.0,
+      "end": 84.2,
+      "side": -1,
+      "stone": 1,
+      "grip_start": 81.3,
+      "grip_end": 83.9,
+      "ramp": 0.3
+    }
+  ]
+}

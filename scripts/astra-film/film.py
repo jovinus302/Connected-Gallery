@@ -748,7 +748,7 @@ def load():
     return bpy.context.scene
 
 
-def render_frames(scene,frames,directory,percent,samples,resume=True):
+def render_frames(scene,frames,directory,percent,samples,resume=True,visible_only=False):
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     configure(scene,percent,samples)
     began=time.time()
@@ -769,6 +769,16 @@ def render_frames(scene,frames,directory,percent,samples,resume=True):
         channels.extend((owner,p) for p in sorted(paths))
     def state_digest():
         values=[]
+        if visible_only:
+            for ob in bpy.data.objects:
+                if ob.hide_render or ob.type=='EMPTY':continue
+                item=[ob.name,tuple(v for row in ob.matrix_world for v in row)]
+                if ob.type=='CURVE':
+                    item.extend([ob.data.bevel_factor_start,ob.data.bevel_factor_end])
+                    for spline in ob.data.splines:
+                        item.extend((tuple(p.co),tuple(p.handle_left),tuple(p.handle_right)) for p in spline.bezier_points)
+                values.append(item)
+            return hashlib.sha256(repr(values).encode()).hexdigest()
         for owner,path in channels:
             value=owner.path_resolve(path)
             values.append(tuple(value) if hasattr(value,'__len__') else value)
@@ -791,15 +801,16 @@ def render_frames(scene,frames,directory,percent,samples,resume=True):
         if frame%24==0 or index==0:
             print('FRAME_DONE',frame,'rendered',rendered,'held',len(reuse),'elapsed',round(time.time()-began,2),flush=True)
     (directory/'render-evidence.json').write_text(json.dumps({'percent':percent,'samples':samples,
+        'fingerprint':'visible world matrices and curve geometry' if visible_only else 'all keyed channels',
         'rendered_this_run':rendered,'held_frames':reuse,'elapsed_seconds':time.time()-began},indent=2),encoding='utf-8')
     print('RENDER_SET_COMPLETE',str(directory),flush=True)
 
 
-def encode(scene,source,output,step=1,audio=None):
+def encode(scene,source,output,step=1,audio=None,samples=32,percent=100):
     # VSE encodes the already-rendered frames; no 3D rerender is needed.
     if Path(output).parent==DEST:
         scene.frame_set(1)
-        configure(scene,100,32)
+        configure(scene,100,samples)
         for area in bpy.context.window.screen.areas:
             if area.type=='VIEW_3D':
                 area.spaces.active.region_3d.view_perspective='CAMERA'
@@ -812,7 +823,7 @@ def encode(scene,source,output,step=1,audio=None):
     scene.render.resolution_x=first_image.size[0]
     scene.render.resolution_y=first_image.size[1]
     bpy.data.images.remove(first_image)
-    scene.render.resolution_percentage=100
+    scene.render.resolution_percentage=percent
     scene.render.fps=FPS;scene.frame_start=1;scene.frame_end=LENGTH*FPS
     ed=scene.sequence_editor_create()
     frames=list(range(1,LENGTH*FPS+1,step))

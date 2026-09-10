@@ -1,0 +1,256 @@
+{
+  "verdict": "PASS",
+  "checks": [
+    {
+      "claim": "All expected image frames exist",
+      "passed": true,
+      "evidence": {
+        "frames": 2232
+      }
+    },
+    {
+      "claim": "All image frames decode",
+      "passed": true,
+      "evidence": []
+    },
+    {
+      "claim": "Consistent source image resolution",
+      "passed": true,
+      "evidence": [
+        [
+          1920,
+          1080
+        ]
+      ]
+    },
+    {
+      "claim": "H.264, 24 fps, resolution and the full authored duration",
+      "passed": true,
+      "evidence": {
+        "kind": "vide",
+        "codec": "avc1",
+        "timing": {
+          "timescale": 12288,
+          "ticks": 1142784,
+          "seconds": 93.0
+        },
+        "sample_count": 2232,
+        "sample_duration_entries": [
+          [
+            2232,
+            512
+          ]
+        ],
+        "width": 1920.0,
+        "height": 1080.0,
+        "fps": 24.0
+      }
+    },
+    {
+      "claim": "AAC stereo at 48 kHz",
+      "passed": true,
+      "evidence": {
+        "kind": "soun",
+        "codec": "mp4a",
+        "timing": {
+          "timescale": 48000,
+          "ticks": 4465663,
+          "seconds": 93.03464583333333
+        },
+        "sample_count": 4361,
+        "sample_duration_entries": [
+          [
+            19,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            32,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            73,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            86,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            250,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            423,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            925,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            2546,
+            1024
+          ]
+        ],
+        "channels": 2,
+        "sample_rate": 48000.0
+      }
+    },
+    {
+      "claim": "Original score matches the full duration with headroom",
+      "passed": true,
+      "evidence": {
+        "duration": 93.0,
+        "peak_dbfs": -6.000477743319013,
+        "clipped_samples": 0
+      }
+    },
+    {
+      "claim": "The four-second end credit remains identical",
+      "passed": true,
+      "evidence": 1
+    },
+    {
+      "claim": "Continuous actions are not a sequence of long static holds",
+      "passed": true,
+      "evidence": {
+        "distinct_frames_before_credit": 2023
+      }
+    }
+  ],
+  "mp4": {
+    "path": "docs\\presentations\\astra-film\\v2\\connected-gallery-astra.mp4",
+    "bytes": 37382445,
+    "sha256": "82beaac61fd3e44cf6b7255f61ba9a0250e9c27adb1ea5645f98a8710c18e201",
+    "duration": {
+      "timescale": 1000,
+      "ticks": 93014,
+      "seconds": 93.014
+    },
+    "tracks": [
+      {
+        "kind": "vide",
+        "codec": "avc1",
+        "timing": {
+          "timescale": 12288,
+          "ticks": 1142784,
+          "seconds": 93.0
+        },
+        "sample_count": 2232,
+        "sample_duration_entries": [
+          [
+            2232,
+            512
+          ]
+        ],
+        "width": 1920.0,
+        "height": 1080.0,
+        "fps": 24.0
+      },
+      {
+        "kind": "soun",
+        "codec": "mp4a",
+        "timing": {
+          "timescale": 48000,
+          "ticks": 4465663,
+          "seconds": 93.03464583333333
+        },
+        "sample_count": 4361,
+        "sample_duration_entries": [
+          [
+            19,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            32,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            73,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            86,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            250,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            423,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            925,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            2546,
+            1024
+          ]
+        ],
+        "channels": 2,
+        "sample_rate": 48000.0
+      }
+    ]
+  },
+  "source_frames": "outputs\\astra-film\\v2\\frames",
+  "limitation": "Timing and successful decoding do not prove natural motion, comprehension, or perceptual sound quality."
+}

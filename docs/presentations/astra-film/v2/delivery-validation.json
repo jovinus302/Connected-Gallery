@@ -1,0 +1,54 @@
+{
+  "verdict": "PASS",
+  "checks": [
+    {
+      "claim": "Final edit contains the complete frame sequence",
+      "passed": true,
+      "evidence": {
+        "strips": 1,
+        "frames": 2232
+      }
+    },
+    {
+      "claim": "All relative image paths resolve",
+      "passed": true,
+      "evidence": {
+        "missing": [],
+        "directory": "docs\\presentations\\astra-film\\v2\\..\\..\\..\\..\\outputs\\astra-film\\v2\\frames"
+      }
+    },
+    {
+      "claim": "Final soundtrack is the exact packed generated score",
+      "passed": true,
+      "evidence": [
+        "b9d33a535adb791e4f2a468430a6959b6773bb27140768464d6e200464c92252"
+      ]
+    },
+    {
+      "claim": "Original source sheet is embedded without alteration",
+      "passed": true,
+      "evidence": "Original six-photo sheet"
+    },
+    {
+      "claim": "Both Korean fonts are embedded",
+      "passed": true,
+      "evidence": [
+        "Malgun Gothic Bold",
+        "Malgun Gothic Regular"
+      ]
+    },
+    {
+      "claim": "Editable sequence duration and frame rate match delivery",
+      "passed": true,
+      "evidence": {
+        "last_frame": 2232,
+        "fps": 24
+      }
+    },
+    {
+      "claim": "The editable 3D scene is also preserved",
+      "passed": true,
+      "evidence": 284
+    }
+  ]
+}

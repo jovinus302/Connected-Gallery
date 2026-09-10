@@ -1,0 +1,607 @@
+{
+  "verdict": "PASS",
+  "checks": [
+    {
+      "claim": "One persistent camera has no reset between actions",
+      "passed": true,
+      "evidence": 1
+    },
+    {
+      "claim": "Same two articulated agents and one Organizer persist",
+      "passed": true,
+      "evidence": [
+        "Explorer",
+        "Organizer",
+        "Reviewer"
+      ]
+    },
+    {
+      "claim": "Agent motion is present across the film",
+      "passed": true,
+      "evidence": {
+        "Explorer": {
+          "total_distance": 94.32647052450993,
+          "max_frame_step": 0.36035887134448824,
+          "max_step_time": 77.83333333333333,
+          "moving_frames": 888,
+          "frames": 2135
+        },
+        "Reviewer": {
+          "total_distance": 53.661572503320585,
+          "max_frame_step": 0.28348231530157453,
+          "max_step_time": 14.0,
+          "moving_frames": 644,
+          "frames": 2135
+        },
+        "Organizer 0": {
+          "total_distance": 81.1352446133646,
+          "max_frame_step": 0.38686418206985257,
+          "max_step_time": 62.083333333333336,
+          "moving_frames": 1197,
+          "frames": 2135
+        },
+        "Organizer 1": {
+          "total_distance": 38.82914152918546,
+          "max_frame_step": 0.22315120895711274,
+          "max_step_time": 82.625,
+          "moving_frames": 1236,
+          "frames": 2135
+        },
+        "Organizer 2": {
+          "total_distance": 80.91036361429475,
+          "max_frame_step": 0.37340163294078066,
+          "max_step_time": 58.625,
+          "moving_frames": 1427,
+          "frames": 2135
+        }
+      }
+    },
+    {
+      "claim": "No frame-to-frame agent jump exceeds 0.45 stage units",
+      "passed": true,
+      "evidence": {
+        "Explorer": {
+          "total_distance": 94.32647052450993,
+          "max_frame_step": 0.36035887134448824,
+          "max_step_time": 77.83333333333333,
+          "moving_frames": 888,
+          "frames": 2135
+        },
+        "Reviewer": {
+          "total_distance": 53.661572503320585,
+          "max_frame_step": 0.28348231530157453,
+          "max_step_time": 14.0,
+          "moving_frames": 644,
+          "frames": 2135
+        },
+        "Organizer 0": {
+          "total_distance": 81.1352446133646,
+          "max_frame_step": 0.38686418206985257,
+          "max_step_time": 62.083333333333336,
+          "moving_frames": 1197,
+          "frames": 2135
+        },
+        "Organizer 1": {
+          "total_distance": 38.82914152918546,
+          "max_frame_step": 0.22315120895711274,
+          "max_step_time": 82.625,
+          "moving_frames": 1236,
+          "frames": 2135
+        },
+        "Organizer 2": {
+          "total_distance": 80.91036361429475,
+          "max_frame_step": 0.37340163294078066,
+          "max_step_time": 58.625,
+          "moving_frames": 1427,
+          "frames": 2135
+        }
+      }
+    },
+    {
+      "claim": "Hands follow the photo during authored contact",
+      "passed": true,
+      "evidence": {
+        "failed_samples": 0,
+        "examples": []
+      }
+    },
+    {
+      "claim": "Evaluated arms stay around their current contact path without false loops",
+      "passed": true,
+      "evidence": []
+    },
+    {
+      "claim": "The two bodies stay separated during feedback and departure",
+      "passed": true,
+      "evidence": []
+    },
+    {
+      "claim": "One main sentence stays at least four seconds",
+      "passed": true,
+      "evidence": {
+        "count": 16,
+        "durations": [
+          4,
+          6,
+          6,
+          6,
+          7,
+          4,
+          4,
+          4,
+          6,
+          4,
+          5,
+          6,
+          4,
+          5,
+          6,
+          12
+        ]
+      }
+    },
+    {
+      "claim": "Separate acquisition / wine / first",
+      "passed": true,
+      "evidence": [
+        {
+          "time": 4,
+          "frame": 97,
+          "kind": "request",
+          "anchor": 0,
+          "candidates": [
+            4,
+            3
+          ],
+          "flow": "wine / first"
+        },
+        {
+          "time": 4.55,
+          "frame": 110,
+          "kind": "opaque_list",
+          "flow": "wine / first",
+          "ids": [
+            4,
+            3
+          ]
+        },
+        {
+          "time": 5.75,
+          "frame": 139,
+          "kind": "inspect_request",
+          "flow": "wine / first",
+          "ids": [
+            4,
+            3
+          ]
+        },
+        {
+          "time": 6.35,
+          "frame": 153,
+          "kind": "images_observed",
+          "flow": "wine / first",
+          "ids": [
+            4,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "Acquired image meshes / wine / first",
+      "passed": true,
+      "evidence": [
+        3,
+        4
+      ]
+    },
+    {
+      "claim": "Separate acquisition / wine / refined",
+      "passed": true,
+      "evidence": [
+        {
+          "time": 19.6,
+          "frame": 471,
+          "kind": "request",
+          "anchor": 0,
+          "candidates": [
+            1,
+            2
+          ],
+          "flow": "wine / refined"
+        },
+        {
+          "time": 20.150000000000002,
+          "frame": 485,
+          "kind": "opaque_list",
+          "flow": "wine / refined",
+          "ids": [
+            1,
+            2
+          ]
+        },
+        {
+          "time": 21.35,
+          "frame": 513,
+          "kind": "inspect_request",
+          "flow": "wine / refined",
+          "ids": [
+            1,
+            2
+          ]
+        },
+        {
+          "time": 21.950000000000003,
+          "frame": 528,
+          "kind": "images_observed",
+          "flow": "wine / refined",
+          "ids": [
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "Acquired image meshes / wine / refined",
+      "passed": true,
+      "evidence": [
+        1,
+        2
+      ]
+    },
+    {
+      "claim": "Separate acquisition / restaurant / whole-photo context",
+      "passed": true,
+      "evidence": [
+        {
+          "time": 37,
+          "frame": 889,
+          "kind": "request",
+          "anchor": 1,
+          "candidates": [
+            3,
+            4
+          ],
+          "flow": "restaurant / whole-photo context"
+        },
+        {
+          "time": 37.55,
+          "frame": 902,
+          "kind": "opaque_list",
+          "flow": "restaurant / whole-photo context",
+          "ids": [
+            3,
+            4
+          ]
+        },
+        {
+          "time": 38.75,
+          "frame": 931,
+          "kind": "inspect_request",
+          "flow": "restaurant / whole-photo context",
+          "ids": [
+            3,
+            4
+          ]
+        },
+        {
+          "time": 39.35,
+          "frame": 945,
+          "kind": "images_observed",
+          "flow": "restaurant / whole-photo context",
+          "ids": [
+            3,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "Acquired image meshes / restaurant / whole-photo context",
+      "passed": true,
+      "evidence": [
+        3,
+        4
+      ]
+    },
+    {
+      "claim": "Separate acquisition / person / new Connect",
+      "passed": true,
+      "evidence": [
+        {
+          "time": 51,
+          "frame": 1225,
+          "kind": "request",
+          "anchor": 1,
+          "candidates": [
+            3,
+            5
+          ],
+          "flow": "person / new Connect"
+        },
+        {
+          "time": 51.55,
+          "frame": 1238,
+          "kind": "opaque_list",
+          "flow": "person / new Connect",
+          "ids": [
+            3,
+            5
+          ]
+        },
+        {
+          "time": 52.75,
+          "frame": 1267,
+          "kind": "inspect_request",
+          "flow": "person / new Connect",
+          "ids": [
+            3,
+            5
+          ]
+        },
+        {
+          "time": 53.35,
+          "frame": 1281,
+          "kind": "images_observed",
+          "flow": "person / new Connect",
+          "ids": [
+            3,
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "Acquired image meshes / person / new Connect",
+      "passed": true,
+      "evidence": [
+        3,
+        5
+      ]
+    },
+    {
+      "claim": "Separate acquisition / beach / whole-photo context",
+      "passed": true,
+      "evidence": [
+        {
+          "time": 66,
+          "frame": 1585,
+          "kind": "request",
+          "anchor": 5,
+          "candidates": [
+            1,
+            3
+          ],
+          "flow": "beach / whole-photo context"
+        },
+        {
+          "time": 66.55,
+          "frame": 1598,
+          "kind": "opaque_list",
+          "flow": "beach / whole-photo context",
+          "ids": [
+            1,
+            3
+          ]
+        },
+        {
+          "time": 67.75,
+          "frame": 1627,
+          "kind": "inspect_request",
+          "flow": "beach / whole-photo context",
+          "ids": [
+            1,
+            3
+          ]
+        },
+        {
+          "time": 68.35,
+          "frame": 1641,
+          "kind": "images_observed",
+          "flow": "beach / whole-photo context",
+          "ids": [
+            1,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "Acquired image meshes / beach / whole-photo context",
+      "passed": true,
+      "evidence": [
+        1,
+        3
+      ]
+    },
+    {
+      "claim": "Every acquired candidate has an independent review",
+      "passed": true,
+      "evidence": [
+        {
+          "time": 10,
+          "frame": 241,
+          "kind": "independent_review",
+          "anchor": 0,
+          "candidate": 4,
+          "relation": "unsupported",
+          "passed": false,
+          "end": 12.5
+        },
+        {
+          "time": 13.7,
+          "frame": 330,
+          "kind": "independent_review",
+          "anchor": 0,
+          "candidate": 3,
+          "relation": "unsupported",
+          "passed": false,
+          "end": 16
+        },
+        {
+          "time": 23.1,
+          "frame": 555,
+          "kind": "independent_review",
+          "anchor": 0,
+          "candidate": 1,
+          "relation": "label",
+          "passed": true,
+          "end": 25.5
+        },
+        {
+          "time": 26.5,
+          "frame": 637,
+          "kind": "independent_review",
+          "anchor": 0,
+          "candidate": 2,
+          "relation": "label",
+          "passed": true,
+          "end": 29
+        },
+        {
+          "time": 41,
+          "frame": 985,
+          "kind": "independent_review",
+          "anchor": 1,
+          "candidate": 3,
+          "relation": "fixture_date",
+          "passed": true,
+          "end": 43.2
+        },
+        {
+          "time": 44.1,
+          "frame": 1059,
+          "kind": "independent_review",
+          "anchor": 1,
+          "candidate": 4,
+          "relation": "fixture_date",
+          "passed": true,
+          "end": 46.3
+        },
+        {
+          "time": 56,
+          "frame": 1345,
+          "kind": "independent_review",
+          "anchor": 1,
+          "candidate": 3,
+          "relation": "person",
+          "passed": true,
+          "end": 58.15
+        },
+        {
+          "time": 59.05,
+          "frame": 1418,
+          "kind": "independent_review",
+          "anchor": 1,
+          "candidate": 5,
+          "relation": "person",
+          "passed": true,
+          "end": 61.3
+        },
+        {
+          "time": 71,
+          "frame": 1705,
+          "kind": "independent_review",
+          "anchor": 5,
+          "candidate": 1,
+          "relation": "whole_photo_person",
+          "passed": true,
+          "end": 73.2
+        },
+        {
+          "time": 74.1,
+          "frame": 1779,
+          "kind": "independent_review",
+          "anchor": 5,
+          "candidate": 3,
+          "relation": "whole_photo_person",
+          "passed": true,
+          "end": 76.3
+        }
+      ]
+    },
+    {
+      "claim": "Feedback retains original and both unsupported candidates",
+      "passed": true,
+      "evidence": [
+        0,
+        3,
+        4
+      ]
+    },
+    {
+      "claim": "One qualified retry retains wine selection",
+      "passed": true,
+      "evidence": [
+        {
+          "time": 16,
+          "frame": 385,
+          "kind": "conditional_retry",
+          "anchor": 0,
+          "prior_candidates": [
+            4,
+            3
+          ],
+          "count": 1,
+          "conditions": [
+            "all unsupported",
+            "incomplete",
+            "valid anchor",
+            "remaining budgets"
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "Final path has exactly five supported edges",
+      "passed": true,
+      "evidence": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          1,
+          4
+        ]
+      ]
+    },
+    {
+      "claim": "Six actual photos remain in final path",
+      "passed": true,
+      "evidence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "claim": "Original photograph sheet and editable fonts are embedded",
+      "passed": true,
+      "evidence": {
+        "fonts": [
+          "Bfont Regular",
+          "Malgun Gothic Bold",
+          "Malgun Gothic Regular"
+        ]
+      }
+    }
+  ],
+  "limits": "Geometry, sequence, and timing checks do not establish natural acting or viewer comprehension. Continuous playback must be assessed separately."
+}

@@ -1,0 +1,10 @@
+{
+  "verdict": "PASS",
+  "archive": "outputs\\astra-film\\v2\\connected-gallery-astra-v2-production.zip",
+  "bytes": 5112201271,
+  "sha256": "7124d225a36429079cfd3f0e2d32d56a3af04e82b397a402cebe50517fd43891",
+  "entries": 2260,
+  "png_frames": 2232,
+  "crc_test": "all members passed",
+  "contents": "Full v2 movie, editable 3D scene, VSE edit, all 2232 PNGs, PCM score, source photographs, source notes and reproduction scripts."
+}

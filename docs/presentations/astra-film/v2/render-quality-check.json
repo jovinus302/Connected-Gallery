@@ -1,0 +1,22 @@
+{
+  "comparison": "Same first-frame composition at native 1920x1080; 32 versus 16 Eevee samples.",
+  "regions": {
+    "source_photo_interior": {
+      "mean_absolute_channel_difference_0_255": 0.045411716925576204,
+      "p99_absolute_difference": 1.0
+    },
+    "main_caption": {
+      "mean_absolute_channel_difference_0_255": 0.4086686686686687,
+      "p99_absolute_difference": 6.0
+    },
+    "brand": {
+      "mean_absolute_channel_difference_0_255": 0.582379269729093,
+      "p99_absolute_difference": 6.0
+    },
+    "amber_reviewer": {
+      "mean_absolute_channel_difference_0_255": 1.572897692774742,
+      "p99_absolute_difference": 10.0
+    }
+  },
+  "decision": "Use native 1080p / 16 samples after visual inspection. Photograph and text remain legible; slight material sampling grain remains. This is not a claim of pixel equivalence."
+}

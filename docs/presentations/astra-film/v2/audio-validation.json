@@ -1,0 +1,383 @@
+{
+  "seconds": 93,
+  "sample_rate": 48000,
+  "channels": 2,
+  "peak_dbfs": -6.0000004906757844,
+  "rms_dbfs": -20.520369082240315,
+  "clipped_samples": 0,
+  "source": "Original deterministic synthesis; no samples, narration, environmental recordings, or external services.",
+  "change": "Sparse notes; no decorative request/return arpeggios. Foley occurs at authored contact release.",
+  "events": [
+    {
+      "time": 3.4000000000000004,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 5.2059999999999995,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 5.2059999999999995,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 6.242,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 6.242,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 9.2,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 9.2,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 13.484,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 13.484,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 18.099999999999998,
+      "kind": "contact_settle",
+      "actor": "Reviewer"
+    },
+    {
+      "time": 19,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 20.248,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 20.248,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 20.806000000000004,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 20.806000000000004,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 21.842000000000002,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 21.842000000000002,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 22.893,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 22.893,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 26.32,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 26.32,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 32.400000000000006,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 31.4,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 31.4,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 34.521,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 34.7,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 36.400000000000006,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 38.206,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 38.206,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 39.242000000000004,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 39.242000000000004,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 40.539,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 40.539,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 43.938,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 43.938,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 47.284,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 47.284,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 50.712,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 50.712,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 52.206,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 52.206,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 53.242000000000004,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 53.242000000000004,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 55.5,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 55.5,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 58.888,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 58.888,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 62.529999999999994,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 62.529999999999994,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 62.529999999999994,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 64.21600000000001,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 64.7,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 65.575,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 67.20599999999999,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 67.20599999999999,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 68.24199999999999,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 68.24199999999999,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 70.5,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 70.5,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 68.384,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 68.384,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 73.938,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 73.938,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 77.284,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 77.284,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 80.7,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 80.7,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 80.7,
+      "kind": "contact_settle",
+      "actor": "Explorer"
+    },
+    {
+      "time": 83.9,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 83.9,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 83.9,
+      "kind": "contact_settle",
+      "actor": "Organizer"
+    },
+    {
+      "time": 1.2,
+      "kind": "user_tap"
+    },
+    {
+      "time": 33.2,
+      "kind": "user_tap"
+    },
+    {
+      "time": 47.800000000000004,
+      "kind": "user_tap"
+    },
+    {
+      "time": 63.2,
+      "kind": "user_tap"
+    }
+  ]
+}
