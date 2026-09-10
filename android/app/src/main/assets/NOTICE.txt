@@ -10,3 +10,7 @@ Telephoto — Apache License 2.0, Saket Narayan. https://github.com/saket/teleph
 OkHttp — Apache License 2.0, Square. https://github.com/square/okhttp
 
 The Apache License 2.0 text is supplied in Apache-2.0.txt.
+
+SUIT (Regular, SemiBold, Bold) — Copyright (c) 2022, SUNN (http://sun.fo/suit), with Reserved Font Name SUIT.
+SIL Open Font License 1.1. https://github.com/sun-typeface/SUIT
+Unmodified font files are bundled in the app. The complete license and copyright notice are supplied in SUIT-OFL.txt.

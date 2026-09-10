@@ -1,5 +1,7 @@
 # Android 디자인 적용 · 2026-09-10
 
+후속 시안의 아이보리·차콜, SUIT 한글, 홈/날짜별 분리와 모션은 [2026-09-11 구현·검증 기록](android-paper-ink-2026-09-11.md)을 참고한다. 아래는 초기 화면 적용 당시의 기록이다.
+
 승인된 Connected Gallery 시안의 화이트·세이지 색상과 사진 중심 구성을 Android Compose 화면에 적용했다.
 
 ![Android 적용 화면](images/android-ui-2026-09-10.png)

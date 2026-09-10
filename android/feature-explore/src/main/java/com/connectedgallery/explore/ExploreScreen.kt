@@ -2,6 +2,7 @@ package com.connectedgallery.explore
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -48,7 +49,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
     val sections = if (query == null) contextState?.context?.groups.orEmpty() else if (result?.hasValidGroups() == true) result.groups
         else if (result?.items?.isNotEmpty() == true) listOf(ResultGroup("flat", "연결된 사진", "", result.items.map { it.photo_id })) else emptyList()
     val focused = sections.find { it.id == frame.focusedGroup }
-    val dark = query == null && focused == null
+    val showingPhoto = query == null && focused == null
     val clearSelection: () -> Unit = { pending = null; manual = null; reveal = false; choices = emptyList() }
     val goBack: () -> Unit = { if (selecting || reveal) clearSelection() else vm.back() }
     fun stage(region: Region) {
@@ -57,22 +58,23 @@ import kotlinx.coroutines.flow.distinctUntilChanged
     }
     BackHandler(enabled = selecting || reveal, onBack = clearSelection)
 
-    Column(modifier.fillMaxSize().background(if (dark) GalleryInk else MaterialTheme.colorScheme.surface)) {
+    Column(modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = goBack) { Icon(GalleryIcons.Back, "돌아가기", tint = if (dark) Color.White else MaterialTheme.colorScheme.onSurface) }
-            Text(if (query != null) "연결된 사진" else if (focused != null) "함께 볼 사진" else "사진",
-                Modifier.weight(1f).padding(horizontal = 8.dp), style = MaterialTheme.typography.titleMedium,
-                color = if (dark) Color.White else MaterialTheme.colorScheme.onSurface)
-            if (selecting) TextButton(onClick = clearSelection) { Text("선택 해제", color = GallerySelection) }
-            else if (dark) photo.galleryDate()?.let {
-                Text(it.galleryLabel(), Modifier.padding(end = 12.dp), style = MaterialTheme.typography.labelSmall, color = Color(0xFFC4C9BE))
-            }
+            IconButton(onClick = goBack) { Icon(GalleryIcons.Back, "돌아가기") }
+            GalleryBrand(Modifier.weight(1f).padding(end = 12.dp))
+        }
+        if (selecting || query != null || focused != null) Text(
+            if (selecting) "이 대상을 찾아볼까요?" else if (query != null) "연결된 사진" else "함께 볼 사진",
+            Modifier.padding(horizontal = 20.dp, vertical = 12.dp), style = MaterialTheme.typography.headlineMedium)
+        else photo.galleryDate()?.let {
+            Text(it.galleryLabel(), Modifier.padding(start = 20.dp, bottom = 12.dp),
+                style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
 
         val screenRevision = journey.revision
         val canRestore = query != null || contextState?.state in setOf("ready", "empty")
         val panel: @Composable (Modifier) -> Unit = { panelModifier ->
-            Surface(panelModifier, shape = if (dark) RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp) else RoundedCornerShape(0.dp)) {
+            Surface(panelModifier) {
                 key(screenRevision, canRestore) {
                     val listState = rememberLazyListState(frame.scrollIndex, frame.scrollOffset)
                     LaunchedEffect(listState, canRestore) {
@@ -84,27 +86,29 @@ import kotlinx.coroutines.flow.distinctUntilChanged
                     LazyColumn(state = listState, modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                         if (query != null) item(key = "selected-subject") {
+                            GalleryReveal(query.anchor) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                // Fit keeps the selected object visible even when it lies near a photo edge.
-                                AsyncImage(photo.local_uri, "선택한 대상의 원본 사진", contentScale = ContentScale.Fit,
-                                    modifier = Modifier.size(76.dp).clip(RoundedCornerShape(12.dp)).background(GalleryInk))
+                                AnchorThumbnail(photo, query.anchor.box, Modifier.size(76.dp).clip(RoundedCornerShape(12.dp)))
                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    Text("선택한 대상", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                    Text("선택한 대상", style = MaterialTheme.typography.labelSmall, color = GalleryEvidence)
                                     Text(query.anchor.label, style = MaterialTheme.typography.titleMedium)
                                     if (!result?.label.isNullOrBlank() && result?.label != query.anchor.label)
                                         Text(result!!.label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
+                            }
                         }
                         if (query == null) item(key = "context-status") {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Column(Modifier.animateContentSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text("함께 볼 사진", style = MaterialTheme.typography.titleLarge)
                                 contextState?.capture?.let {
                                     Text("${if (it.source == "demo_fixture") "데모 설정 날짜" else "촬영일"} · ${it.date}",
                                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 when (contextState?.state) {
-                                    "ready", "empty" -> Text(contextState.context?.summary.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    "ready", "empty" -> GalleryReveal(contextState.context?.summary) {
+                                        Text(contextState.context?.summary.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
                                     "failed" -> {
                                         Text("주변 사진의 맥락을 정리하지 못했어요", style = MaterialTheme.typography.bodyMedium)
                                         OutlinedButton(onClick = vm::retryContext) { Text("다시 시도") }
@@ -172,7 +176,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
             }
         }
 
-        if (!dark) panel(Modifier.weight(1f))
+        if (!showingPhoto) panel(Modifier.weight(1f))
         else {
             val viewer: @Composable (Modifier) -> Unit = { viewerModifier ->
                 Column(viewerModifier) {
@@ -185,38 +189,41 @@ import kotlinx.coroutines.flow.distinctUntilChanged
                             pending = null; reveal = false
                             manual = RegionBox((x - .125f).coerceIn(0f, .75f), (y - .125f).coerceIn(0f, .75f), .25f, .25f)
                         }
-                    }, modifier = Modifier.fillMaxWidth().weight(1f))
+                    }, modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 20.dp).clip(RoundedCornerShape(20.dp)),
+                        background = MaterialTheme.colorScheme.surface)
                     if (reveal && choices.isEmpty() && !selecting && regions.isNotEmpty()) {
                         LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(regions, key = { it.id }) { region ->
-                                TextButton(onClick = { stage(region) }) { Text(region.label, color = GallerySelection) }
+                                TextButton(onClick = { stage(region) }) { Text(region.label, color = GalleryEvidence) }
                             }
                         }
                     }
                     if (!selecting) Text(if (regions.isEmpty()) "길게 눌러 탐색할 부분을 지정하세요" else "궁금한 대상을 눌러보세요 · 길게 눌러 영역 선택",
-                        Modifier.padding(horizontal = 20.dp, vertical = 12.dp), color = Color(0xFFC4C9BE), style = MaterialTheme.typography.bodySmall)
+                        Modifier.padding(horizontal = 20.dp, vertical = 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                 }
             }
             if (selecting) {
                 viewer(Modifier.weight(1f))
                 Column(Modifier.fillMaxWidth().heightIn(max = 280.dp).verticalScroll(rememberScrollState()).padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    GalleryReveal(pending?.label ?: "manual") {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(color = GallerySelection, shape = RoundedCornerShape(50)) {
                             Text(pending?.label ?: "선택한 부분", Modifier.padding(horizontal = 14.dp, vertical = 8.dp), color = GalleryInk, style = MaterialTheme.typography.labelLarge)
                         }
                         Spacer(Modifier.weight(1f))
-                        Text("선택됨", color = Color(0xFFC4C9BE), style = MaterialTheme.typography.labelSmall)
+                        TextButton(onClick = clearSelection) { Text("선택 해제") }
+                    }
                     }
                     manual?.let { box ->
-                        Text("선택 영역 크기", color = Color.White, style = MaterialTheme.typography.bodySmall)
+                        Text("선택 영역 크기", style = MaterialTheme.typography.bodySmall)
                         Slider(value = box.width, onValueChange = { value ->
                             val cx = box.x + box.width / 2; val cy = box.y + box.height / 2
                             manual = RegionBox((cx - value / 2).coerceIn(0f, 1 - value), (cy - value / 2).coerceIn(0f, 1 - value), value, value)
-                        }, valueRange = .05f..1f, colors = SliderDefaults.colors(thumbColor = GallerySelection, activeTrackColor = GallerySelection))
+                        }, valueRange = .05f..1f, colors = SliderDefaults.colors(thumbColor = GalleryEvidence, activeTrackColor = GalleryEvidence))
                     }
                     Button(onClick = { (pending ?: manual?.let { SemanticAnchor(photo.id, box = it) })?.let(vm::select) },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), colors = ButtonDefaults.buttonColors(containerColor = GallerySelection, contentColor = GalleryInk)) {
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
                         Text("이 대상으로 사진 찾기")
                     }
                 }
@@ -270,9 +277,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 }
 
 @Composable private fun PhotoThumbnail(photo: Photo, reason: String, modifier: Modifier, showReason: Boolean, onOpen: (String) -> Unit) {
-    Column(modifier.clickable(role = Role.Button) { onOpen(photo.id) }, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    GalleryReveal(photo.id, modifier) {
+    Column(Modifier.fillMaxWidth().clickable(role = Role.Button) { onOpen(photo.id) }, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         AsyncImage(model = photo.local_uri, contentDescription = reason, contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxWidth().aspectRatio(.85f).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant))
-        if (showReason && reason.isNotBlank()) Text(reason, style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant))
+        if (showReason && reason.isNotBlank()) Text(reason, style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis, color = GalleryEvidence)
+    }
     }
 }

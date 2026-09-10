@@ -88,19 +88,32 @@ class GalleryDesignDeviceTest {
             GalleryTheme {
                 val journey by vm.journey.collectAsState()
                 val photos by repo.photos.collectAsState()
+                val libraryState = rememberLibraryState()
                 Surface(Modifier.fillMaxSize()) {
                     Column(Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) {
                         if (journey.current == null) {
-                            LibraryHeader(photos.size, {}, { IconButton(onClick = {}) { Icon(GalleryIcons.Settings, "설정") } })
-                            LibraryScreen(photos, vm::open, Modifier.weight(1f))
+                            LibraryHeader(photos.size, {}, { IconButton(onClick = {}) { Icon(GalleryIcons.Settings, "설정") } }, libraryState.tab.value)
+                            LibraryScreen(photos, vm::open, Modifier.weight(1f), libraryState)
                         } else ExploreScreen(vm, Modifier.weight(1f))
                     }
                 }
             }
         }
-        compose.onNodeWithText("갤러리").assertIsDisplayed()
+        compose.onNodeWithText("Connected Gallery").assertIsDisplayed()
+        compose.onNodeWithText("홈").assertIsSelected()
+        compose.onNodeWithText("최신 날짜순 ↓").assertDoesNotExist()
         capture("01-gallery")
-        compose.runOnIdle { vm.open("preview-0") }
+        compose.onNodeWithText("날짜별").performClick().assertIsSelected()
+        compose.onNodeWithText("최신 날짜순 ↓").assertIsDisplayed()
+        compose.onNodeWithTag("home-grid").assertDoesNotExist()
+        val datePhoto = compose.onNodeWithTag("date-photo:preview-0").fetchSemanticsNode().boundsInRoot
+        assertEquals(datePhoto.width, datePhoto.height, 1f)
+        capture("06-dates")
+        compose.onNodeWithTag("date-photo:preview-0").performClick()
+        compose.onNodeWithContentDescription("돌아가기").performClick()
+        compose.onNodeWithText("날짜별").assertIsSelected()
+        compose.onNodeWithText("홈").performClick()
+        compose.onNodeWithTag("home-photo:preview-0").performClick()
         compose.onNodeWithText("함께 볼 사진").assertIsDisplayed()
         capture("04-context")
         compose.onNodeWithContentDescription(canvas).performTouchInput { click(androidx.compose.ui.geometry.Offset(width * .30f, height * .5f)) }

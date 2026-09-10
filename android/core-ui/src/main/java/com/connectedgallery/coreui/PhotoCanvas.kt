@@ -1,6 +1,8 @@
 package com.connectedgallery.coreui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -23,13 +25,14 @@ fun normalizedPoint(px:Float,py:Float,width:Float,height:Float,sx:Float,sy:Float
  return ((px-tx-pivotX)/sx+pivotX)/width to ((py-ty-pivotY)/sy+pivotY)/height
 }
 
-@Composable fun PhotoCanvas(photo:Photo,regions:List<Region>,reveal:Boolean,selected:RegionBox?,onTap:(List<Region>)->Unit,onLongPress:(Float,Float)->Unit,modifier:Modifier=Modifier) {
+@Composable fun PhotoCanvas(photo:Photo,regions:List<Region>,reveal:Boolean,selected:RegionBox?,onTap:(List<Region>)->Unit,onLongPress:(Float,Float)->Unit,modifier:Modifier=Modifier,background:Color=GalleryInk) {
  // Gesture recognition outlives recomposition while analysis arrives. Keep
  // its observations and callbacks current without resetting the user's zoom.
  val currentRegions by rememberUpdatedState(regions)
  val currentOnTap by rememberUpdatedState(onTap)
  val currentOnLongPress by rememberUpdatedState(onLongPress)
- BoxWithConstraints(modifier.background(GalleryInk),contentAlignment=Alignment.Center) {
+ val selectionAlpha by animateFloatAsState(if(selected != null) 1f else 0f, tween(180), label="selection-outline")
+ BoxWithConstraints(modifier.background(background),contentAlignment=Alignment.Center) {
   val ratio=photo.width.toFloat()/photo.height.coerceAtLeast(1)
   val fit=if(ratio>maxWidth.value/maxHeight.value) Modifier.fillMaxWidth().aspectRatio(ratio) else Modifier.fillMaxHeight().aspectRatio(ratio)
   key(photo.id) {
@@ -46,7 +49,12 @@ fun normalizedPoint(px:Float,py:Float,width:Float,height:Float,sx:Float,sy:Float
     AsyncImage(model=photo.local_uri,contentDescription="사진. 대상을 누르거나 길게 눌러 탐색하세요",contentScale=ContentScale.FillBounds,modifier=Modifier.fillMaxSize())
     Canvas(Modifier.fillMaxSize()) {
      if(reveal) regions.forEach { r -> val b=r.box;drawRoundRect(Color.White.copy(alpha=.65f),Offset(b.x*size.width,b.y*size.height),Size(b.width*size.width,b.height*size.height),CornerRadius(8.dp.toPx()),style=Stroke(1.dp.toPx())) }
-     selected?.let { b -> drawRoundRect(GallerySelection,Offset(b.x*size.width,b.y*size.height),Size(b.width*size.width,b.height*size.height),CornerRadius(10.dp.toPx()),style=Stroke(2.dp.toPx())) }
+     selected?.let { b ->
+      val origin=Offset(b.x*size.width,b.y*size.height)
+      val bounds=Size(b.width*size.width,b.height*size.height)
+      drawRoundRect(GalleryInk.copy(alpha=selectionAlpha),origin,bounds,CornerRadius(10.dp.toPx()),style=Stroke(5.dp.toPx()))
+      drawRoundRect(GallerySelection.copy(alpha=selectionAlpha),origin,bounds,CornerRadius(10.dp.toPx()),style=Stroke(2.dp.toPx()))
+     }
     }
    }
   }

@@ -23,6 +23,7 @@ import com.connectedgallery.coreui.*
 import com.connectedgallery.explore.*
 import com.connectedgallery.library.LibraryHeader
 import com.connectedgallery.library.LibraryScreen
+import com.connectedgallery.library.rememberLibraryState
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -49,12 +50,7 @@ import kotlinx.coroutines.withContext
                 val photos by vm.photos.collectAsState()
                 val journey by vm.journey.collectAsState()
                 val status by vm.status.collectAsState()
-                val immersive = journey.current?.let { it.query == null && it.focusedGroup == null } == true
-                LaunchedEffect(immersive) {
-                    val barStyle = if (immersive) SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
-                        else SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
-                    enableEdgeToEdge(statusBarStyle = barStyle, navigationBarStyle = barStyle)
-                }
+                val libraryState = rememberLibraryState()
                 var showNotice by remember { mutableStateOf(false) }
                 var showServer by remember { mutableStateOf(connection.current() == null) }
                 var showSettings by remember { mutableStateOf(false) }
@@ -95,7 +91,7 @@ import kotlinx.coroutines.withContext
                     onDispose { lifecycle.removeObserver(observer) }
                 }
                 BackHandler(enabled = journey.current != null) { vm.back() }
-                Surface(Modifier.fillMaxSize(), color = if (immersive) GalleryInk else MaterialTheme.colorScheme.surface) {
+                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
                     Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
                         if (journey.current == null) {
                             LibraryHeader(photos.size, onConnect = { permissions.launch(photoPermissions()) }, settings = {
@@ -110,12 +106,12 @@ import kotlinx.coroutines.withContext
                                         DropdownMenuItem(text = { Text("오픈소스 안내") }, onClick = { showSettings = false; showNotice = true })
                                     }
                                 }
-                            })
+                            }, tab = libraryState.tab.value)
                             if (photos.isEmpty() && sampleAvailable) TextButton(onClick = startSamples, enabled = !addingSamples,
                                 modifier = Modifier.padding(horizontal = 12.dp)) { Text(if (addingSamples) "샘플 사진 추가 중…" else "샘플 사진으로 시작하기") }
                             if (sampleStatus.isNotBlank()) StatusNote(sampleStatus)
                             if (status.isNotBlank()) StatusNote(status)
-                            LibraryScreen(photos, vm::open, Modifier.weight(1f))
+                            LibraryScreen(photos, vm::open, Modifier.weight(1f), libraryState)
                         } else ExploreScreen(vm, Modifier.weight(1f))
                     }
                 }

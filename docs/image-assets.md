@@ -10,6 +10,7 @@
 | PC 데모 합성 사진 20장 | `assets/demo-gallery/images/` | PC 데모의 Connect 47개·자동 맥락 20개 및 두 경로의 3hop 검증 | 이전 Codex 작업의 전달 ZIP에서 복사. 20장 모두 보고서 SHA-256 일치 |
 | 앱 아이콘 | `android/app/src/main/res/drawable/ic_gallery_foreground.xml`, `ic_gallery_monochrome.xml` | Android 적응형·단색 아이콘 | 벡터 원본과 `assets/branding/`의 SVG·512px PNG 보존 |
 | Android 화면·아이콘 미리보기 | `docs/images/android-ui-2026-09-10.png`, `android-icon-2026-09-10.png` | README, Android 디자인 기록 | 합성 사진 기반 실기기 화면 모음과 벡터 기반 아이콘 검수 이미지 보존 |
+| Paper & Ink Android 화면 | `docs/images/android-paper-ink-2026-09-11.png` | README, 홈/날짜별 구현 기록 | SM-S918N의 실제 Compose 화면. 기존 PC 데모 합성 사진과 고정 응답으로 촬영한 5개 상태 |
 
 Android 24장과 PC 데모 20장은 서로 다른 데이터다. 발표 시트의 6장을 PC 데모 원본 20장으로 대신하지 않는다.
 
