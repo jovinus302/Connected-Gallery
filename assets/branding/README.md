@@ -1,38 +1,31 @@
-# Connected Gallery 앱 아이콘
+# Connected Gallery — Butter Collage
 
-2026-09-10. 세이지 배경에 겹친 사진 프레임과 풍경을 배치했다. 뒤쪽 프레임은 밝은 세이지, 앞쪽 사진은 아이보리로 표시한다. 사진을 출발점으로 다른 사진을 찾아가는 제품 흐름을 표현한다.
+2026-09-10. 사용자가 선택한 첫 번째 Pinterest 스타일 시안을 적용했다. 버터 옐로 배경, 더스티 블루·아이보리 종이 사진 카드, 세이지 언덕과 테라코타 해, 피치색 연결 탭으로 구성한다.
 
-![컬러·단색·크기별 아이콘 미리보기](../../docs/images/android-icon-2026-09-10.png)
+![아이콘 적용 미리보기](../../docs/images/android-icon-2026-09-10.png)
 
-## 원본과 내보내기
+## 원본과 재생성
 
-- 실제 앱 원본: `android/app/src/main/res/drawable/ic_gallery_foreground.xml`
-- 단색 테마 원본: `android/app/src/main/res/drawable/ic_gallery_monochrome.xml`
-- 배경색: `android/app/src/main/res/values/icon_colors.xml`의 `#526B51`
-- 적응형 아이콘: `android/app/src/main/res/mipmap-anydpi/ic_gallery.xml`
-- `connected-gallery-icon.svg`: 배경 포함, 마스크 없는 아이콘 원본 내보내기
-- `connected-gallery-icon-512.png`: 512px PNG
-- `connected-gallery-mark.svg`: 투명 배경의 단색 심볼
+- `butter-collage-approved.png`: 사용자가 선택한 원본 시안.
+- `butter-collage-foreground.png`: 내장 ImageGen으로 배경만 제거한 투명 전경. 종이 질감 유지.
+- `android/app/src/main/res/drawable-nodpi/ic_gallery_paper.png`: 432px 전경 레이어.
+- `android/app/src/main/res/drawable/ic_gallery_foreground.xml`: 전경 bitmap drawable.
+- `android/app/src/main/res/drawable/ic_gallery_monochrome.xml`: 테마용 단색 벡터. 질감을 단순화한 사진 프레임과 연결 탭.
+- 배경색은 `icon_colors.xml`의 `#F8E5A0`.
+- `connected-gallery-icon.svg`: 래스터 전경을 포함한 SVG 내보내기. 전경은 벡터가 아니다.
+- `connected-gallery-mark.svg`: 단색 벡터 심볼.
+- `connected-gallery-icon-512.png`: 512px 마스크 없는 컬러 내보내기.
 
-SVG와 PNG는 Android 벡터에서 생성한다. 수정할 때는 Android 원본을 변경하고 `node scripts/render-launcher-icon.cjs`로 내보낸다. Node.js와 `sharp`가 필요하며, 번들 라이브러리를 사용하는 환경에서는 `NODE_PATH`를 해당 node_modules 폴더로 설정한다. 렌더러는 컬러·단색 버전의 도형이 일치하는지도 확인한다.
+`node scripts/render-launcher-icon.cjs`로 Android 리소스, SVG/PNG, 검수 이미지와 문서 이미지를 재생성한다. Node.js 및 sharp 필요. 원본 PNG와 스크립트를 함께 보관한다. 단색 도형은 스크립트의 monoPaths가 원본이다.
 
-108dp 레이어, 중앙 안전 영역, 배경·전경·단색 레이어는 [Android 공식 적응형 아이콘 가이드](https://developer.android.com/develop/ui/compose/system/icon_design_adaptive)를 따른다. 앱 최소 버전이 API 26이므로 기본 anydpi 리소스를 사용한다. 미리보기의 원형·둥근 사각형과 테마 색상은 검수용 예시이며 실제 모양과 단색 테마 색은 런처 설정에 따른다.
+배경은 런처 마스크에 맞도록 단색 전체 레이어로 분리했다. 전경은 108dp 캔버스 중앙에 배치하며, 원형·둥근 사각형과 64/48/32px로 시각 검수했다. 실제 테마 색상과 마스크는 런처가 결정한다. [Android 적응형 아이콘 가이드](https://developer.android.com/develop/ui/compose/system/icon_design_adaptive)를 참고했다.
 
-## 적용 검증
+## 생성 지시와 검증
 
-- `:app:assembleDebug :app:lintDebug` 통과. Lint 오류 0개, 기존 경고 6개.
-- Android 벡터로 만든 컬러·단색·어두운 테마 및 64/48/32px 미리보기 확인.
-- Galaxy S23 Ultra의 애플리케이션 정보에서 설치된 아이콘 표시 확인.
-- 최종 APK의 SHA-256을 기기에서 대조한 뒤 기존 데이터 유지 설치 완료.
-- APK SHA-256: `c3755471cbb0fafef3c597c2f2ff6b39e89910d57e1f7e8886767c1214ace208`
+내장 ImageGen 사용. 선택 시안 지시: “Warm butter-yellow squircle. Two overlapping softly rounded paper photo cards, one dusty powder blue, one warm cream, tilted slightly in opposite directions, physically connected by a small sculptural peach folded tab. Front card has a very simple terracotta sun and one flowing sage-green hill. Tactile cut-paper edges with extremely subtle shadows, balanced asymmetry, restrained editorial collage, charming but adult, strong silhouette.”
 
-최종 APK와 미리보기는 `outputs/android-icon/connected-gallery-icon-debug.apk`, `outputs/android-icon/connected-gallery-icon-preview.png`에 보관한다. 검수 로그와 기기 캡처도 같은 outputs 폴더에 있다.
+전경 추출 지시: 선택 시안의 카드·색·각도·질감·연결 탭은 유지하고 노란 배경만 투명 알파로 제거.
 
-저장소에서 볼 수 있는 미리보기는 위 `docs/images/` 사본이다. 재생성 후 문서 이미지를 갱신하려면 다음 명령을 사용한다.
+이번 결과물은 `outputs/android-icon/connected-gallery-butter-debug.apk`에 보관한다. 기기 설치는 이번 작업에서 수행하지 않았다. 이전 아이콘의 기기 설치 기록과 APK 해시는 현재 결과에 해당하지 않는다.
 
-```powershell
-node scripts/render-launcher-icon.cjs
-Copy-Item outputs/android-icon/connected-gallery-icon-preview.png docs/images/android-icon-2026-09-10.png
-```
-
-화면 변경과 이전 APK 기록은 [Android 디자인·검증 문서](../../docs/android-design-2026-09-10.md)에 정리했다.
+검증: assembleDebug 및 lintDebug 통과. 앱 Lint 오류 0개, 경고 6개. APK SHA-256: EF67E1C18F57A4BABA4FDA103F2BB214B2B331C4403FBBC894093ACAC458B1DF.

@@ -23,7 +23,7 @@
 
 <img src="assets/branding/connected-gallery-icon-512.png" alt="겹친 사진 프레임을 표현한 Connected Gallery 앱 아이콘" width="96" />
 
-앱 아이콘은 겹친 사진 프레임으로 연결을 표현합니다. 컬러·단색 적응형 아이콘과 편집 가능한 SVG를 포함합니다. [디자인 적용과 검증 기록](docs/android-design-2026-09-10.md), [아이콘 원본·재생성 안내](assets/branding/README.md)를 참고하세요.
+앱 아이콘은 버터 옐로 배경과 종이 질감의 사진 카드, 피치색 연결 탭으로 연결을 표현합니다. 컬러·단색 적응형 아이콘과 PNG/SVG 내보내기를 포함합니다. [디자인 적용과 검증 기록](docs/android-design-2026-09-10.md), [아이콘 원본·재생성 안내](assets/branding/README.md)를 참고하세요.
 
 ## Android 시작
 
