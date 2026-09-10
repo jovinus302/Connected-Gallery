@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- minSdk 26: older platforms skip monochrome; supported launchers use it for tinting. -->
+    <background android:drawable="@color/gallery_icon_background" />
+    <foreground android:drawable="@drawable/ic_gallery_foreground" />
+    <monochrome android:drawable="@drawable/ic_gallery_monochrome" />
+</adaptive-icon>

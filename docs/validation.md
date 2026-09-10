@@ -1,5 +1,7 @@
 # 검증 결과 — 2026-09-07
 
+이 문서는 2026-09-07의 구현·검증 이력이다. 현재 제품 범위는 [제품과 사용자 흐름](connected-gallery-product-ux.md)을 따르며, 이후 [자동 맥락 통합 검증](context-ux-validation.md)과 [Android 화면·아이콘 검증](android-design-2026-09-10.md)을 함께 확인한다. 아래 과거 Spaces·Time 기록을 현재 기능이나 완료 판정으로 해석하지 않는다.
+
 ## 2026-09-07 재개
 
 현재 MVP는 Organize + Connect이며 Time/Timeline은 후속 CG-15다. 최종 agent spec 15에서 사진 1,000장 분석·필수 인덱스와 Spaces 6개·소속 20건이 준비됐다. 실제 Android 연속 3hop, 요청 취소·방향 전환, 뒤로 가기·스크롤, 재연결과 Spaces 사진 열기를 확인했다. 서버 테스트 63개, Android 빌드·단위·lint와 기기 제스처 회귀 3개가 통과했다. 자세한 근거와 속도·사용자 평가의 한계는 [최종 MVP 검증](final-mvp-validation.md)에 있다. 아래는 개발 중의 과거 기록이며 Time 검증은 이번 완료 조건이 아니다.
