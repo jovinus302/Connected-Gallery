@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import time
+import socket
 from pathlib import Path
 import httpx
 from dotenv import load_dotenv
@@ -47,11 +48,18 @@ def main():
         raise SystemExit("Install cloudflared from the official Cloudflare download into .runtime/bin/cloudflared.exe")
     token = server_token(Path(os.getenv("CG_DATA_DIR", ".runtime")))
     headers = {"Authorization": "Bearer " + token}
-    with httpx.Client(timeout=5, follow_redirects=False, trust_env=False) as client:
+    with httpx.Client(timeout=60, follow_redirects=False, trust_env=False) as client:
         # Reuse only when both the private origin and public authenticated endpoint work.
         try:
             response = client.get("http://127.0.0.1:8765/health", headers=headers)
         except httpx.TransportError:
+            # A busy server may time out while loading models. Do not launch a
+            # second process against the same database and occupied port.
+            try:
+                with socket.create_connection(("127.0.0.1", 8765), timeout=2):
+                    raise SystemExit("Server port is active but health check failed; retry when model loading completes.")
+            except OSError:
+                pass
             response = None
         if response is not None and response.status_code != 200:
             raise SystemExit("Port 8765 is occupied by another or outdated server. Stop that server before starting this one.")
@@ -95,6 +103,7 @@ def main():
         diagnostic_path = network / ("tunnel-" + stamp + "-probe.jsonl")
         with log_path.open("wb") as log:
             tunnel = subprocess.Popen([str(binary), "tunnel", "--url", "http://127.0.0.1:8765",
+                "--proxy-keepalive-timeout", "2s",
                 "--no-autoupdate"], cwd=project,
                 stdout=log, stderr=log, creationflags=subprocess.CREATE_NO_WINDOW)
         (network / "tunnel-process.json").write_text(json.dumps({"pid": tunnel.pid, "log": str(log_path)}), encoding="utf-8")
