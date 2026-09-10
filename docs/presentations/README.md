@@ -1,5 +1,7 @@
 # Connected Gallery 제품 피치
 
+최신 영상은 [Agent 역할 소개와 3D 심볼을 추가한 100초 v3](astra-film/v3/README.md)다. 설치 없이 MP4로 재생할 수 있다.
+
 Agent가 사진을 탐색·검토·정리하는 과정을 보여주는 [Agents at work 시연](agent-loop/README.md)도 제공한다. 추상 agent의 입체 동작과 두 종류의 loop를 재생하거나 단계별로 볼 수 있는 별도 브라우저 시연이다.
 
 [connected-gallery-pitch.html](connected-gallery-pitch.html)은 2026-09-08 제품 아이데이션 발표를 위한 6장, 약 3분 분량의 인터랙티브 HTML입니다.

@@ -1,0 +1,53 @@
+{
+  "verdict": "PASS",
+  "checks": [
+    {
+      "name": "Final edit is 2400 frames",
+      "passed": true,
+      "evidence": [
+        1,
+        2400
+      ]
+    },
+    {
+      "name": "Source video uses portable relative path and starts after introduction",
+      "passed": true,
+      "evidence": {
+        "path": "//..\\v2\\connected-gallery-astra.mp4",
+        "first": 169.0,
+        "end_exclusive": 2401
+      }
+    },
+    {
+      "name": "All 2400 overlay frames resolve relative to the edit",
+      "passed": true,
+      "evidence": {
+        "directory": "//..\\..\\..\\..\\outputs\\astra-film\\v3\\overlay\\",
+        "count": 2400,
+        "missing": []
+      }
+    },
+    {
+      "name": "Main audio remains aligned with the source video",
+      "passed": true,
+      "evidence": {
+        "first": 169.0,
+        "end_exclusive": 2401,
+        "volume": 1.0
+      }
+    },
+    {
+      "name": "Intro lead-in ends where source sound begins",
+      "passed": true,
+      "evidence": 169
+    },
+    {
+      "name": "All used fonts are packed into the 3D scene",
+      "passed": true,
+      "evidence": [
+        "Malgun Gothic Bold",
+        "Malgun Gothic Regular"
+      ]
+    }
+  ]
+}

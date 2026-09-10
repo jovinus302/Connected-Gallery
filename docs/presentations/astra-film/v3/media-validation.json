@@ -1,0 +1,253 @@
+{
+  "verdict": "PASS",
+  "movie_sha256": "a77b1cfb8dd198c798f2a8616ec8e39e253a8e0b5a41561caf26a3ad6a3b7359",
+  "bytes": 37198964,
+  "checks": [
+    {
+      "name": "MP4 contains H.264 video and AAC sound",
+      "passed": true,
+      "evidence": {
+        "path": "docs\\presentations\\astra-film\\v3\\connected-gallery-astra.mp4",
+        "bytes": 37198964,
+        "sha256": "a77b1cfb8dd198c798f2a8616ec8e39e253a8e0b5a41561caf26a3ad6a3b7359",
+        "duration": {
+          "timescale": 1000,
+          "ticks": 100011,
+          "seconds": 100.011
+        },
+        "tracks": [
+          {
+            "kind": "vide",
+            "codec": "avc1",
+            "timing": {
+              "timescale": 12288,
+              "ticks": 1228800,
+              "seconds": 100.0
+            },
+            "sample_count": 2400,
+            "sample_duration_entries": [
+              [
+                2400,
+                512
+              ]
+            ],
+            "width": 1920.0,
+            "height": 1080.0,
+            "fps": 24.0
+          },
+          {
+            "kind": "soun",
+            "codec": "mp4a",
+            "timing": {
+              "timescale": 48000,
+              "ticks": 4801535,
+              "seconds": 100.03197916666667
+            },
+            "sample_count": 4689,
+            "sample_duration_entries": [
+              [
+                19,
+                1024
+              ],
+              [
+                1,
+                1023
+              ],
+              [
+                32,
+                1024
+              ],
+              [
+                1,
+                1025
+              ],
+              [
+                73,
+                1024
+              ],
+              [
+                1,
+                1023
+              ],
+              [
+                86,
+                1024
+              ],
+              [
+                1,
+                1025
+              ],
+              [
+                250,
+                1024
+              ],
+              [
+                1,
+                1023
+              ],
+              [
+                423,
+                1024
+              ],
+              [
+                1,
+                1025
+              ],
+              [
+                925,
+                1024
+              ],
+              [
+                1,
+                1023
+              ],
+              [
+                2874,
+                1024
+              ]
+            ],
+            "channels": 2,
+            "sample_rate": 48000.0
+          }
+        ]
+      }
+    },
+    {
+      "name": "Video is 100 seconds and 2400 frames",
+      "passed": true,
+      "evidence": {
+        "kind": "vide",
+        "codec": "avc1",
+        "timing": {
+          "timescale": 12288,
+          "ticks": 1228800,
+          "seconds": 100.0
+        },
+        "sample_count": 2400,
+        "sample_duration_entries": [
+          [
+            2400,
+            512
+          ]
+        ],
+        "width": 1920.0,
+        "height": 1080.0,
+        "fps": 24.0
+      }
+    },
+    {
+      "name": "Video is native 1920×1080 at 24fps",
+      "passed": true,
+      "evidence": [
+        1920.0,
+        1080.0,
+        24.0
+      ]
+    },
+    {
+      "name": "Audio covers the complete edit",
+      "passed": true,
+      "evidence": {
+        "kind": "soun",
+        "codec": "mp4a",
+        "timing": {
+          "timescale": 48000,
+          "ticks": 4801535,
+          "seconds": 100.03197916666667
+        },
+        "sample_count": 4689,
+        "sample_duration_entries": [
+          [
+            19,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            32,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            73,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            86,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            250,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            423,
+            1024
+          ],
+          [
+            1,
+            1025
+          ],
+          [
+            925,
+            1024
+          ],
+          [
+            1,
+            1023
+          ],
+          [
+            2874,
+            1024
+          ]
+        ],
+        "channels": 2,
+        "sample_rate": 48000.0
+      }
+    },
+    {
+      "name": "All 2400 overlays decode and respect introduction/corner/end-card bounds",
+      "passed": true,
+      "evidence": {
+        "violations": [],
+        "count": 0
+      }
+    },
+    {
+      "name": "Original v2 input unchanged: connected-gallery-astra.mp4",
+      "passed": true,
+      "evidence": "82beaac61fd3e44cf6b7255f61ba9a0250e9c27adb1ea5645f98a8710c18e201"
+    },
+    {
+      "name": "Original v2 input unchanged: connected-gallery-astra.blend",
+      "passed": true,
+      "evidence": "bffc9e67b39e0737cf5476b8ef53ed7e83c41f55f5b1679025ae5c5105bb08c2"
+    },
+    {
+      "name": "Rendered frames use delivered scene",
+      "passed": true,
+      "evidence": {
+        "scene_sha256": "6e5c1da1d301f3ff497d505966386518326e5f81284a65cca5e144b6e2e8fc28",
+        "percent": 100,
+        "fps": 24
+      }
+    }
+  ]
+}

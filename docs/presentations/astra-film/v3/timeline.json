@@ -1,0 +1,196 @@
+{
+  "intro": 7,
+  "duration": 100,
+  "fps": 24,
+  "source_sha256": {
+    "connected-gallery-astra.mp4": "82beaac61fd3e44cf6b7255f61ba9a0250e9c27adb1ea5645f98a8710c18e201",
+    "connected-gallery-astra.blend": "bffc9e67b39e0737cf5476b8ef53ed7e83c41f55f5b1679025ae5c5105bb08c2"
+  },
+  "roles": [
+    {
+      "name": "Explorer",
+      "role": "탐색",
+      "explanation": "관련 사진을 찾고 확인해요"
+    },
+    {
+      "name": "Reviewer",
+      "role": "검토",
+      "explanation": "연결 근거를 확인해요"
+    },
+    {
+      "name": "Organizer",
+      "role": "정리",
+      "explanation": "확인된 사진을 묶어요"
+    }
+  ],
+  "states": [
+    {
+      "start": 7,
+      "end": 8.7,
+      "first": 169,
+      "last": 209,
+      "agent": null,
+      "label": "사진에서 대상을 선택해요"
+    },
+    {
+      "start": 8.7,
+      "end": 11,
+      "first": 210,
+      "last": 264,
+      "agent": "Explorer",
+      "label": "선택한 사진을 살펴봐요"
+    },
+    {
+      "start": 11,
+      "end": 17,
+      "first": 265,
+      "last": 408,
+      "agent": "Explorer",
+      "label": "후보를 찾아 직접 확인해요"
+    },
+    {
+      "start": 17,
+      "end": 23,
+      "first": 409,
+      "last": 552,
+      "agent": "Reviewer",
+      "label": "원본과 연결 근거를 비교해요"
+    },
+    {
+      "start": 23,
+      "end": 26.6,
+      "first": 553,
+      "last": 638,
+      "agent": "Reviewer",
+      "label": "검토 → 탐색 · 단서를 전달해요"
+    },
+    {
+      "start": 26.6,
+      "end": 30.1,
+      "first": 639,
+      "last": 722,
+      "agent": "Explorer",
+      "label": "받은 단서로 다시 찾아봐요"
+    },
+    {
+      "start": 30.1,
+      "end": 36,
+      "first": 723,
+      "last": 864,
+      "agent": "Reviewer",
+      "label": "새 후보의 근거를 비교해요"
+    },
+    {
+      "start": 36,
+      "end": 40,
+      "first": 865,
+      "last": 960,
+      "agent": "Organizer",
+      "label": "확인한 사진을 묶어 보여줘요"
+    },
+    {
+      "start": 40,
+      "end": 44,
+      "first": 961,
+      "last": 1056,
+      "agent": null,
+      "label": "다음 사진을 열어요"
+    },
+    {
+      "start": 44,
+      "end": 48,
+      "first": 1057,
+      "last": 1152,
+      "agent": "Explorer",
+      "label": "사진 전체로 후보를 찾아요"
+    },
+    {
+      "start": 48,
+      "end": 53.3,
+      "first": 1153,
+      "last": 1279,
+      "agent": "Reviewer",
+      "label": "함께 볼 이유를 확인해요"
+    },
+    {
+      "start": 53.3,
+      "end": 54.6,
+      "first": 1280,
+      "last": 1310,
+      "agent": "Organizer",
+      "label": "확인된 사진을 정리해요"
+    },
+    {
+      "start": 54.6,
+      "end": 58,
+      "first": 1311,
+      "last": 1392,
+      "agent": null,
+      "label": "새로운 대상을 선택해요"
+    },
+    {
+      "start": 58,
+      "end": 63,
+      "first": 1393,
+      "last": 1512,
+      "agent": "Explorer",
+      "label": "선택한 사람의 사진을 찾아요"
+    },
+    {
+      "start": 63,
+      "end": 68.3,
+      "first": 1513,
+      "last": 1639,
+      "agent": "Reviewer",
+      "label": "같은 사람인지 비교해요"
+    },
+    {
+      "start": 68.3,
+      "end": 70,
+      "first": 1640,
+      "last": 1680,
+      "agent": "Organizer",
+      "label": "확인한 장면을 모아줘요"
+    },
+    {
+      "start": 70,
+      "end": 73,
+      "first": 1681,
+      "last": 1752,
+      "agent": null,
+      "label": "도착한 사진에서 다시 시작해요"
+    },
+    {
+      "start": 73,
+      "end": 78,
+      "first": 1753,
+      "last": 1872,
+      "agent": "Explorer",
+      "label": "새 기준으로 후보를 찾아요"
+    },
+    {
+      "start": 78,
+      "end": 83.3,
+      "first": 1873,
+      "last": 1999,
+      "agent": "Reviewer",
+      "label": "사진마다 연결 근거를 살펴요"
+    },
+    {
+      "start": 83.3,
+      "end": 91.3,
+      "first": 2000,
+      "last": 2191,
+      "agent": "Organizer",
+      "label": "확인한 사진의 흐름을 정리해요"
+    },
+    {
+      "start": 91.3,
+      "end": 96,
+      "first": 2192,
+      "last": 2304,
+      "agent": null,
+      "label": "찾고 · 검토하고 · 정리해요"
+    }
+  ]
+}

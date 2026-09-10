@@ -1,0 +1,68 @@
+{
+  "verdict": "PASS",
+  "checks": [
+    {
+      "name": "Source file unchanged: connected-gallery-astra.mp4",
+      "passed": true,
+      "evidence": "82beaac61fd3e44cf6b7255f61ba9a0250e9c27adb1ea5645f98a8710c18e201"
+    },
+    {
+      "name": "Source file unchanged: connected-gallery-astra.blend",
+      "passed": true,
+      "evidence": "bffc9e67b39e0737cf5476b8ef53ed7e83c41f55f5b1679025ae5c5105bb08c2"
+    },
+    {
+      "name": "Native 1080p at 24fps",
+      "passed": true,
+      "evidence": [
+        1920,
+        1080,
+        24
+      ]
+    },
+    {
+      "name": "100 second edit",
+      "passed": true,
+      "evidence": 2400
+    },
+    {
+      "name": "Active symbols match every authored state",
+      "passed": true,
+      "evidence": []
+    },
+    {
+      "name": "All names and current descriptions visible; end card clear",
+      "passed": true,
+      "evidence": []
+    },
+    {
+      "name": "Corner overlay stays within reserved bounds",
+      "passed": true,
+      "evidence": {
+        "box": [
+          1433,
+          12,
+          1891,
+          168
+        ],
+        "violations": [],
+        "count": 0
+      }
+    },
+    {
+      "name": "Inactive symbols stop rotating without resetting",
+      "passed": true,
+      "evidence": []
+    },
+    {
+      "name": "Overlay avoids source photo frames and captions",
+      "passed": true,
+      "evidence": {
+        "objects": 36,
+        "frame_count": 2136,
+        "collisions": [],
+        "count": 0
+      }
+    }
+  ]
+}
