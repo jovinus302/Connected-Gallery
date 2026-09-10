@@ -40,7 +40,7 @@ import kotlinx.serialization.json.*
  private fun update(j:Journey) { journey.value=j;journeyWrites.trySend(j) }
  fun refresh() {
   if(syncJob?.isActive==true)return
-  syncJob=viewModelScope.launch { try { repo.refreshAndSync { status.value=it };journey.value.current?.let { observeContext(it.photoId) } } catch(e:CancellationException){throw e} catch(_:Exception){status.value="PC 연결을 확인해 주세요. 저장된 사진은 계속 볼 수 있어요"} }
+  syncJob=viewModelScope.launch { try { repo.refreshAndSync { status.value=it };journey.value.current?.let { observeContext(it.photoId) } } catch(e:CancellationException){throw e} catch(e:PhotoRefreshFailure){status.value=e.userMessage} catch(_:Exception){status.value="사진을 새로고침하지 못했어요. 다시 시도해 주세요"} }
  }
  fun open(id:String) {
   searchJob?.cancel();exploring.value=false;status.value="";update(journey.value.open(id));observeAnalysis(id);observeContext(id)

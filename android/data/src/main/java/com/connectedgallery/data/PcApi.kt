@@ -13,6 +13,7 @@ import javax.inject.Singleton
  val json=Json { ignoreUnknownKeys=true; encodeDefaults=true }
  private val client=OkHttpClient.Builder().connectTimeout(10,TimeUnit.SECONDS).readTimeout(50,TimeUnit.SECONDS)
   .callTimeout(60,TimeUnit.SECONDS).followRedirects(false).followSslRedirects(false).build()
+ fun isConfigured()=connection.current()!=null
  private fun endpoint()=connection.current()?:throw IOException("서버 연결에서 주소와 접속 키를 설정해 주세요")
  private fun request(endpoint:ServerEndpoint,path:String)=Request.Builder().url(endpoint.url+path).header("Authorization","Bearer "+endpoint.token)
  suspend fun checkConnection(endpoint:ServerEndpoint)=withContext(Dispatchers.IO) {

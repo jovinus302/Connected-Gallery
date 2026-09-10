@@ -19,6 +19,7 @@ import javax.inject.Singleton
  override val photos=cache.photos().map { rows -> rows.map { json.decodeFromString<Photo>(it.value) }.sortedByDescending { it.captured_at } }
  override suspend fun refreshAndSync(progress:(String)->Unit)=syncLock.withLock {
   progress("내 사진을 불러오고 있어요")
+  val (latest,pending)=refreshStage("사진을 불러오지 못했어요. 사진 접근 권한을 확인하고 다시 시도해 주세요") {
   val latest=media.list();val old=photos.first();val ids=latest.map { it.id }.toSet()
   val removed=old.filter { it.id !in ids }.map { it.id }
   val pending=(cache.get("deleted")?.let { json.decodeFromString<List<String>>(it) }?:emptyList())+removed
@@ -28,6 +29,15 @@ import javax.inject.Singleton
   val oldById=old.associateBy { it.id }
   for(p in latest) if(oldById[p.id]?.version!=p.version) { cache.remove("analysis:${p.id}");cache.clear("result:%") }
   cache.putAll(latest.map { CacheEntry("photo:${it.id}",json.encodeToString(it)) })
+  latest to pending
+  }
+  val localStatus=if(latest.isEmpty()) "불러온 사진이 없어요. ‘사진 연결’에서 사진 접근을 허용하거나 선택한 사진을 확인해 주세요" else "${latest.size}장의 사진을 불러왔어요"
+  progress(localStatus)
+  if(!api.isConfigured()) {
+   progress(if(latest.isEmpty()) localStatus else "$localStatus. 관련 사진을 찾으려면 설정의 ‘서버 연결’을 완료해 주세요")
+   return@withLock
+  }
+  refreshStage("$localStatus. 분석 서버와 동기화를 마치지 못했어요. 설정의 ‘서버 연결’을 확인하고 다시 시도해 주세요") {
   val reply=api.call("/assets/sync","POST",buildJsonObject { put("assets",json.encodeToJsonElement(latest));put("deleted_ids",json.encodeToJsonElement(pending.distinct())) })
   cache.remove("deleted")
   val need=reply["need_preview"]!!.jsonArray.map { it.jsonPrimitive.content }.toSet()
@@ -47,7 +57,8 @@ import javax.inject.Singleton
    } else prepared.add(CacheEntry("analysis:${p.id}",analysis.toString()))
   }
   cache.putAll(prepared)
-  progress("${latest.size}장의 사진을 준비했어요. 사진을 열어 탐색해 보세요")
+  progress(if(latest.isEmpty()) localStatus else "${latest.size}장의 사진을 동기화했어요. 사진을 열어 탐색해 보세요")
+  }
  }
  override suspend fun analysis(photoId:String):Analysis {
   val cached=cache.get("analysis:$photoId")
